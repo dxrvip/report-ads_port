@@ -1,8 +1,8 @@
 .gitignore
 .npmignore
-.openapi-generator-ignore
 api.ts
 api/auth-api.ts
+api/domain-api.ts
 api/items-api.ts
 api/users-api.ts
 base.ts
@@ -11,6 +11,9 @@ configuration.ts
 git_push.sh
 index.ts
 models/bearer-response.ts
+models/domain-create.ts
+models/domain-update.ts
+models/domain.ts
 models/error-model.ts
 models/httpvalidation-error.ts
 models/index.ts

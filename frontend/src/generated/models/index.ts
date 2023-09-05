@@ -1,4 +1,7 @@
 export * from './bearer-response';
+export * from './domain';
+export * from './domain-create';
+export * from './domain-update';
 export * from './error-model';
 export * from './httpvalidation-error';
 export * from './item';

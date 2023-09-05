@@ -4,7 +4,8 @@ import { Admin, fetchUtils, Resource, CustomRoutes } from "react-admin";
 import { Route } from "react-router";
 import MyLayout from "./components/AdminLayout";
 import Dashboard from "./pages/Dashboard";
-import { ItemCreate, ItemEdit, ItemList } from "./pages/Items";
+// import { ItemCreate, ItemEdit, ItemList } from "./pages/Items";
+import { DomainCreate, DomainEdit, DomainList } from "./pages/Domain";
 import LoginPage from "./pages/Login";
 import { ProfileEdit } from "./pages/ProfileEdit";
 import Register from "./pages/Register";
@@ -56,11 +57,11 @@ const App = () => {
           />
         ) : null,
         <Resource
-          name="items"
-          options={{ label: "Items" }}
-          list={ItemList}
-          edit={ItemEdit}
-          create={ItemCreate}
+          name="domain"
+          options={{ label: "推广网站" }}
+          list={DomainList}
+          edit={DomainEdit}
+          create={DomainCreate}
           icon={PostIcon}
         />,
       ]}

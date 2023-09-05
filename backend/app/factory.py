@@ -54,7 +54,7 @@ def setup_routers(app: FastAPI, fastapi_users: FastAPIUsers) -> None:
 
 
 def serve_static_app(app):
-    app.mount("/", StaticFiles(directory="static"), name="static")
+    app.mount('/', StaticFiles(directory="backend/static"), name="static")
 
     @app.middleware("http")
     async def _add_404_middleware(request: Request, call_next):

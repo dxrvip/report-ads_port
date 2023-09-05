@@ -1,11 +1,12 @@
 import json
 from typing import Annotated, Callable, Optional, Type
-
+ 
 from fastapi import Depends, HTTPException, Query
 from sqlalchemy import UnaryExpression, asc, desc
 
 from app.db import Base
 from app.models.item import Item
+from app.models.domain import Domain
 from app.schemas.request_params import RequestParams
 
 
@@ -48,3 +49,4 @@ def parse_react_admin_params(model: Type[Base]) -> Callable:
 
 
 ItemRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(Item))]
+DomainRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(Domain))]

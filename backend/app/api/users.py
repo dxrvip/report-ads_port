@@ -26,3 +26,5 @@ async def get_users(
     )
     response.headers["Content-Range"] = f"{skip}-{skip + len(users)}/{total}"
     return users
+
+

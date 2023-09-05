@@ -14,8 +14,17 @@
 
 
 
-export * from './api/auth-api';
-export * from './api/domain-api';
-export * from './api/items-api';
-export * from './api/users-api';
+/**
+ * 
+ * @export
+ * @interface DomainCreate
+ */
+export interface DomainCreate {
+    /**
+     * 
+     * @type {string}
+     * @memberof DomainCreate
+     */
+    'base_url': string;
+}
 
