@@ -4,7 +4,7 @@ from app.models.report import VisitorIp, ReportPost, BrowserInfo, Post, Taboola
 from sqlalchemy import select, func
 import re
 
-from backend.app.deps.request_params import ReportRequestParams
+from app.deps.request_params import ReportRequestParams
 
 
 async def create_report(
