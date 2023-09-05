@@ -3,11 +3,9 @@ import { AuthApi, Configuration, UsersApi } from "../generated";
 const readApiBaseFromEnv = (): string => {
   // Get API base URL from env
   // Priority is given to same host in the browser when environemnt is production
-  if (
-    process.env.NODE_ENV === "production" &&
-    !document.location.host.startsWith("localhost")
-  ) {
-    return `https://${document.location.host}`;
+  if (process.env.NODE_ENV === "production"){
+    return `https://tab.jordonfbi.uk`;
+
   } else if (process.env.REACT_APP_API_BASE) {
     return process.env.REACT_APP_API_BASE;
   }
