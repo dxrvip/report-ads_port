@@ -48,6 +48,11 @@ async def get_domain(db: Session, id:int):
     return domain
 
 
+async def get_domain_by_host(db: Session, host):
+    _orm = select(Domain).filter(Domain.base_url.like(f"%{host}%"))
+    domain: Optional[Domain] = (await db.execute(_orm)).scalar()
+    return domain
+
 async def del_domain(db: Session, id:int):
     domain: Optional[Domain] = await db.get(Domain, id)
     await db.delete(domain)

@@ -6,6 +6,7 @@ import MyLayout from "./components/AdminLayout";
 import Dashboard from "./pages/Dashboard";
 // import { ItemCreate, ItemEdit, ItemList } from "./pages/Items";
 import { DomainCreate, DomainEdit, DomainList } from "./pages/Domain";
+import { ReportCreate, ReportEdit, ReportList } from "./pages/report";
 import LoginPage from "./pages/Login";
 import { ProfileEdit } from "./pages/ProfileEdit";
 import Register from "./pages/Register";
@@ -64,6 +65,14 @@ const App = () => {
           create={DomainCreate}
           icon={PostIcon}
         />,
+        <Resource
+        name="report"
+        options={{ label: "数据记录" }}
+        list={ReportList}
+        edit={ReportEdit}
+        create={ReportCreate}
+        icon={PostIcon}
+      />,
       ]}
     </Admin>
   );

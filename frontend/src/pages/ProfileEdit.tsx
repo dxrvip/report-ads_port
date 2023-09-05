@@ -68,14 +68,14 @@ export const ProfileEdit = ({ ...props }) => {
         .usersPatchCurrentUser({ userUpdate: values })
         .then(() => {
           setSaving(false);
-          notify("Your profile has been updated", { type: "info" });
+          notify("你的个人资料已经更新", { type: "info" });
           refreshProfile();
           return redirect("/");
         })
         .catch((e) => {
           setSaving(false);
           notify(
-            e.response?.data?.detail || "Unknown error, please try again later",
+            e.response?.data?.detail || "未知错误，请稍后重试",
             { type: "error" }
           );
         });

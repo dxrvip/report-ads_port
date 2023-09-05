@@ -14,9 +14,23 @@
 
 
 
-export * from './api/auth-api';
-export * from './api/domain-api';
-export * from './api/items-api';
-export * from './api/report-api';
-export * from './api/users-api';
+/**
+ * 
+ * @export
+ * @interface Report
+ */
+export interface Report {
+    /**
+     * 
+     * @type {string}
+     * @memberof Report
+     */
+    'fingerprint_id': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof Report
+     */
+    'id': number;
+}
 

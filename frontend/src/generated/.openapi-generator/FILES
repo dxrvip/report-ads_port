@@ -4,6 +4,7 @@ api.ts
 api/auth-api.ts
 api/domain-api.ts
 api/items-api.ts
+api/report-api.ts
 api/users-api.ts
 base.ts
 common.ts
@@ -20,6 +21,9 @@ models/index.ts
 models/item-create.ts
 models/item-update.ts
 models/item.ts
+models/msg.ts
+models/report-create.ts
+models/report.ts
 models/user-create.ts
 models/user-read.ts
 models/user-update.ts
