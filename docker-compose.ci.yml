@@ -1,0 +1,8 @@
+version: "3.9"
+
+services:
+  backend:
+    image: "report-ads_port-backend:latest"
+
+  frontend:
+    image: "report-ads_port-frontend:latest"
