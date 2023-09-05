@@ -59,7 +59,7 @@ async def create_report(
                 fingerprint_id=report_in.fingerprint_id,
             )
         # 该访问请求是否是帖子
-        if not slug or slug in "null" or slug in "undefined":
+        if not slug or slug == "null" or slug == "undefined":
             return {"msg": "ok No1"}
         post: Optional[Post | None] = await crud.get_post_by_slug(db=session, slug=slug)
         # 判断帖子是否插入表

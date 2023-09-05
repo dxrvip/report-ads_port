@@ -10,8 +10,10 @@ from backend.app.deps.request_params import ReportRequestParams
 async def create_report(
     db: Session, visitor_id: int, href: str, browser_id: int, post_id: int
 ):
+    is_page = True if href.find("page") != -1 else False
     report = ReportPost(visitor_ip=visitor_id)
     report.post_id = post_id
+    report.is_page = is_page
     report.url = href
     report.browser_id = browser_id
     db.add(report)
