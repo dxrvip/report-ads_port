@@ -8,7 +8,7 @@ from pydantic.networks import AnyHttpUrl
 class Settings(BaseSettings):
     PROJECT_NAME: str = "report-ads_port"
 
-    SENTRY_DSN: Optional[HttpUrl] = None
+    SENTRY_DSN: Optional[str] = None
 
     API_PATH: str = "/api/v1"
 
