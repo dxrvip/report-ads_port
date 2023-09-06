@@ -5,7 +5,7 @@ from fastapi_users import FastAPIUsers
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import FileResponse
-
+import os
 from app.api import api_router
 from app.core.config import settings
 from app.deps.users import fastapi_users, jwt_authentication
@@ -54,7 +54,9 @@ def setup_routers(app: FastAPI, fastapi_users: FastAPIUsers) -> None:
 
 
 def serve_static_app(app):
-    app.mount('/', StaticFiles(directory="backend/static"), name="static")
+    print(settings.IS_SERVER)
+    path = 'static' if settings.IS_SERVER else 'backend/static' 
+    app.mount('/static', StaticFiles(directory=path), name="static")
 
     @app.middleware("http")
     async def _add_404_middleware(request: Request, call_next):
@@ -69,6 +71,7 @@ def serve_static_app(app):
 
 
 def setup_cors_middleware(app):
+    
     if settings.BACKEND_CORS_ORIGINS:
         app.add_middleware(
             CORSMiddleware,

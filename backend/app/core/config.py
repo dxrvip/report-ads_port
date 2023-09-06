@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "report-ads_port"
 
     SENTRY_DSN: Optional[HttpUrl] = None
-
+    IS_SERVER: bool = False
     API_PATH: str = "/api/v1"
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 7 * 24 * 60  # 7 days
