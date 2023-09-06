@@ -49,6 +49,7 @@ async def get_domain(db: Session, id:int):
 
 
 async def get_domain_by_host(db: Session, host):
+    
     _orm = select(Domain).filter(Domain.base_url.like(f"%{host}%"))
     domain: Optional[Domain] = (await db.execute(_orm)).scalar()
     return domain

@@ -1,5 +1,5 @@
 from typing import Any, Optional, List, Dict
-import re
+import re, urllib.parse
 from fastapi import APIRouter, HTTPException, Header, Request, Response
 from app.schemas.report import Report as ReportSchema
 from app.schemas.report import Taboola as TaboolaSchema
@@ -27,7 +27,7 @@ async def create_report(
     user_agent: Optional[str] = Header(None),
 ) -> Any:
     try:
-        host = re.findall(r"^(.+)\/", href)[0]  # host
+        host = urllib.parse.urlparse(href).netloc
         domain = await get_domain_by_host(session, host)
         # 如果没有域名
         if domain is None:
