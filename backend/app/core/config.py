@@ -8,13 +8,13 @@ from pydantic.networks import AnyHttpUrl
 class Settings(BaseSettings):
     PROJECT_NAME: str = "report-ads_port"
 
-    SENTRY_DSN: Optional[str] = None
+    SENTRY_DSN: Optional[HttpUrl] = None
 
     API_PATH: str = "/api/v1"
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 7 * 24 * 60  # 7 days
 
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGINS: List[str] = []
 
     # The following variables need to be defined in environment
 

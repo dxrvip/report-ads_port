@@ -33,7 +33,8 @@ async def create_report(
         if domain is None:
             raise HTTPException(404)
         # 判断是否有taboola信息
-        if href.find("Taboola") != -1:
+        is_taboola = href.find("Taboola") > -1
+        if is_taboola:
             # 插入taboola信息
             query: str = re.findall(r"\?(.+)$", href)[0]
             query_dict: Dict = {}
@@ -64,16 +65,18 @@ async def create_report(
         post: Optional[Post | None] = await crud.get_post_by_slug(db=session, slug=slug)
         # 判断帖子是否插入表
         if post is None:
+            click_id = query_dict.get("click_id") if is_taboola else None
             taboola = await crud.get_taboola_by_click_id(
-                session, query_dict.get("click_id") or None
+                session, click_id
             )
             # 插入帖子
             post = await crud.create_post(session, href, slug, taboola)
-            if taboola is None:
+            if taboola is None and is_taboola:
                 taboola = await crud.create_taboola(session, taboola_in, post=post)
         else:
             # 添加taboola
-            taboola = await crud.create_taboola(session, taboola_in, post=post)
+            if is_taboola:
+                taboola = await crud.create_taboola(session, taboola_in, post=post)
         report = await crud.create_report(
             session, visitor_ip.id, href, browser.id, post.id
         )
