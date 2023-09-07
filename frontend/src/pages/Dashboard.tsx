@@ -3,7 +3,7 @@ import Card from "@mui/material/Card";
 
 const Component = () => (
   <Card>
-    <CardHeader title="欢迎来到管理员" />
+    <CardHeader title="Welcome to admin" />
   </Card>
 );
 
