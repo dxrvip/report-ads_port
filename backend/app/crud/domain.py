@@ -2,7 +2,9 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from app.schemas.domain import DomainCreate
 from app.models.domain import Domain
+from app.models.report import Post
 from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload, defaultload, joinedload
 from app.deps.request_params import DomainRequestParams
 
 
@@ -14,18 +16,19 @@ async def create_domin(db: Session, domain_in: DomainCreate):
 
 
 async def list_domain(db: Session, request_params: DomainRequestParams):
-    domains = (
-        (
-            await db.execute(
-                select(Domain)
-                .offset(request_params.skip)
-                .limit(request_params.limit)
-                .order_by(request_params.order_by)
+    _orm = (
+        select(Domain)
+        .offset(request_params.skip)
+        .limit(request_params.limit)
+        .order_by(request_params.order_by)
+        .options(
+            selectinload(Domain.posts).options(
+                joinedload(Post.browser_info), joinedload(Post.report_post)
             )
         )
-        .scalars()
-        .all()
     )
+    # print(_orm)
+    domains = (await db.execute(_orm)).scalars().all()
     return domains
 
 
@@ -43,18 +46,19 @@ async def update_domain(db: Session, id, domain_in):
     await db.commit()
     return domain
 
-async def get_domain(db: Session, id:int):
+
+async def get_domain(db: Session, id: int):
     domain: Optional[Domain] = await db.get(Domain, id)
     return domain
 
 
 async def get_domain_by_host(db: Session, host):
-    
     _orm = select(Domain).filter(Domain.base_url.like(f"%{host}%"))
     domain: Optional[Domain] = (await db.execute(_orm)).scalar()
     return domain
 
-async def del_domain(db: Session, id:int):
+
+async def del_domain(db: Session, id: int):
     domain: Optional[Domain] = await db.get(Domain, id)
     await db.delete(domain)
     await db.commit()

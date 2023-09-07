@@ -1,10 +1,15 @@
-from typing import List
+from typing import TYPE_CHECKING, List
 from app.db import Base
 from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.functions import func
+from user_agents import parse
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import Column, ForeignKey, String, Boolean, Integer, Table
 from sqlalchemy.sql.sqltypes import DateTime
+
+# if TYPE_CHECKING:
+#     from app.models.domain import Domain
 
 class ReportPost(Base):
     __tablename__ = "report"
@@ -12,13 +17,17 @@ class ReportPost(Base):
     url: Mapped[str] = mapped_column(String, nullable=False, comment="推广网址")
     is_page: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, comment="是否翻页")
     create: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), comment="添加时间")
+    
     post_id: Mapped[int | None] = mapped_column(ForeignKey("post.id"))
     post: Mapped["Post"] = relationship(back_populates="report_post")
 
     visitor_ip: Mapped[int] = mapped_column(ForeignKey("visitor_ip.id"))
+    visitor: Mapped["VisitorIp"] = relationship(back_populates="report_post")
 
     browser_id: Mapped[int] = mapped_column(ForeignKey("browser_info.id"))
     browser_info: Mapped["BrowserInfo"] = relationship(back_populates="report")
+
+    
 
     """https://www.xiaoganxw.info/the-22-funny-cartoons-i-made-convey-the-message-in-a-few-words?
     utm_source=Taboola&
@@ -61,6 +70,11 @@ class Post(Base):
     browser_info: Mapped[List["BrowserInfo"]] = relationship() 
     taboolas: Mapped[List[Taboola]] = relationship(secondary=post_taboola_table, back_populates="posts")
 
+    domain_id: Mapped[id] = mapped_column(ForeignKey("domain.id"))
+
+    @hybrid_property
+    def sum_upv(self)-> tuple:
+        return (len(self.browser_info), len(self.report_post))
 
 class BrowserInfo(Base):
     """访客唯一特征标记表"""
@@ -75,9 +89,16 @@ class BrowserInfo(Base):
 
     report: Mapped["ReportPost"] = relationship(back_populates="browser_info")
 
+    @hybrid_property
+    def equipment(self) -> dict:
+        user_agent = parse(self.user_agent)
+
+        return {"browser": user_agent.browser, "os": user_agent.os, "is_bot": user_agent.is_bot, "device": user_agent.device}
+
 class VisitorIp(Base):
     """访问ip记录表"""
     __tablename__ = "visitor_ip"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     ip: Mapped[str] = mapped_column(String(20), nullable=False, comment="访客ip")
 
+    report_post: Mapped["ReportPost"] = relationship(back_populates="visitor")

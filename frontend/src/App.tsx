@@ -5,16 +5,15 @@ import { Route } from "react-router";
 import MyLayout from "./components/AdminLayout";
 import Dashboard from "./pages/Dashboard";
 // import { ItemCreate, ItemEdit, ItemList } from "./pages/Items";
-import { DomainCreate, DomainEdit, DomainList } from "./pages/Domain";
-import { ReportCreate, ReportEdit, ReportList } from "./pages/report";
+import report from "./lib/report";
 import LoginPage from "./pages/Login";
 import { ProfileEdit } from "./pages/ProfileEdit";
 import Register from "./pages/Register";
 import { UserEdit, UserList } from "./pages/Users";
 import authProvider from "./providers/authProvider";
 import { basePath } from "./providers/env";
-import PostIcon from "@mui/icons-material/PostAdd";
 import PersonIcon from "@mui/icons-material/Person";
+import domain from "./lib/domain"
 
 const httpClient = (url: string, options: any = {}) => {
   options.user = {
@@ -22,7 +21,7 @@ const httpClient = (url: string, options: any = {}) => {
     token: `Bearer ${localStorage.getItem("token")}`,
   };
   if (url.includes("/users/") && options.method === "PUT") {
-    // We use PATCH for update on the backend for users, since PATCH is selective PUT, this change should be fine
+    // 我们使用PATCH在后端为用户进行更新，因为PATCH是选择性PUT，所以这个更改应该没问题
     options.method = "PATCH";
   }
   return fetchUtils.fetchJson(url, options);
@@ -57,22 +56,8 @@ const App = () => {
             icon={PersonIcon}
           />
         ) : null,
-        <Resource
-          name="domain"
-          options={{ label: "推广网站" }}
-          list={DomainList}
-          edit={DomainEdit}
-          create={DomainCreate}
-          icon={PostIcon}
-        />,
-        <Resource
-        name="report"
-        options={{ label: "数据记录" }}
-        list={ReportList}
-        edit={ReportEdit}
-        create={ReportCreate}
-        icon={PostIcon}
-      />,
+        <Resource name="domain" {...domain}/>,
+        <Resource name="report" {...report}/>,
       ]}
     </Admin>
   );

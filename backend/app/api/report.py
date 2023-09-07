@@ -26,9 +26,11 @@ async def create_report(
     slug: Optional[str] = Header(None),
     user_agent: Optional[str] = Header(None),
 ) -> Any:
+    print(href, report_in.dict(), user_agent)
     try:
         host = urllib.parse.urlparse(href).netloc
         domain = await get_domain_by_host(session, host)
+
         # 如果没有域名
         if domain is None:
             raise HTTPException(404)
@@ -70,7 +72,7 @@ async def create_report(
                 session, click_id
             )
             # 插入帖子
-            post = await crud.create_post(session, href, slug, taboola)
+            post = await crud.create_post(session, href, slug, taboola, domain)
             if taboola is None and is_taboola:
                 taboola = await crud.create_taboola(session, taboola_in, post=post)
         else:
@@ -80,7 +82,7 @@ async def create_report(
         report = await crud.create_report(
             session, visitor_ip.id, href, browser.id, post.id
         )
-        print(report)
+        
         return {"msg": "success"}
 
     except IntegrityError:

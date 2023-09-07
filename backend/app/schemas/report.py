@@ -1,22 +1,44 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import List, Dict
 
 
 class ReportCreate(BaseModel):
     fingerprint_id: str
 
 
+
 class Post(BaseModel):
     id: int
     slug: str
+    sum_upv: tuple
     class Config:
         orm_mode = True
+
+
+class BrowserInfo(BaseModel):
+    fingerprint_id: str
+    equipment: dict
+    
+    class Config:
+        orm_mode = True
+
+
+class VisitorIp(BaseModel):
+    ip: str
+
+    class Config:
+        orm_mode = True
+
+
 class Report(BaseModel):
     id: int
     url: str
     create: datetime
     is_page: bool
-    post: Post
+    browser_info: BrowserInfo
+    visitor: VisitorIp
+
     class Config:
         orm_mode = True
 

@@ -1,6 +1,7 @@
 from typing import Optional
 from sqlalchemy.orm import Session, selectinload
 from app.models.report import VisitorIp, ReportPost, BrowserInfo, Post, Taboola
+from app.models.domain import Domain
 from sqlalchemy import select, func
 import re
 
@@ -50,11 +51,16 @@ async def create_taboola(db: Session, taboola_in, post):
 
 
 async def create_post(
-    db: Session, href: str, slug: str, taboola: Optional[Taboola | None]
+    db: Session, 
+    href: str, 
+    slug: str, 
+    taboola: Optional[Taboola | None],
+    domain: Optional[Domain]
 ):
     index = 1 if href.find("?") > -1 else 0
     url = re.search(r"^h(.+)\?|^(.+)$", href)[index]
     post: Post = Post(slug=slug, url=url)
+    post.domain_id = domain.id
     db.add(post)
     if taboola is not None:
         post.taboolas.append(taboola)
@@ -88,5 +94,6 @@ async def list_report(db: Session, request_params: ReportRequestParams):
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(request_params.order_by)
-        .options(selectinload(ReportPost.post))
+        .options(selectinload(ReportPost.browser_info))
+        .options(selectinload(ReportPost.visitor))
     )).scalars().all()

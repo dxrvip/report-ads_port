@@ -7,7 +7,7 @@ const MyUserMenu = (props: any) => {
     <UserMenu {...props}>
       <MenuItemLink
         to="/my-profile"
-        primaryText="My Profile"
+        primaryText="我的简历"
         leftIcon={<SettingsIcon />}
       />
       <Logout key="logout" />

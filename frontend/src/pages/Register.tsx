@@ -22,7 +22,7 @@ const Register = () => {
         userCreate: formData,
       });
       if (response.data.id) {
-        notify("Successfully registered, you can now log in", {
+        notify("注册成功，您现在可以登录了", {
           type: "success",
         });
         navigate("/login");
@@ -33,7 +33,7 @@ const Register = () => {
       if (errorMsg) {
         notify(errorMsg, { type: "error" });
       } else {
-        notify("Network error", { type: "error" });
+        notify("网络错误", { type: "error" });
       }
     }
   };
