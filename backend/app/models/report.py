@@ -70,7 +70,7 @@ class Post(Base):
     browser_info: Mapped[List["BrowserInfo"]] = relationship() 
     taboolas: Mapped[List[Taboola]] = relationship(secondary=post_taboola_table, back_populates="posts")
 
-    domain_id: Mapped[id] = mapped_column(ForeignKey("domain.id"))
+    domain_id: Mapped[id] = mapped_column(ForeignKey("domain.id"), nullable=True, server_default=None)
 
     @hybrid_property
     def sum_upv(self)-> tuple:
