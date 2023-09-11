@@ -1,5 +1,5 @@
 import { Datagrid,BooleanField, List, TextField, DateField } from "react-admin";
-const slugStyle = {
+export const slugStyle = {
   width: "150px",
   height: "20px",
   display: "inline-block",

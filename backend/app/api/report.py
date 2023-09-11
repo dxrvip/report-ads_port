@@ -33,7 +33,7 @@ async def create_report(
 
         # 如果没有域名
         if domain is None:
-            raise HTTPException(404)
+            raise HTTPException(404, detail="无聊的请求")
         # 判断是否有taboola信息
         is_taboola = href.find("Taboola") > -1
         if is_taboola:
@@ -60,6 +60,7 @@ async def create_report(
                 db=session,
                 user_agent=user_agent,
                 fingerprint_id=report_in.fingerprint_id,
+                domain_id=domain.id
             )
         # 该访问请求是否是帖子
         if not slug or slug == "null" or slug == "undefined":
@@ -80,7 +81,7 @@ async def create_report(
             if is_taboola:
                 taboola = await crud.create_taboola(session, taboola_in, post=post)
         report = await crud.create_report(
-            session, visitor_ip.id, href, browser.id, post.id
+            session, visitor_ip.id, href, browser.id, post
         )
         
         return {"msg": "success"}

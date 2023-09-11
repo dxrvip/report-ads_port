@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 from typing import Any, List
 from app.schemas.domain import Domain as DomainSchema
-from app.schemas.domain import DomainCreate, DomainUpdate
+from app.schemas.domain import DomainCreate, DomainUpdate, DomainGetOon
 from app.deps.users import CurrentUser
 from app.crud import domain as crud
 from app.deps.request_params import DomainRequestParams
@@ -51,7 +51,7 @@ async def update_domain(
     return domain
 
 
-@router.get("/{domain_id}", response_model=DomainSchema)
+@router.get("/{domain_id}", response_model=DomainGetOon)
 async def get_domain(
     domain_id: int,
     session: CurrentAsyncSession,

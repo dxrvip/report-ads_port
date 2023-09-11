@@ -1,4 +1,4 @@
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, Field
 from typing import List
 from .report import Post
 
@@ -19,3 +19,8 @@ class Domain(DomainCreate):
     sum_posts:list
     class Config:
         orm_mode = True
+
+class DomainGetOon(Domain):
+
+    class Config:
+        fields = {"sum_posts": {'exclude': True}}

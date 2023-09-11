@@ -19,10 +19,14 @@ class Domain(Base):
 
     @hybrid_property
     def sum_posts(self) -> list:
-        total = len(self.posts)
-        uv, pv = 0,0
-        for item in self.posts:
-            # print(item.sum_upv)
-            uv = uv + item.sum_upv[0]
-            pv = pv + item.sum_upv[1]
-        return [total, uv, pv]
+        try:
+            total = len(self.posts)
+            uv, pv = 0,0
+            for item in self.posts:
+                # print(item.sum_upv)
+                uv = uv + item.sum_upv[0]
+                pv = pv + item.sum_upv[1]
+            return [total, uv, pv]
+        except:
+  
+            return []

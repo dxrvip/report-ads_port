@@ -27,7 +27,7 @@ class ReportPost(Base):
     browser_id: Mapped[int] = mapped_column(ForeignKey("browser_info.id"))
     browser_info: Mapped["BrowserInfo"] = relationship(back_populates="report")
 
-    
+    domain_id: Mapped[id] = mapped_column(ForeignKey("domain.id"), nullable=True, server_default=None)
 
     """https://www.xiaoganxw.info/the-22-funny-cartoons-i-made-convey-the-message-in-a-few-words?
     utm_source=Taboola&
@@ -42,8 +42,9 @@ class ReportPost(Base):
 post_taboola_table = Table(
     "post_taboola_table",
     Base.metadata,
-    Column("post_id", ForeignKey("post.id"), primary_key=True),
-    Column("taboola_id", ForeignKey("taboola.id"), primary_key=True)
+    Column("id", primary_key=True),
+    Column("post_id", ForeignKey("post.id"), index=True),
+    Column("taboola_id", ForeignKey("taboola.id"), index=True)
 )
 
 class Taboola(Base):
@@ -58,6 +59,8 @@ class Taboola(Base):
     platform: Mapped[str] = mapped_column(String(30), nullable=True) #  展示您的商品的用户平台。这将返回为“桌面”、“移动设备”或“平板电脑”。
 
     posts: Mapped[List["Post"]] = relationship(secondary=post_taboola_table, back_populates="taboolas")
+
+    domain_id: Mapped[id] = mapped_column(ForeignKey("domain.id"), nullable=True, server_default=None)
 
 class Post(Base):
     __tablename__ = "post"
@@ -89,11 +92,16 @@ class BrowserInfo(Base):
 
     report: Mapped["ReportPost"] = relationship(back_populates="browser_info")
 
+    domain_id: Mapped[id] = mapped_column(ForeignKey("domain.id"), nullable=True, server_default=None)
+    
     @hybrid_property
     def equipment(self) -> dict:
-        user_agent = parse(self.user_agent)
-
-        return {"browser": user_agent.browser, "os": user_agent.os, "is_bot": user_agent.is_bot, "device": user_agent.device}
+        try:
+            print(self.user_agent)
+            user_agent = parse(self.user_agent)
+            return {"browser": user_agent.browser, "os": user_agent.os, "is_bot": user_agent.is_bot, "device": user_agent.device}
+        except:
+            return {}
 
 class VisitorIp(Base):
     """访问ip记录表"""

@@ -1,8 +1,9 @@
 [tool.poetry]
-name = "report-ads_port-backend"
-version = "0.1.0"
-description = ""
-authors = []
+name = "report-ads-port"
+version = "0.1.1"
+description = "\"这是垃圾项目\""
+authors = ["dxren <dzjvip@163.com>"]
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -27,8 +28,6 @@ ipython = "^8.14.0"
 pytest-cov = "^4.1.0"
 httpx = "^0.24.1"
 pytest-asyncio = "^0.21.1"
-pyyaml = "^6.0.1"
-ua-parser = "^0.18.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

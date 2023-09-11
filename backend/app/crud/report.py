@@ -9,11 +9,12 @@ from app.deps.request_params import ReportRequestParams
 
 
 async def create_report(
-    db: Session, visitor_id: int, href: str, browser_id: int, post_id: int
+    db: Session, visitor_id: int, href: str, browser_id: int, post: Post
 ):
     is_page = True if href.find("page") != -1 else False
     report = ReportPost(visitor_ip=visitor_id)
-    report.post_id = post_id
+    report.post_id = post.id
+    report.domain_id = post.domain_id
     report.is_page = is_page
     report.url = href
     report.browser_id = browser_id
@@ -42,8 +43,9 @@ async def get_taboola_by_click_id(db: Session, click_id=None):
     return taboola
 
 
-async def create_taboola(db: Session, taboola_in, post):
+async def create_taboola(db: Session, taboola_in, post: Post):
     taboola = Taboola(**taboola_in.dict())
+    taboola.domain_id = post.domain_id
     taboola.posts.append(post)
     db.add(taboola)
     await db.commit()
@@ -51,11 +53,11 @@ async def create_taboola(db: Session, taboola_in, post):
 
 
 async def create_post(
-    db: Session, 
-    href: str, 
-    slug: str, 
+    db: Session,
+    href: str,
+    slug: str,
     taboola: Optional[Taboola | None],
-    domain: Optional[Domain]
+    domain: Optional[Domain],
 ):
     index = 1 if href.find("?") > -1 else 0
     url = re.search(r"^h(.+)\?|^(.+)$", href)[index]
@@ -68,9 +70,10 @@ async def create_post(
     return post
 
 
-async def create_browser(db: Session, user_agent, fingerprint_id):
+async def create_browser(db: Session, user_agent, fingerprint_id, domain_id):
     browser = BrowserInfo(fingerprint_id=fingerprint_id)
     browser.user_agent = user_agent
+    browser.domain_id = domain_id
     db.add(browser)
     await db.commit()
     return browser
@@ -89,11 +92,12 @@ async def total_report(db: Session):
 
 
 async def list_report(db: Session, request_params: ReportRequestParams):
-    return (await db.execute(
+    _orm = (
         select(ReportPost)
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(request_params.order_by)
         .options(selectinload(ReportPost.browser_info))
         .options(selectinload(ReportPost.visitor))
-    )).scalars().all()
+    )
+    return (await db.execute(_orm)).scalars().all()

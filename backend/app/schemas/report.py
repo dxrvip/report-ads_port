@@ -11,7 +11,7 @@ class ReportCreate(BaseModel):
 class Post(BaseModel):
     id: int
     slug: str
-    sum_upv: tuple
+    # sum_upv: tuple
     class Config:
         orm_mode = True
 
@@ -51,5 +51,33 @@ class Taboola(BaseModel):
     campaign_id: int
     platform: str
 
+    class Config:
+        orm_mode = True
+
+
+class ResultTaboola(BaseModel):
+    id: int
+    site_id: int
+    platform: str
+    psum: int
+    rsum: int
+    class Config:
+        orm_mode = True
+
+class ResultReport(BaseModel):
+    id: int
+    url: str
+    create: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class ResultBrowserInfo(BaseModel):
+    id:int
+    psum: int
+    rsum: int
+    user_agent: str
+    update_time: datetime
     class Config:
         orm_mode = True
