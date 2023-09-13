@@ -1,5 +1,5 @@
 from pydantic import BaseModel, AnyHttpUrl
-
+from typing import List
 
 class Post(BaseModel):
     url: str
@@ -10,7 +10,15 @@ class Posts(BaseModel):
     bsum: int
     rsum: int
     tsum: int
-    url: str
+    url: str = None
+    id: int = None
+    date: str = None
+    psum: str = None
+    class Config:
+        orm_mode = True
+class ReportPost(BaseModel):
     id: int
+    result: List[Posts]
+    total: dict
     class Config:
         orm_mode = True

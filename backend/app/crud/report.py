@@ -101,3 +101,18 @@ async def list_report(db: Session, request_params: ReportRequestParams):
         .options(selectinload(ReportPost.visitor))
     )
     return (await db.execute(_orm)).scalars().all()
+
+
+async def get_report(db:Session, report_id:int):
+    
+    _orm = (
+        select(ReportPost)
+        .where(ReportPost.id==report_id)
+        .options(selectinload(ReportPost.browser_info))
+        .options(selectinload(ReportPost.visitor))
+        .options(selectinload(ReportPost.post))
+        .options(selectinload(ReportPost.taboola_info))
+    )
+
+    report = (await db.scalar(_orm))
+    return report

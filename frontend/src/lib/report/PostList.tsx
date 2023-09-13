@@ -15,6 +15,7 @@ const PostList = (props: any) => {
         resource="list/post"
         actions={false}
         filter={{ record_id: recordId }}
+        title="/文章"
       >
         <Datagrid rowClick="expand" expand={<InvoiceShow />}>
           <TextField source="id" />

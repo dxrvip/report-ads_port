@@ -12,16 +12,15 @@ import { matchPath, useLocation, useNavigate } from "react-router-dom";
 import { slugStyle } from "./List";
 import { Box, SwipeableDrawer, useMediaQuery, Theme } from "@mui/material";
 import ReviewEdit from "./ReportShow";
+import ReportShow from "./ReportShow";
 
 const ReportList = (props: any) => {
   const recordId = useGetRecordId();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [currId, setCurrId] = useState<Identifier>()
   const [show, setShow] = useState(false)
   const postRowClick = (id: Identifier, resource: string, record: RaRecord) => {
     setShow(true)
-    console.log(id);
-    
+    setCurrId(id)
     return false
   }
   const toggleDrawer = (open: boolean) => (
@@ -44,7 +43,7 @@ const ReportList = (props: any) => {
         resource="list/report"
         actions={false}
         filter={{ record_id: recordId }}
-        
+        title="/访客"
       >
         <Datagrid rowClick={postRowClick as any}>
           <TextField source="id" />
@@ -59,11 +58,7 @@ const ReportList = (props: any) => {
         onOpen={toggleDrawer(false)}
         sx={{ zIndex: 100 }}
       >
-        {/* 为了避免路由不匹配时出现任何错误，在这种情况下我们不会渲染所有组件*/}
-        {/* {!!true && (
-          <ReviewEdit id={(match as any).params.id} onCancel={handleClose} />
-        )} */}
-        fdsafds
+        <ReportShow id={currId} />
       </SwipeableDrawer>
     </div>
   );

@@ -27,6 +27,9 @@ class ReportPost(Base):
     browser_id: Mapped[int] = mapped_column(ForeignKey("browser_info.id"))
     browser_info: Mapped["BrowserInfo"] = relationship(back_populates="report")
 
+    taboola_id: Mapped[int] = mapped_column(ForeignKey('taboola.id'), nullable=True, server_default=None)
+    taboola_info: Mapped["Taboola"] = relationship(back_populates='reports')
+
     domain_id: Mapped[id] = mapped_column(ForeignKey("domain.id"), nullable=True, server_default=None)
 
     """https://www.xiaoganxw.info/the-22-funny-cartoons-i-made-convey-the-message-in-a-few-words?
@@ -42,15 +45,15 @@ class ReportPost(Base):
 post_taboola_table = Table(
     "post_taboola_table",
     Base.metadata,
-    Column("id", primary_key=True),
-    Column("post_id", ForeignKey("post.id"), index=True),
-    Column("taboola_id", ForeignKey("taboola.id"), index=True)
+    # Column("id", primary_key=True, autoincrement=True),
+    Column("post_id", ForeignKey("post.id"), primary_key=True),
+    Column("taboola_id", ForeignKey("taboola.id"), primary_key=True)
 )
 
 class Taboola(Base):
     __tablename__ = "taboola"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     site: Mapped[str] = mapped_column(String(200), nullable=True) # 发布者网站或应用程序名称。
     site_id: Mapped[int] = mapped_column(Integer, nullable=False) # 发布商网站或应用程序的唯一 Taboola 网站 ID。
     click_id: Mapped[str] = mapped_column(String(100), nullable=False) #
@@ -59,7 +62,8 @@ class Taboola(Base):
     platform: Mapped[str] = mapped_column(String(30), nullable=True) #  展示您的商品的用户平台。这将返回为“桌面”、“移动设备”或“平板电脑”。
 
     posts: Mapped[List["Post"]] = relationship(secondary=post_taboola_table, back_populates="taboolas")
-
+    reports: Mapped[List["ReportPost"]] = relationship(back_populates="taboola_info")
+    
     domain_id: Mapped[id] = mapped_column(ForeignKey("domain.id"), nullable=True, server_default=None)
 
 class Post(Base):
@@ -67,9 +71,9 @@ class Post(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     url: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, comment="推广网址")
     slug: Mapped[str] = mapped_column(String(255), nullable=False)
-    report_post: Mapped[List["ReportPost"]] = relationship(back_populates="post")
     create_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
+    report_post: Mapped[List["ReportPost"]] = relationship(back_populates="post")
     browser_info: Mapped[List["BrowserInfo"]] = relationship() 
     taboolas: Mapped[List[Taboola]] = relationship(secondary=post_taboola_table, back_populates="posts")
 

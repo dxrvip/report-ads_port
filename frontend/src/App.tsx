@@ -57,7 +57,7 @@ const App = () => {
           />
         ) : null,
         <Resource name="domain" {...domain}/>,
-        <Resource name="report" {...report}/>,
+        // <Resource name="report" {...report}/>,
       ]}
     </Admin>
   );

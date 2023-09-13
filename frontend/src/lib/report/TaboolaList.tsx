@@ -10,7 +10,7 @@ import {
   
     return (
       <div>
-        <List resource="list/taboola" actions={false} filter={{ record_id: recordId }}>
+        <List resource="list/taboola" actions={false} filter={{ record_id: recordId }} title="/特博拉">
           <Datagrid>
             <TextField source="id" />
             <TextField source="site_id" label="siteId" />

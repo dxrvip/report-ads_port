@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import List, Dict
+from typing import List, Optional
 
 
 class ReportCreate(BaseModel):
@@ -31,16 +31,7 @@ class VisitorIp(BaseModel):
         orm_mode = True
 
 
-class Report(BaseModel):
-    id: int
-    url: str
-    create: datetime
-    is_page: bool
-    browser_info: BrowserInfo
-    visitor: VisitorIp
 
-    class Config:
-        orm_mode = True
 
 
 class Taboola(BaseModel):
@@ -54,6 +45,17 @@ class Taboola(BaseModel):
     class Config:
         orm_mode = True
 
+class Report(BaseModel):
+    id: int
+    url: str
+    create: datetime
+    is_page: bool
+    browser_info: BrowserInfo
+    visitor: VisitorIp
+    post: Post
+    taboola_info: Optional[Taboola]
+    class Config:
+        orm_mode = True
 
 class ResultTaboola(BaseModel):
     id: int

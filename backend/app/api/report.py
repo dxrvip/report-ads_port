@@ -107,3 +107,15 @@ async def get_reports(
         "Content-Range"
     ] = f"{request_params.skip}-{request_params.skip + len(reports)}/{total}"
     return reports
+
+@router.get("/{report_id}", response_model=ReportSchema, status_code=201)
+async def get_report(
+    report_id: int,
+    session: CurrentAsyncSession,
+    user: CurrentUser,
+) -> Any:
+
+    report: Optional[Post] = await crud.get_report(session, report_id)
+
+    return report
+

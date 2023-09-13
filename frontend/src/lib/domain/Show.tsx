@@ -9,7 +9,6 @@ import {
 // import { useParams } from "react-router-dom";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
-import Paper from "@mui/material/Paper";
 import PostList from "../report/PostList";
 import TaboolaList from "../report/TaboolaList";
 import React from "react";
@@ -40,7 +39,12 @@ import ReportList from "../report/ReportList";
 //     </Dialog>
 //   );
 // }
-
+function a11yProps(index: any) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
 const DomainShow = (props: any) => {
   // const { id } = useParams();
   const [value, setValue] = React.useState(0);
@@ -49,19 +53,18 @@ const DomainShow = (props: any) => {
   };
   return (
     <ShowView actions={false} title="数据明细">
-      <Paper className="">
         <Tabs
           value={value}
           onChange={handleChange}
           indicatorColor="primary"
           textColor="primary"
+          aria-label="simple tabs example"
         >
-          <Tab label="文章列表" />
-          <Tab label="Taboola List" />
-          <Tab label="指纹列表" />
-          <Tab label="访问记录" />
+          <Tab label="文章列表" {...a11yProps(0)} />
+          <Tab label="Taboola List" {...a11yProps(1)} />
+          <Tab label="指纹列表" {...a11yProps(2)} />
+          <Tab label="访问记录" {...a11yProps(3)} />
         </Tabs>
-      </Paper>
       <TabPanel value={value} index={0}>
         <PostList />
       </TabPanel>

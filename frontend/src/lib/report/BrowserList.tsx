@@ -10,8 +10,7 @@ import {
     const recordId = useGetRecordId();
   
     return (
-      <div>
-        <List resource="list/browser" actions={false} filter={{ record_id: recordId }}>
+        <List resource="list/browser" actions={false} filter={{ record_id: recordId }} title="/指纹">
           <Datagrid>
             <TextField source="id" />
             <TextField source="user_agent" label="user_agent" />
@@ -20,7 +19,6 @@ import {
             <TextField source="rsum" label="浏览量" />
           </Datagrid>
         </List>
-      </div>
     );
   };
   

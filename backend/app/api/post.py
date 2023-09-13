@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from typing import List, Any, Optional
 from sqlalchemy import select, func
 from starlette.responses import Response
-from app.schemas.post import Posts as SchemasPost
+from app.schemas.post import Posts as SchemasPost, ReportPost as SchemasReportPost
 from app.schemas.report import ResultTaboola as SchemasTaboola, ResultBrowserInfo as SchemasBrowser, ResultReport as SchemasReport
 from app.deps.users import CurrentUser
 from app.deps.db import CurrentAsyncSession
@@ -13,7 +13,7 @@ from app.models.report import Post, Taboola, BrowserInfo, ReportPost
 
 router = APIRouter(prefix="/list")
 
-
+# 
 @router.get("/post", response_model=List[SchemasPost], status_code=201)
 async def get_posts(
     response: Response,
@@ -21,20 +21,20 @@ async def get_posts(
     request_params: PostRequestParams,
     user: CurrentUser,
 ) -> Any:
-    total = await session.scalar(select(func.count(Post.id)).filter(Post.domain_id==request_params.record_id))
+    total = await session.scalar(select(func.count(Post.id)).filter(Post.domain_id==3))
     posts = await crud.post_list(session, request_params)
     response.headers[
         "Content-Range"
     ] = f"{request_params.skip}-{request_params.skip + len(posts)}/{total}"
     return posts
 
-@router.get("/post/{post_id}", response_model=SchemasPost)
+@router.get("/post/{post_id}", response_model=SchemasReportPost, status_code=201)
 async def get_post(
     post_id: int,
     session: CurrentAsyncSession,
     user: CurrentUser,
 ) -> Any:
-    post: Optional[Post] = await session.get(Post, post_id)
+    post: Optional[Post] = await crud.get_post_(session, post_id)
 
     return post
 
@@ -63,13 +63,13 @@ async def browser_list(
     user: CurrentUser
     )-> Any:
     
-    total = session.scalar(select(func.count(BrowserInfo.id)).filter(BrowserInfo.domain_id==request_params.record_id))
+    total = await session.scalar(select(func.count(BrowserInfo.id)).filter(BrowserInfo.domain_id==request_params.record_id))
     browsers = await crud.browser_list(session, request_params)
-    l = len(browsers) if browsers else 0
+
+
     response.headers[
         "Content-Range"
-    
-    ] = f"{request_params.skip}-{request_params.skip + l} /{total}"
+    ] = f"{request_params.skip}-{request_params.skip + len(browsers)} /{total}"
     return browsers
 
 @router.get("/report", response_model=List[SchemasReport], status_code=201)
@@ -80,7 +80,7 @@ async def report_list(
     user: CurrentUser
     )-> Any:
     
-    total = session.scalar(select(func.count(ReportPost.id)).filter(ReportPost.domain_id==request_params.record_id))
+    total = await session.scalar(select(func.count(ReportPost.id)).filter(ReportPost.domain_id==request_params.record_id))
     reports = await crud.reports_list(session, request_params)
     response.headers[
         "Content-Range"
