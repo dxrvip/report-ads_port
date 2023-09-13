@@ -17,9 +17,9 @@ async def post_list(session: Session, request_params: PostRequestParams):
         select(
             Post.url,
             Post.id,
-            func.count(distinct(BrowserInfo.id)).label("bsum"),
+            func.count(distinct(ReportPost.browser_id)).label("bsum"),
             func.count(distinct(ReportPost.id)).label("rsum"),
-            func.count(distinct(Taboola.id)).label("tsum"),
+            func.count(distinct(ReportPost.taboola_id)).label("tsum"),
         )
         .filter(Post.domain_id == request_params.record_id)
         .join(ReportPost, Post.id == ReportPost.post_id, isouter=True)
@@ -37,29 +37,37 @@ async def post_list(session: Session, request_params: PostRequestParams):
     return posts
 
 
-async def get_post_(db: Session, id):
-    start_date = datetime.strptime("2023-09-01 00:00:00", "%Y-%m-%d %H:%M:%S")
-    end_date = datetime.strptime("2023-09-21 23:59:59", "%Y-%m-%d %H:%M:%S")
-    year = func.extract("year", ReportPost.create)
-    month = func.extract("month", ReportPost.create)
+async def get_statistics(db: Session, type, id):
+    """
+    统计数据
+    """
     day = func.extract("day", ReportPost.create)
+
+    if type == "post":
+        t = ReportPost.post_id == id
+    elif type == "taboola":
+        t = ReportPost.taboola_id == id
+    elif type == "browser":
+        t = ReportPost.browser_id == id
+    end_date = datetime.now()
+    start_date = datetime.now() - timedelta(days=7)
     _orm = (
         select(
             day.label("day"),
-            year,
-            month,
             func.sum(cast(ReportPost.is_page, Integer)).label("psum"),
-            func.count(distinct(ReportPost.post_id)).label("rsum"),
+            func.count(distinct(ReportPost.id)).label("rsum"),
             func.count(distinct(ReportPost.browser_id)).label("bsum"),
             func.count(distinct(ReportPost.taboola_id)).label("tsum"),
         )
-        .filter(ReportPost.post_id == id)
+        .filter(t)
         .where(ReportPost.create.between(start_date, end_date))
-
-        .group_by(year, month, day)
+        .group_by(
+            func.extract("year", ReportPost.create),
+            func.extract("month", ReportPost.create),
+            day,
+        )
     )
-    # print(_orm)
-
+    print(_orm)
     result = (await db.execute(_orm)).mappings()
     dict_row = [item for item in result]
     curret_date, row_dict = start_date, []
@@ -78,15 +86,14 @@ async def get_post_(db: Session, id):
                 break
         x["date"] = curret_date.strftime("%Y-%m-%d")
         row_dict.append(x)
-        curret_date = curret_date + timedelta(days=1)
 
         if curret_date >= end_date:
             break
-
+        curret_date = curret_date + timedelta(days=1)
     return {
         "result": row_dict,
         "id": 1,
-        "total": {"翻页":  psum, "PV": rsum, "UV": bsum, "Taboola":tsum},
+        "total": {"翻页": psum, "PV": rsum, "UV": bsum, "Taboola": tsum},
     }
 
 
@@ -96,9 +103,9 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
             Taboola.id,
             Taboola.site_id,
             Taboola.platform,
-            func.count(distinct(Post.id)).label("psum"),
+            func.count(distinct(ReportPost.post_id)).label("psum"),
             func.count(distinct(ReportPost.id)).label("rsum"),
-            func.count(distinct(BrowserInfo.id)).label("bsum"),
+            func.count(distinct(ReportPost.browser_id)).label("bsum"),
         )
         .join(Taboola.posts, isouter=True)
         .join(ReportPost, isouter=True)

@@ -17,8 +17,8 @@ const PostList = (props: any) => {
         filter={{ record_id: recordId }}
         title="/文章"
       >
-        <Datagrid rowClick="expand" expand={<InvoiceShow />}>
-          <TextField source="id" />
+        <Datagrid rowClick="expand" expand={<InvoiceShow type="post" />}>
+          <TextField source="id"/>
           <TextField source="url" label="Url" />
           <TextField source="tsum" label="Tab计数" />
           <TextField source="bsum" label="访客数" />

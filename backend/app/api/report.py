@@ -80,18 +80,19 @@ async def create_report(
             # 添加taboola
             if is_taboola:
                 taboola = await crud.create_taboola(session, taboola_in, post=post)
-        report = await crud.create_report(
-            session, visitor_ip.id, href, browser.id, post
+        taboola = taboola if is_taboola else None
+        await crud.create_report(
+            session, visitor_ip.id, href, browser.id, post, taboola
         )
         
         return {"msg": "success"}
 
     except IntegrityError:
-        raise HTTPException(402, {"msg": "error"})
+        raise HTTPException(402, detail="error")
 
     except Exception as err:
         print(err)
-        raise HTTPException(402, {"msg": "error"})
+        raise HTTPException(402, detail="error")
 
 
 @router.get("", response_model=List[ReportSchema], status_code=201)

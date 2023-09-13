@@ -60,7 +60,7 @@ class Taboola(Base):
     campaign_item_id: Mapped[str] = mapped_column(String(15), nullable=False) # 唯一的 Taboola 项目 ID，如 Backstage 中的“热门营销活动内容”报告中所定义。
     campaign_id: Mapped[int] = mapped_column(Integer, nullable=False) # 唯一的 Taboola 活动 ID。该活动ID也可以在后台的“活动管理”页面找到。
     platform: Mapped[str] = mapped_column(String(30), nullable=True) #  展示您的商品的用户平台。这将返回为“桌面”、“移动设备”或“平板电脑”。
-
+    create: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), comment="添加时间")
     posts: Mapped[List["Post"]] = relationship(secondary=post_taboola_table, back_populates="taboolas")
     reports: Mapped[List["ReportPost"]] = relationship(back_populates="taboola_info")
     

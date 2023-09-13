@@ -4,6 +4,7 @@ import {
     TextField,
     useGetRecordId,
   } from "react-admin";
+import InvoiceShow from "./InvoiceShow";
   
   const TaboolaList = (props: any) => {
     const recordId = useGetRecordId();
@@ -11,7 +12,7 @@ import {
     return (
       <div>
         <List resource="list/taboola" actions={false} filter={{ record_id: recordId }} title="/特博拉">
-          <Datagrid>
+          <Datagrid rowClick="expand" expand={<InvoiceShow type="taboola" />}>
             <TextField source="id" />
             <TextField source="site_id" label="siteId" />
             <TextField source="platform" label="设备" />

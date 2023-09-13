@@ -28,15 +28,17 @@ async def get_posts(
     ] = f"{request_params.skip}-{request_params.skip + len(posts)}/{total}"
     return posts
 
-@router.get("/post/{post_id}", response_model=SchemasReportPost, status_code=201)
+@router.get("/{type}/{post_id}", response_model=SchemasReportPost, status_code=201)
 async def get_post(
     post_id: int,
+    type: str,
     session: CurrentAsyncSession,
     user: CurrentUser,
 ) -> Any:
-    post: Optional[Post] = await crud.get_post_(session, post_id)
+    print(type)
+    statistics= await crud.get_statistics(session,type , post_id)
 
-    return post
+    return statistics
 
 
 
@@ -54,6 +56,8 @@ async def get_taboolas(
         "Content-Range"
     ] = f"{request_params.skip}-{request_params.skip + len(taboolas)} /{total}"
     return taboolas
+
+
 
 @router.get("/browser", response_model=List[SchemasBrowser], status_code=201)
 async def browser_list(

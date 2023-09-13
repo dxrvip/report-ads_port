@@ -9,7 +9,7 @@ from app.deps.request_params import ReportRequestParams
 
 
 async def create_report(
-    db: Session, visitor_id: int, href: str, browser_id: int, post: Post
+    db: Session, visitor_id: int, href: str, browser_id: int, post: Post, taboola: Optional[Taboola]
 ):
     is_page = True if href.find("page") != -1 else False
     report = ReportPost(visitor_ip=visitor_id)
@@ -18,6 +18,8 @@ async def create_report(
     report.is_page = is_page
     report.url = href
     report.browser_id = browser_id
+    if taboola:
+        report.taboola_id = taboola.id
     db.add(report)
     await db.commit()
     return report
