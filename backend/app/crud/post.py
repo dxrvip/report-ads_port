@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from typing import Any
 from datetime import datetime, timedelta
 from sqlalchemy import select, func, distinct, cast, Integer
