@@ -17,6 +17,7 @@ async def post_list(session: Session, request_params: PostRequestParams):
         select(
             Post.url,
             Post.id,
+            Post.create_time,
             func.count(distinct(ReportPost.browser_id)).label("bsum"),
             func.count(distinct(ReportPost.id)).label("rsum"),
             func.count(distinct(ReportPost.taboola_id)).label("tsum"),
