@@ -68,9 +68,9 @@ async def create_report(
         post: Optional[Post | None] = await crud.get_post_by_slug(db=session, slug=slug)
         # 判断帖子是否插入表
         if post is None:
-            click_id = query_dict.get("click_id") if is_taboola else None
+            site_id = query_dict.get("site_id") if is_taboola else None
             taboola = await crud.get_taboola_by_click_id(
-                session, click_id
+                session, site_id
             )
             # 插入帖子
             post = await crud.create_post(session, href, slug, taboola, domain)

@@ -37,10 +37,10 @@ async def get_browser(db: Session, fin_id: str):
     return browser
 
 
-async def get_taboola_by_click_id(db: Session, click_id=None):
-    if click_id is None:
+async def get_taboola_by_click_id(db: Session, site_id=None):
+    if site_id is None:
         return None
-    _orm = select(Taboola).where(Taboola.click_id == click_id)
+    _orm = select(Taboola).where(Taboola.site_id == site_id)
     taboola: Optional[Taboola | None] = (await db.execute(_orm)).scalar()
     return taboola
 

@@ -53,6 +53,7 @@ const DomainShow = (props: any) => {
   };
   return (
     <ShowView actions={false} title="数据明细">
+    
         <Tabs
           value={value}
           onChange={handleChange}
@@ -76,9 +77,8 @@ const DomainShow = (props: any) => {
       </TabPanel>
       <TabPanel value={value} index={3}>
         <ReportList />
-      </TabPanel>
+      </TabPanel> 
     </ShowView>
-    // </>
   );
 };
 
