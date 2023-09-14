@@ -3,7 +3,6 @@ import {
   Datagrid,
   TextField,
   useGetRecordId,
-  DateField,
 } from "react-admin";
 import InvoiceShow from "./InvoiceShow";
 
@@ -11,7 +10,6 @@ const PostList = (props: any) => {
   const recordId = useGetRecordId();
 
   return (
-    <div>
       <List
         resource="list/post"
         actions={false}
@@ -26,7 +24,6 @@ const PostList = (props: any) => {
           <TextField source="rsum" label="浏览量" />
         </Datagrid>
       </List>
-    </div>
   );
 };
 

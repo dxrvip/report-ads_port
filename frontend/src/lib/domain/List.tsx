@@ -19,7 +19,7 @@ const DomainList = (props: any) => {
   };
   return (
     <List {...props} filters={[]}>
-      <Datagrid rowClick={postRowClick as any}>
+      <Datagrid rowClick={'show'}>
         <TextField source="id" label="ID" />
         <TextField source="base_url" label="网址" />
         <TextField source="sum_posts[0]" label="推广文章数" />

@@ -7,11 +7,9 @@ import {
   Identifier,
   RaRecord,
 } from "react-admin";
-import { useCallback, useState } from 'react';
-import { matchPath, useLocation, useNavigate } from "react-router-dom";
+import { useState } from 'react';
 import { slugStyle } from "./List";
-import { Box, SwipeableDrawer, useMediaQuery, Theme } from "@mui/material";
-import ReviewEdit from "./ReportShow";
+import { SwipeableDrawer } from "@mui/material";
 import ReportShow from "./ReportShow";
 
 const ReportList = (props: any) => {

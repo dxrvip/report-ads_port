@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, AnyHttpUrl
-from typing import List,Optional, Union
+from typing import List, Optional, Union
 
 
 class Post(BaseModel):
@@ -16,13 +16,22 @@ class Posts(BaseModel):
     rsum: int
     tsum: int
     url: str = ""
-    date: Union[datetime , str] = ""
+    date: Union[datetime, str] = ""
     psum: str = 0
 
     class Config:
         orm_mode = True
 
 
+class PostListReport(BaseModel):
+    id: int
+    url: str
+    tsum: int
+    bsum: int
+    rsum: int
+
+    class Config:
+        orm_mode = True
 
 
 class ReportPost(BaseModel):
