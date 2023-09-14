@@ -66,12 +66,10 @@ const DomainShow = (props: any) => {
           <Tab label="访问记录" {...a11yProps(3)} />
         </Tabs>
       <TabPanel value={value} index={0}>
-        {/* <PostList /> */}
-        <ReportList />
+        <PostList />
       </TabPanel>
       <TabPanel value={value} index={1}>
         {/* <TaboolaList /> */}
-        <PostList />
       </TabPanel>
       <TabPanel value={value} index={2}>
         {/* <BrowserList /> */}

@@ -35,7 +35,7 @@ async def get_post(
     session: CurrentAsyncSession,
     user: CurrentUser,
 ) -> Any:
-    print(type)
+    # print(type)
     statistics= await crud.get_statistics(session,type , post_id)
 
     return statistics
