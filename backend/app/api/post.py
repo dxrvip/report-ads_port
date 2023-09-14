@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from typing import List, Any, Optional
 from sqlalchemy import select, func
 from starlette.responses import Response
-from app.schemas.post import Posts as PostList, ReportPost as SchemasReportPost
+from app.schemas.post import PostList, ReportPost as SchemasReportPost
 from app.schemas.report import ResultTaboola as SchemasTaboola, ResultBrowserInfo as SchemasBrowser, ResultReport as SchemasReport
 from app.deps.users import CurrentUser
 from app.deps.db import CurrentAsyncSession
