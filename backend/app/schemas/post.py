@@ -22,11 +22,6 @@ class Posts(BaseModel):
         orm_mode = True
 
 
-class PostList(BaseModel):
-    data: List[Posts]
-
-    class Config:
-        orm_mode = True
 
 
 class ReportPost(BaseModel):
