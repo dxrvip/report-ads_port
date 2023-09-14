@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from typing import List, Any, Optional
 from sqlalchemy import select, func
 from starlette.responses import Response
-from app.schemas.post import Posts as SchemasPost, ReportPost as SchemasReportPost
+from app.schemas.post import Posts as PostList, ReportPost as SchemasReportPost
 from app.schemas.report import ResultTaboola as SchemasTaboola, ResultBrowserInfo as SchemasBrowser, ResultReport as SchemasReport
 from app.deps.users import CurrentUser
 from app.deps.db import CurrentAsyncSession
@@ -14,7 +14,7 @@ from app.models.report import Post, Taboola, BrowserInfo, ReportPost
 router = APIRouter(prefix="/list")
 
 # 
-@router.get("/post", response_model=List[SchemasPost], status_code=201)
+@router.get("/post", response_model=PostList, status_code=201)
 async def get_posts(
     response: Response,
     session: CurrentAsyncSession,
@@ -26,7 +26,7 @@ async def get_posts(
     response.headers[
         "Content-Range"
     ] = f"{request_params.skip}-{request_params.skip + len(posts)}/{total}"
-    return posts
+    return {"data": posts}
 
 @router.get("/{type}/{post_id}", response_model=SchemasReportPost, status_code=201)
 async def get_post(
