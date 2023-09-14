@@ -7,11 +7,11 @@ class Post(BaseModel):
         orm_mode = True
         
 class Posts(BaseModel):
+    id: int = None
     bsum: int
     rsum: int
     tsum: int
     url: str = None
-    id: int = None
     date: str = None
     psum: str = None
     class Config:

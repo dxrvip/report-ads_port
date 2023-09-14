@@ -1,6 +1,6 @@
 import { createBrowserHistory as createHistory } from "history";
 import simpleRestProvider from "ra-data-simple-rest";
-import { Admin, fetchUtils, Resource, CustomRoutes } from "react-admin";
+import { Admin, fetchUtils, Resource, CustomRoutes, Show } from "react-admin";
 import { Route } from "react-router";
 import MyLayout from "./components/AdminLayout";
 import Dashboard from "./pages/Dashboard";
@@ -13,8 +13,8 @@ import { UserEdit, UserList } from "./pages/Users";
 import authProvider from "./providers/authProvider";
 import { basePath } from "./providers/env";
 import PersonIcon from "@mui/icons-material/Person";
-import domain from "./lib/domain"
-
+import domain from "./lib/domain";
+import DomainShow from "./lib/domain/Show"
 const httpClient = (url: string, options: any = {}) => {
   options.user = {
     authenticated: true,
@@ -56,8 +56,11 @@ const App = () => {
             icon={PersonIcon}
           />
         ) : null,
-        <Resource name="domain" {...domain}/>,
+        <Resource name="domain" {...domain} />,
         // <Resource name="report" {...report}/>,
+        <CustomRoutes>
+          <Route path="/report" element={<DomainShow />} />
+        </CustomRoutes>,
       ]}
     </Admin>
   );

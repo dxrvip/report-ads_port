@@ -7,8 +7,7 @@ import {
 // import Dialog from "@mui/material/Dialog";
 // import DialogTitle from "@mui/material/DialogTitle";
 // import { useParams } from "react-router-dom";
-import Tab from "@mui/material/Tab";
-import Tabs from "@mui/material/Tabs";
+import {Tab,Tabs, Card }from "@mui/material";
 import PostList from "../report/PostList";
 import TaboolaList from "../report/TaboolaList";
 import React from "react";
@@ -52,7 +51,7 @@ const DomainShow = (props: any) => {
     setValue(newValue);
   };
   return (
-    <ShowView actions={false} title="数据明细">
+    <Card title="数据明细">
     
         <Tabs
           value={value}
@@ -67,18 +66,20 @@ const DomainShow = (props: any) => {
           <Tab label="访问记录" {...a11yProps(3)} />
         </Tabs>
       <TabPanel value={value} index={0}>
-        <PostList />
+        {/* <PostList /> */}
+        <ReportList />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <TaboolaList />
+        {/* <TaboolaList /> */}
+        <PostList />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <BrowserList />
+        {/* <BrowserList /> */}
       </TabPanel>
       <TabPanel value={value} index={3}>
-        <ReportList />
+        {/* <ReportList /> */}
       </TabPanel> 
-    </ShowView>
+    </Card>
   );
 };
 
