@@ -8,7 +8,7 @@ const domain = {
   edit: DomainEdit,
   create: DomainCreate,
   list: DomainList,
-  show: PostList,
+  // show: PostList,
   icon: BlurLinearIcon,
   options: { label: "推广网址" },
 };

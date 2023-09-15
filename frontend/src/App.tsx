@@ -56,7 +56,7 @@ const App = () => {
             icon={PersonIcon}
           />
         ) : null,
-        <Resource name="domain" {...domain} />,
+        <Resource name="list/post" {...domain} />,
         // <Resource name="report" {...report}/>,
         <CustomRoutes>
           <Route path="/report" element={<DomainShow />} />

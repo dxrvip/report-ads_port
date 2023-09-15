@@ -21,7 +21,7 @@ async def get_posts(
     request_params: PostRequestParams,
     user: CurrentUser,
 ) -> Any:
-    total = await session.scalar(select(func.count(Post.id)).filter(Post.domain_id==3))
+    total = await session.scalar(select(func.count(Post.id)).filter(Post.domain_id==request_params.record_id))
     posts = await crud.post_list(session, request_params)
     response.headers[
         "Content-Range"
