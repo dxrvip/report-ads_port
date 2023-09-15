@@ -4,9 +4,6 @@ import {
   // Datagrid,
   ShowView,
 } from "react-admin";
-// import Dialog from "@mui/material/Dialog";
-// import DialogTitle from "@mui/material/DialogTitle";
-// import { useParams } from "react-router-dom";
 import {Tab,Tabs, Card }from "@mui/material";
 import PostList from "../report/PostList";
 import TaboolaList from "../report/TaboolaList";
@@ -69,13 +66,13 @@ const DomainShow = (props: any) => {
         <PostList />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        {/* <TaboolaList /> */}
+        <TaboolaList />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        {/* <BrowserList /> */}
+        <BrowserList />
       </TabPanel>
       <TabPanel value={value} index={3}>
-        {/* <ReportList /> */}
+        <ReportList />
       </TabPanel> 
     </Card>
   );

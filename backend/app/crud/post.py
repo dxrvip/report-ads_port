@@ -31,7 +31,7 @@ async def post_list(session: Session, request_params: PostRequestParams):
         .order_by(request_params.order_by)
         .group_by(Post.id)
     )
-    print(_orm)
+    # print(_orm)
     posts: Optional[List] = (await session.execute(_orm)).all()
     if posts:
         posts = list(map(lambda x: x._asdict(), posts))

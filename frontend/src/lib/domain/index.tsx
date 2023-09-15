@@ -2,13 +2,13 @@ import DomainCreate from "./Create";
 import BlurLinearIcon from "@mui/icons-material/BlurLinear";
 import DomainEdit from "./Edit";
 import DomainList from "./List";
-import PostList from "../report/PostList";
+import DomainShow from "./Show";
 
 const domain = {
   edit: DomainEdit,
   create: DomainCreate,
   list: DomainList,
-  // show: PostList,
+  show: DomainShow,
   icon: BlurLinearIcon,
   options: { label: "推广网址" },
 };

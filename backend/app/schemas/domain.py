@@ -1,5 +1,6 @@
 from pydantic import BaseModel, HttpUrl, Field
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 from .report import Post
 
 
@@ -15,8 +16,11 @@ class DomainUpdate(DomainCreate):
 class Domain(DomainCreate):
 
     id:int
-    # posts: List[Post]
-    sum_posts:list
+    create: datetime
+    psum: Optional[int] = None
+    bsum: Optional[int] = None
+    tsum: Optional[int] = None
+    rsum: Optional[int] = None
     class Config:
         orm_mode = True
 

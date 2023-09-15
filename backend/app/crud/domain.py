@@ -2,9 +2,8 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from app.schemas.domain import DomainCreate
 from app.models.domain import Domain
-from app.models.report import Post
-from sqlalchemy import select, func
-from sqlalchemy.orm import selectinload, defaultload, joinedload
+from app.models.report import Post, BrowserInfo, Taboola, ReportPost
+from sqlalchemy import select, func, distinct
 from app.deps.request_params import DomainRequestParams
 
 
@@ -17,18 +16,28 @@ async def create_domin(db: Session, domain_in: DomainCreate):
 
 async def list_domain(db: Session, request_params: DomainRequestParams):
     _orm = (
-        select(Domain)
+        select(
+            Domain,
+            Domain.id,
+            Domain.base_url,
+            Domain.create,
+            func.count(distinct(ReportPost.id)).label("rsum"),
+            func.count(distinct(Post.id)).label("psum"),
+            func.count(distinct(BrowserInfo.id)).label("bsum"),
+            func.count(distinct(Taboola.id)).label("tsum"),
+        )
+        .join(ReportPost, Domain.id==ReportPost.domain_id,isouter=True)
+        .join(Post, Post.domain_id==Domain.id, isouter=True)
+        .join(BrowserInfo,BrowserInfo.domain_id==Domain.id, isouter=True)
+        .join(Taboola, Taboola.domain_id==Domain.id, isouter=True)
+        .group_by(Domain.id)
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(request_params.order_by)
-        .options(
-            selectinload(Domain.posts).options(
-                joinedload(Post.browser_info), joinedload(Post.report_post)
-            )
-        )
     )
+
     # print(_orm)
-    domains = (await db.execute(_orm)).scalars().all()
+    domains = (await db.execute(_orm)).all()
     return domains
 
 

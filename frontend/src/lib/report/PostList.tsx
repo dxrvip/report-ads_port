@@ -2,6 +2,7 @@ import {
   List,
   Datagrid,
   TextField,
+  UrlField,
   useGetRecordId,
 } from "react-admin";
 import InvoiceShow from "./InvoiceShow";
@@ -18,7 +19,7 @@ const PostList = (props: any) => {
       >
         <Datagrid rowClick="expand" expand={<InvoiceShow type="post" />}>
           <TextField source="id"/>
-          <TextField source="url" label="Url" />
+          <UrlField source="url" label="Url" />
           <TextField source="tsum" label="Tab计数" />
           <TextField source="bsum" label="访客数" />
           <TextField source="rsum" label="浏览量" />
