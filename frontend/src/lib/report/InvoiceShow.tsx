@@ -1,5 +1,11 @@
 import { Card, CardContent, Grid, Typography } from "@mui/material";
-import { useRecordContext } from "react-admin";
+import {
+  Datagrid,
+  DateField,
+  List,
+  TextField,
+  useRecordContext,
+} from "react-admin";
 import { Invoice } from "../../types";
 import CustomerField from "../../components/ShowRecharts";
 
@@ -46,7 +52,26 @@ const InvoiceShow = (props: any) => {
               <ShowHeard type={props?.type} record={record} />
             </Typography>
           </Grid>
+
           <CustomerField type={props?.type} />
+          <Grid item ml={6}>
+            <List
+              resource="list/taboola"
+              actions={false}
+              filter={{ record_id: record.id }}
+              title="/特博拉"
+            >
+              <Datagrid>
+                <TextField source="id" />
+                <TextField source="site_id" label="siteId" />
+                <DateField source="create" label="时间" showTime />
+                <TextField source="platform" label="设备" />
+                <TextField source="psum" label="总文章数" />
+                <TextField source="bsum" label="总访客数" />
+                <TextField source="rsum" label="累计浏览量" />
+              </Datagrid>
+            </List>
+          </Grid>
         </Grid>
       </CardContent>
     </Card>

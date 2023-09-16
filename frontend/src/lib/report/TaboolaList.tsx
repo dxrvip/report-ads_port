@@ -11,7 +11,6 @@ import InvoiceShow from "./InvoiceShow";
     const recordId = useGetRecordId();
   
     return (
-      <div>
         <List resource="list/taboola" actions={false} filter={{ record_id: recordId }} title="/特博拉">
           <Datagrid rowClick="expand" expand={<InvoiceShow type="taboola" />}>
             <TextField source="id" />
@@ -23,7 +22,6 @@ import InvoiceShow from "./InvoiceShow";
             <TextField source="rsum" label="累计浏览量" />
           </Datagrid>
         </List>
-      </div>
     );
   };
   

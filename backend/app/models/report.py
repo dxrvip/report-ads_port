@@ -87,7 +87,7 @@ class Taboola(Base):
         Integer, nullable=False
     )  # 唯一的 Taboola 活动 ID。该活动ID也可以在后台的“活动管理”页面找到。
     platform: Mapped[str] = mapped_column(
-        String(30), nullable=True
+        String(200), nullable=True
     )  #  展示您的商品的用户平台。这将返回为“桌面”、“移动设备”或“平板电脑”。
     create: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), comment="添加时间"
@@ -99,9 +99,7 @@ class Taboola(Base):
 
     reports: Mapped[List["ReportPost"]] = relationship(back_populates="taboola_info")
 
-    domain_id: Mapped[id] = mapped_column(
-        ForeignKey("domain.id"), nullable=True, server_default=None
-    )
+
     promotion: Mapped[int] = mapped_column(SmallInteger,nullable=True,comment="停止推广")
     # @hybrid_property
     # def _platform(self):
@@ -114,6 +112,13 @@ class Taboola(Base):
         # print(self._platform)
         # return self._platform
 
+    """ SQL: INSERT INTO taboola (site, site_id, click_id, campaign_item_id, campaign_id, platform, domain_id, promotion) VALUES ($1::VARCHAR, $2::INTEGER, $3::VARCHAR, $4::VARCHAR, $5::INTEGER, $6::VARCHAR, $7::INTEGER, $8::INTEGER) RETURNING taboola.id, taboola."create"]
+report-ads_port-backend-1   | 
+2023-09-16T13:58:24.308198425Z  'jagrannewmedia-jagranjosh', 1450019, 'GiCvf7gfZI2-U0jKxVftC6x35t2m9YoVA8GYzgxiTiLUDiCDk2Eov4D15t2DtIk4', '3731643422', 27592825, 'Smartphone#tblciGiCvf7gfZI2-U0jKxVftC6x35t2m9YoVA8GYzgxiTiLUDiCDk2Eov4D15t2DtIk4', 2, None)]
+report-ads_port-backend-1   | 
+2023-09-16T13:58:24.308200419Z     | (Background on this error at: https://sqlalche.me/e/20/dbapi)
+"""
+    #https://www.pmsnhu.com/the-foods-that-could-make-you-want-run-for-the-hills?utm_source=Taboola&campaign_item_id=3731643422&site=jagrannewmedia-jagranjosh&site_id=1450019&campaign_id=27592825&platform=Smartphone&click_id=GiCvf7gfZI2-U0jKxVftC6x35t2m9YoVA8GYzgxiTiLUDiCDk2Eov4D15t2DtIk4
   
 
 
@@ -171,9 +176,6 @@ class BrowserInfo(Base):
 
     report: Mapped["ReportPost"] = relationship(back_populates="browser_info")
 
-    domain_id: Mapped[id] = mapped_column(
-        ForeignKey("domain.id"), nullable=True, server_default=None
-    )
 
     @hybrid_property
     def equipment(self) -> dict:

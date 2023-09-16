@@ -18,14 +18,12 @@ async def post_list(session: Session, request_params: PostRequestParams):
             Post.url,
             Post.id,
             Post.create_time,
-            func.count(distinct(BrowserInfo.id)).label("brsum"),
-            func.count(distinct(ReportPost.id)).label("rsum"),
+            func.count(ReportPost.id).label("rsum"),
             func.count(distinct(Taboola.id)).label("tsum"),
-            func.count(distinct(ReportPost.visitor_ip)).label("bsum")
+            func.count(distinct(ReportPost.visitor_ip)).label("bsum"),
         )
         .filter(Post.domain_id == request_params.record_id)
         .join(ReportPost, Post.id == ReportPost.post_id, isouter=True)
-        .join(Post.browser_info, isouter=True)
         .join(Post.taboolas, isouter=True)
         .offset(request_params.skip)
         .limit(request_params.limit)
@@ -100,27 +98,37 @@ async def get_statistics(db: Session, type, id):
 
 
 async def taboola_list(session: Session, request_params: TaboolaRequestParams):
+    # _orm = (
+    #     select(
+    #         Taboola.id,
+    #         Taboola.site_id,
+    #         Taboola.platform,
+    #         Taboola.create,
+    #         func.count(distinct(ReportPost.post_id)).label("psum"),
+    #         func.count(distinct(ReportPost.id)).label("rsum"),
+    #         func.count(distinct(ReportPost.visitor_ip)).label("bsum"),
+    #     )
+    #     .join(Taboola.posts, isouter=True)
+    #     .join(ReportPost, isouter=True)
+    #     .filter(Taboola.posts == request_params.record_id)
+    #     .offset(request_params.skip)
+    #     .limit(request_params.limit)
+    #     .order_by(request_params.order_by)
+    #     .group_by(Taboola.id)
+    #     # .options(joinedload(Taboola.posts).subqueryload(Post.report_post))
+    # )
+    # print(_orm)
+    # taboolas: Optional[List] = (await session.execute(_orm)).unique().all()
     _orm = (
-        select(
-            Taboola.id,
-            Taboola.site_id,
-            Taboola.platform,
-            Taboola.create,
-            func.count(distinct(ReportPost.post_id)).label("psum"),
-            func.count(distinct(ReportPost.id)).label("rsum"),
-            func.count(distinct(ReportPost.visitor_ip)).label("bsum"),
-        )
-        .join(Taboola.posts, isouter=True)
-        .join(ReportPost, isouter=True)
-        .filter(Taboola.domain_id == request_params.record_id)
+        select(Post.id)
+        .where(Post.id == request_params.record_id)
+        .join(Post.taboolas)
+        .join(ReportPost, ReportPost.post_id==Post.id, isouter=True)
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(request_params.order_by)
-        .group_by(Taboola.id)
-        # .options(joinedload(Taboola.posts).subqueryload(Post.report_post))
     )
     print(_orm)
-    # taboolas: Optional[List] = (await session.execute(_orm)).unique().all()
     taboolas: Optional[List] = (await session.execute(_orm)).all()
     # if taboolas:
     #     taboolas = list(map(lambda x: x._asdict(), taboolas))
@@ -138,7 +146,7 @@ async def browser_list(session: Session, request_params: BrowserRequestParams):
             func.count(distinct(Post.id)).label("psum"),
             func.count(distinct(ReportPost.id)).label("rsum"),
         )
-        .filter(BrowserInfo.domain_id == request_params.record_id)
+        # .filter(BrowserInfo.domain_id == request_params.record_id)
         .join(ReportPost, ReportPost.browser_id == BrowserInfo.id, isouter=True)
         .join(Post, ReportPost.post_id == Post.id)
         .offset(request_params.skip)
