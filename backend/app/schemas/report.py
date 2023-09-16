@@ -60,9 +60,11 @@ class Report(BaseModel):
 class ResultTaboola(BaseModel):
     id: int
     site_id: int
-    platform: str
+    platform: Optional[str]
     psum: int
     rsum: int
+    bsum: Optional[int]
+    create: Optional[datetime]
     class Config:
         orm_mode = True
 

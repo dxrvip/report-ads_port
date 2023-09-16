@@ -29,7 +29,7 @@ class PostListReport(BaseModel):
     tsum: int
     bsum: int
     rsum: int
-
+    create_time: Optional[datetime]
     class Config:
         orm_mode = True
 

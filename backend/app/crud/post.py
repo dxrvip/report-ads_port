@@ -18,13 +18,14 @@ async def post_list(session: Session, request_params: PostRequestParams):
             Post.url,
             Post.id,
             Post.create_time,
-            func.count(distinct(ReportPost.browser_id)).label("bsum"),
+            func.count(distinct(BrowserInfo.id)).label("brsum"),
             func.count(distinct(ReportPost.id)).label("rsum"),
-            func.count(distinct(ReportPost.taboola_id)).label("tsum"),
+            func.count(distinct(Taboola.id)).label("tsum"),
+            func.count(distinct(ReportPost.visitor_ip)).label("bsum")
         )
         .filter(Post.domain_id == request_params.record_id)
         .join(ReportPost, Post.id == ReportPost.post_id, isouter=True)
-        .join(BrowserInfo, Post.id == BrowserInfo.post_id, isouter=True)
+        .join(Post.browser_info, isouter=True)
         .join(Post.taboolas, isouter=True)
         .offset(request_params.skip)
         .limit(request_params.limit)
@@ -56,8 +57,8 @@ async def get_statistics(db: Session, type, id):
         select(
             day.label("day"),
             func.sum(cast(ReportPost.is_page, Integer)).label("psum"),
-            func.count(distinct(ReportPost.id)).label("rsum"),
-            func.count(distinct(ReportPost.browser_id)).label("bsum"),
+            func.count(ReportPost.post_id).label("rsum"),
+            func.count(distinct(ReportPost.visitor_ip)).label("bsum"),
             func.count(distinct(ReportPost.taboola_id)).label("tsum"),
         )
         .filter(t)
@@ -94,7 +95,7 @@ async def get_statistics(db: Session, type, id):
     return {
         "result": row_dict,
         "id": 1,
-        "total": {"翻页": psum, "PV": rsum, "UV": bsum, "Taboola": tsum},
+        "total": {"纵深": psum, "浏览量": rsum, "访客数": bsum, "Taboola": tsum},
     }
 
 
@@ -104,9 +105,10 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
             Taboola.id,
             Taboola.site_id,
             Taboola.platform,
+            Taboola.create,
             func.count(distinct(ReportPost.post_id)).label("psum"),
             func.count(distinct(ReportPost.id)).label("rsum"),
-            func.count(distinct(ReportPost.browser_id)).label("bsum"),
+            func.count(distinct(ReportPost.visitor_ip)).label("bsum"),
         )
         .join(Taboola.posts, isouter=True)
         .join(ReportPost, isouter=True)
@@ -120,8 +122,8 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
     print(_orm)
     # taboolas: Optional[List] = (await session.execute(_orm)).unique().all()
     taboolas: Optional[List] = (await session.execute(_orm)).all()
-    if taboolas:
-        taboolas = list(map(lambda x: x._asdict(), taboolas))
+    # if taboolas:
+    #     taboolas = list(map(lambda x: x._asdict(), taboolas))
 
     return taboolas
 

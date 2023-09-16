@@ -85,15 +85,15 @@ const CustomerField = (props: any) => {
             <Area
               type="monotone"
               dataKey="bsum"
-              name="UV"
-              stroke="#8884d8"
+              name="访客"
+              stroke="#e51b1b"
               fillOpacity={1}
               fill="url(#colorUv)"
             />
             <Area
               type="monotone"
               dataKey="psum"
-              name="翻页数"
+              name="纵深数"
               stroke="#8884d8"
               fillOpacity={1}
               fill="url(#colorUv)"
@@ -101,7 +101,7 @@ const CustomerField = (props: any) => {
             <Area
               type="monotone"
               dataKey="rsum"
-              name="PV"
+              name="浏览量"
               stroke="#82ca9d"
               fillOpacity={1}
               fill="url(#colorPv)"
@@ -110,7 +110,7 @@ const CustomerField = (props: any) => {
               type="monotone"
               dataKey="tsum"
               name="Taboola"
-              stroke="#82ca9d"
+              stroke="#2d2929"
               fillOpacity={1}
               fill="url(#colorPv)"
             />
