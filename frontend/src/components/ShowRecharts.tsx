@@ -11,6 +11,8 @@ import {
 import { useEffect, useState } from "react";
 import { useDataProvider, useRecordContext } from "react-admin";
 import { Customer } from "../types";
+import React from "react";
+import SimpleDialog from "./SimpleDialog";
 interface Result {
   bsum: Number;
   rsum: Number;
@@ -27,19 +29,32 @@ const CustomerField = (props: any) => {
   const record = useRecordContext<Customer>();
   const dataProvider = useDataProvider();
   const [data, setData] = useState<Data>();
+  const [open, setOpen] = React.useState(false);
   useEffect(() => {
-    dataProvider.getOne(`list/${props?.type}`, { id: record.id})
-    .then((response) => {
-      setData(response.data);
-    });
+    dataProvider
+      .getOne(`list/${props?.type}`, { id: record.id })
+      .then((response) => {
+        setData(response.data);
+      });
   }, []);
+  if (!record) return null;
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value: string) => {
+    setOpen(false);
+  };
+
+
 
   return data ? (
     <>
       <Grid item ml={6}>
         <Grid container justifyContent="left" spacing={2}>
           {Object.keys(data?.total as any).map((key, index) => (
-            <Grid key={index} item>
+            <Grid key={index} onClick={()=> {if(key=='Taboola') handleClickOpen()}} item>
               <Paper
                 elevation={0}
                 sx={{
@@ -52,6 +67,7 @@ const CustomerField = (props: any) => {
                   padding: "4px",
                   position: "relative",
                 }}
+                
               >
                 <Typography sx={{ fontSize: "12px", display: "p" }}>
                   {key}
@@ -117,8 +133,9 @@ const CustomerField = (props: any) => {
           </AreaChart>
         </ResponsiveContainer>
       </Grid>
+      <SimpleDialog open={open} onClose={handleClose} />
     </>
   ) : null;
 };
 
-export default CustomerField
+export default CustomerField;

@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Query
 from typing import List, Any, Optional
+from app.schemas.msg import Msg
 from sqlalchemy import select, func
 from starlette.responses import Response
 from app.schemas.post import PostListReport as SchemasPost, ReportPost as SchemasReportPost
@@ -9,7 +10,7 @@ from app.deps.db import CurrentAsyncSession
 from app.deps.request_params import PostRequestParams, TaboolaRequestParams,BrowserRequestParams, PostReportRequestParams
 from app.crud import post as crud
 from app.models.report import Post, Taboola, BrowserInfo, ReportPost
-
+from app.utils.taboola_api import TaboolaApi
 
 router = APIRouter(prefix="/list")
 
@@ -92,3 +93,29 @@ async def report_list(
     ] = f"{request_params.skip}-{request_params.skip + len(reports)} /{total}"
     return reports
 
+@router.get("/post/update_campaign/{post_id}", response_model=Msg,status_code=201)
+async def post_update_campaign(post_id:int, session: CurrentAsyncSession, active:bool=Query(...))->Any:
+    taboola: Optional[Taboola] = await crud.get_post_by_post_id(session, post_id)
+    if taboola is None:
+        return "error"
+    apis = TaboolaApi()
+    apis.get_token()
+    if apis.post_update_campaign(taboola.campaign_id, taboola.campaign_item_id):
+        post: Post = taboola.posts[0]
+        post.promotion = int(active)
+        await session.commit()
+    
+    return {"msg": apis.msg}
+
+@router.get("/taboola/update_campaign/{taboola_id}", response_model=Msg,status_code=201)
+async def taboola_update_campaign(taboola_id:int, session: CurrentAsyncSession, active:bool=Query(...))->Any:
+    taboola: Optional[Taboola] = await crud.get_taboola_by_post_id(session, taboola_id)
+    if taboola is None:
+        return "error"
+    apis = TaboolaApi()
+    apis.get_token()
+    if apis.taboola_update_campaign(taboola.site):
+        taboola.promotion = int(active)
+        await session.commit()
+    
+    return {"msg": apis.msg}

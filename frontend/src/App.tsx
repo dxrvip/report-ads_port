@@ -43,9 +43,9 @@ const App = () => {
       <CustomRoutes>
         <Route path="/my-profile" element={<ProfileEdit />} />
       </CustomRoutes>
-      <CustomRoutes noLayout>
+      {/* <CustomRoutes noLayout>
         <Route path="/register" element={<Register />} />
-      </CustomRoutes>
+      </CustomRoutes> */}
       {(permissions) => [
         permissions.is_superuser === true ? (
           <Resource

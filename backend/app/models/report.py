@@ -100,7 +100,7 @@ class Taboola(Base):
     reports: Mapped[List["ReportPost"]] = relationship(back_populates="taboola_info")
 
 
-    promotion: Mapped[int] = mapped_column(SmallInteger,nullable=True,comment="停止推广")
+    promotion: Mapped[int] = mapped_column(SmallInteger,default=1,comment="停止推广")
     # @hybrid_property
     # def _platform(self):
     #     print(self._platform)
@@ -146,7 +146,7 @@ class Post(Base):
         ForeignKey("domain.id"), nullable=True, server_default=None
     )
 
-    promotion: Mapped[int] = mapped_column(SmallInteger,nullable=True,comment="停止推广")
+    promotion: Mapped[int] = mapped_column(SmallInteger,default=1,comment="停止推广")
     # @hybrid_property
     # def sum_upv(self)-> tuple:
     #     return (len(self.browser_info), len(self.report_post))

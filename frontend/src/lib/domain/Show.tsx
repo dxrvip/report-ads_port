@@ -12,29 +12,6 @@ import TabPanel from "../../components/TabPanel";
 import BrowserList from "../report/BrowserList";
 import ReportList from "../report/ReportList";
 
-// function SimpleDialog(props: any) {
-//   const { onClose, selectedValue, open } = props;
-
-//   const handleClose = () => {
-//     onClose(selectedValue);
-//   };
-
-//   return (
-//     <Dialog
-//       onClose={handleClose}
-//       aria-labelledby="simple-dialog-title"
-//       open={open}
-//     >
-//       <DialogTitle id="simple-dialog-title">Set backup account</DialogTitle>
-//       <List>
-//         <Datagrid>
-//           <TextField source="id" />
-//           <TextField source="base_url" />
-//         </Datagrid>
-//       </List>
-//     </Dialog>
-//   );
-// }
 function a11yProps(index: any) {
   return {
     id: `simple-tab-${index}`,
@@ -58,20 +35,20 @@ const DomainShow = (props: any) => {
           aria-label="simple tabs example"
         >
           <Tab label="文章列表" {...a11yProps(0)} />
-          <Tab label="Taboola List" {...a11yProps(1)} />
-          <Tab label="指纹列表" {...a11yProps(2)} />
-          <Tab label="访问记录" {...a11yProps(3)} />
+          {/* <Tab label="Taboola List" {...a11yProps(1)} /> */}
+          {/* <Tab label="指纹列表" {...a11yProps(2)} /> */}
+          <Tab label="访问记录" {...a11yProps(1)} />
         </Tabs>
       <TabPanel value={value} index={0}>
         <PostList />
       </TabPanel>
-      <TabPanel value={value} index={1}>
+      {/* <TabPanel value={value} index={1}>
         <TaboolaList />
       </TabPanel>
       <TabPanel value={value} index={2}>
         <BrowserList />
-      </TabPanel>
-      <TabPanel value={value} index={3}>
+      </TabPanel> */}
+      <TabPanel value={value} index={1}>
         <ReportList />
       </TabPanel> 
     </Card>

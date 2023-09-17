@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import Any
 from datetime import datetime, timedelta
 from sqlalchemy import select, func, distinct, cast, Integer
@@ -18,6 +18,7 @@ async def post_list(session: Session, request_params: PostRequestParams):
             Post.url,
             Post.id,
             Post.create_time,
+            Post.promotion,
             func.count(ReportPost.id).label("rsum"),
             func.count(distinct(Taboola.id)).label("tsum"),
             func.count(distinct(ReportPost.visitor_ip)).label("bsum"),
@@ -125,14 +126,17 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
             Taboola.id,
             Taboola.site_id,
             Taboola.create,
-            func.count(distinct(ReportPost.post_id)).label("psum"),
-            func.count(distinct(ReportPost.id)).label("rsum"),
-            func.count(distinct(ReportPost.visitor_ip)).label("bsum"),
+            Taboola.promotion,
+            func.sum(cast(ReportPost.is_page, Integer)).label("page_sum"),
+            func.count(distinct(ReportPost.post_id)).label("post_sum"),
+            func.count(distinct(ReportPost.id)).label("report_sum"),
+            func.count(distinct(ReportPost.visitor_ip)).label("ip_sum"),
         )
         .join(Taboola.posts)
         .join(ReportPost, ReportPost.post_id == Post.id, isouter=True)
         .where(
-            Taboola.id.in_(select(Taboola.id).join(Taboola.posts.and_(Post.id == request_params.record_id)))
+            Taboola.id.in_(select(Taboola.id).join(Taboola.posts.and_(Post.id == request_params.record_id))),
+            ReportPost.taboola_id==Taboola.id
         )
         .offset(request_params.skip)
         .limit(request_params.limit)
@@ -191,3 +195,16 @@ async def reports_list(session: Session, request_params: PostReportRequestParams
     if reports:
         reports = list(map(lambda x: x._asdict(), reports))
     return reports
+
+
+async def get_post_by_post_id(session: Session, post_id)-> Any:
+    
+    _orm = select(Taboola).join(Taboola.posts.and_(Post.id==post_id)).options(joinedload(Taboola.posts.and_(Post.id==post_id)))
+    taboola: Optional[Taboola] = (await session.execute(_orm)).scalar()
+    return taboola
+
+async def get_taboola_by_post_id(session: Session, taboola_id)-> Any:
+    
+    _orm = select(Taboola).where(Taboola.id == taboola_id)
+    taboola: Optional[Taboola] = (await session.execute(_orm)).scalar()
+    return taboola
