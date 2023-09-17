@@ -27,7 +27,7 @@ async def create_report(
     site_id: Optional[int] = Header(None),
     user_agent: Optional[str] = Header(None),
 ) -> Any:
-    print(href, report_in, user_agent, site_id, "============", Header)
+    print(href, report_in, user_agent, site_id, "============")
   
     host = urllib.parse.urlparse(href).netloc
     domain = await get_domain_by_host(session, host)
