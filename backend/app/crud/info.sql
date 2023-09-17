@@ -1,9 +1,4 @@
-SELECT
-    report."create",
-    count(DISTINCT report.post_id) AS rsum,
-    count(DISTINCT report.browser_id) AS bsum,
-    count(DISTINCT report.taboola_id) AS tsum
-FROM
-    report
-GROUP BY
-    CURRENT_DATE(report."create")
+SELECT taboola.id, taboola.site, taboola.site_id, taboola.click_id, taboola.campaign_item_id, taboola.campaign_id, taboola.platform, taboola."create", taboola.promotion 
+FROM taboola JOIN post_taboola_table AS post_taboola_table_1 ON taboola.id = post_taboola_table_1.taboola_id JOIN post ON post.id = post_taboola_table_1.post_id LEFT OUTER JOIN report ON report.post_id = post.id 
+WHERE taboola.id IN (SELECT taboola.id 
+FROM taboola JOIN post_taboola_table AS post_taboola_table_2 ON taboola.id = post_taboola_table_2.taboola_id JOIN post ON post.id = post_taboola_table_2.post_id AND post.id = :id_1) GROUP BY taboola.id ORDER BY taboola.id DESC

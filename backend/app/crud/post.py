@@ -119,19 +119,36 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
     # )
     # print(_orm)
     # taboolas: Optional[List] = (await session.execute(_orm)).unique().all()
+
     _orm = (
-        select(Post.id)
-        .where(Post.id == request_params.record_id)
-        .join(Post.taboolas)
-        .join(ReportPost, ReportPost.post_id==Post.id, isouter=True)
+        select(
+            Taboola.id,
+            Taboola.site_id,
+            Taboola.create,
+            func.count(distinct(ReportPost.post_id)).label("psum"),
+            func.count(distinct(ReportPost.id)).label("rsum"),
+            func.count(distinct(ReportPost.visitor_ip)).label("bsum"),
+        )
+        .join(Taboola.posts)
+        .join(ReportPost, ReportPost.post_id == Post.id, isouter=True)
+        .where(
+            Taboola.id.in_(select(Taboola.id).join(Taboola.posts.and_(Post.id == request_params.record_id)))
+        )
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(request_params.order_by)
+        .group_by(Taboola.id)
     )
     print(_orm)
     taboolas: Optional[List] = (await session.execute(_orm)).all()
     # if taboolas:
-    #     taboolas = list(map(lambda x: x._asdict(), taboolas))
+    #    https://www.pmsnhu.com/these-15-travel-destinations-are-worth-the-hype-versus-those-that-dont?click_id=GiDNq7JpdZ_3kYVmk-jWgGLJBIPYS7z_zTobYgppyu2wqCCDk2EorZLR77DegcEm&tblci=GiDNq7JpdZ_3kYVmk-jWgGLJBIPYS7z_zTobYgppyu2wqCCDk2EorZLR77DegcEm&
+    # campaign_id=27592800
+    # &campaign_item_id=3731635642
+    # &site_id=1536824
+    # &site=laptopsvilla-publisher
+    # &utm_source=Taboola
+    # &platform=Smartphone#tblciGiDNq7JpdZ_3kYVmk-jWgGLJBIPYS7z_zTobYgppyu2wqCCDk2EorZLR77DegcEm
 
     return taboolas
 

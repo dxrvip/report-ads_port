@@ -24,9 +24,10 @@ async def create_report(
     request: Request,
     href: Optional[str] = Header(None),
     slug: Optional[str] = Header(None),
+    site_id: Optional[int] = Header(None),
     user_agent: Optional[str] = Header(None),
 ) -> Any:
-    print(href, report_in.dict(), user_agent)
+    print(href, report_in.dict(), user_agent, site_id)
   
     host = urllib.parse.urlparse(href).netloc
     domain = await get_domain_by_host(session, host)
@@ -51,10 +52,11 @@ async def create_report(
     )
 
     post: Optional[Post | None] = await crud.create_post(session, href, slug, domain)
+
     if is_taboola:
         taboola:Optional[Taboola] = await crud.create_taboola(session, taboola_in, post=post)
- 
-    taboola = taboola if is_taboola else None
+    else:
+        taboola:Optional[Taboola] = await crud.get_taboola_by_click_id(session, None,site_id=site_id)
     
     # 浏览器指纹
     browser: BrowserInfo = await crud.create_browser(

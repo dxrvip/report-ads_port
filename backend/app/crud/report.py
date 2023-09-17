@@ -43,10 +43,13 @@ async def get_browser(db: Session, fin_id: str):
     return browser
 
 
-async def get_taboola_by_click_id(db: Session, post:Post, site_id=None):
+async def get_taboola_by_click_id(db: Session, post:Optional[Post], site_id=None):
     if site_id is None:
         return None
-    _orm = select(Taboola).where(Taboola.site_id == site_id).options(joinedload(Taboola.posts.and_(Post.id==post.id)))
+    if post is None:
+        _orm = select(Taboola).where(Taboola.site_id == site_id)
+    else:
+        _orm = select(Taboola).where(Taboola.site_id == site_id).options(joinedload(Taboola.posts.and_(Post.id==post.id)))
     taboola: Optional[Taboola | None] = (await db.execute(_orm)).scalar()
     return taboola
 
@@ -75,7 +78,7 @@ async def create_post(
     post: Optional[Post | None] = await get_post_by_slug(db=db, slug=slug)
     if post is None:
         index = 1 if href.find("?") > -1 else 0
-        url = re.search(r"^h(.+)\?|^(.+)$", href)[index]
+        url = re.search(r"^(.+)\?|^(.+)$", href)[index]
         post: Post = Post(slug=slug, url=url)
         post.domain_id = domain.id
         db.add(post)

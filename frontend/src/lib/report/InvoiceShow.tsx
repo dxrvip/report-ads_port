@@ -59,13 +59,13 @@ const InvoiceShow = (props: any) => {
               resource="list/taboola"
               actions={false}
               filter={{ record_id: record.id }}
-              title="/特博拉"
+              title={"."}
             >
               <Datagrid>
                 <TextField source="id" />
                 <TextField source="site_id" label="siteId" />
                 <DateField source="create" label="时间" showTime />
-                <TextField source="platform" label="设备" />
+                {/* <TextField source="platform" label="设备" /> */}
                 <TextField source="psum" label="总文章数" />
                 <TextField source="bsum" label="总访客数" />
                 <TextField source="rsum" label="累计浏览量" />

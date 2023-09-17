@@ -49,7 +49,7 @@ async def get_taboolas(
     request_params: TaboolaRequestParams,
     user: CurrentUser 
 ):
-    total = await session.scalar(select(func.count(Taboola.id)))
+    total = await session.scalar(select(func.count(Taboola.id)).join(Taboola.posts.and_(Post.id==request_params.record_id)))
     taboolas = await crud.taboola_list(session=session, request_params=request_params)
 
     response.headers[
