@@ -24,7 +24,7 @@ async def create_report(
     request: Request,
     href: Optional[str] = Header(None),
     slug: Optional[str] = Header(None),
-    site_id: Optional[int] = Header(None),
+    site_id: Optional[str] = Header(None),
     user_agent: Optional[str] = Header(None),
 ) -> Any:
     print(href, report_in, user_agent, site_id, "============")
@@ -56,7 +56,7 @@ async def create_report(
     if is_taboola:
         taboola:Optional[Taboola] = await crud.create_taboola(session, taboola_in, post=post)
     else:
-        taboola:Optional[Taboola] = await crud.get_taboola_by_click_id(session, None,site_id=site_id)
+        taboola:Optional[Taboola] = await crud.get_taboola_by_click_id(session, None,site_id=int(site_id))
     
     # 浏览器指纹
     browser: BrowserInfo = await crud.create_browser(
