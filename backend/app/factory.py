@@ -80,7 +80,7 @@ def setup_cors_middleware(app):
             allow_credentials=True,
             allow_methods=["*"],
             expose_headers=["Content-Range", "Range"],
-            allow_headers=["Authorization", "Range", "Content-Range", "href", "slug", "site_id"],
+            allow_headers=["Authorization", "Range", "Content-Range", "href", "slug"],
         )
 
 
