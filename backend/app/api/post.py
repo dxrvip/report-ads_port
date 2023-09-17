@@ -100,7 +100,7 @@ async def post_update_campaign(post_id:int, session: CurrentAsyncSession, active
         return "error"
     apis = TaboolaApi()
     apis.get_token()
-    if apis.post_update_campaign(taboola.campaign_id, taboola.campaign_item_id):
+    if apis.post_update_campaign(taboola.campaign_id, taboola.campaign_item_id, active):
         post: Post = taboola.posts[0]
         post.promotion = int(active)
         await session.commit()
