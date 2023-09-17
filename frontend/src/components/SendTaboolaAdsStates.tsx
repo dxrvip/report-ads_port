@@ -40,7 +40,7 @@ function SendTaboolaAdsStates({ label }: { label: string }) {
         <CircularProgress color="inherit" />
       </Backdrop>
       <Button
-        disabled={record?.promotion ? true : false}
+        disabled={record?.promotion ? false : true}
         onClick={(e) => {
           e.stopPropagation();
           handleOpen()
