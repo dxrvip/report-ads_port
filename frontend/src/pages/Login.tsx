@@ -30,11 +30,11 @@ const Login = () => {
       setPassword={setPassword}
       actionName="Sign in"
       submit={submit}
-      extraActions={
-        <Button color="secondary" to={"/register"} component={Link}>
-          Register
-        </Button>
-      }
+      // extraActions={
+      //   <Button color="secondary" to={"/register"} component={Link}>
+      //     Register
+      //   </Button>
+      // }
     />
   );
 };
