@@ -6,7 +6,7 @@ from app.schemas.report import Taboola as TaboolaSchema
 from app.crud import report as crud
 from app.schemas.msg import Msg
 from app.schemas.report import ReportCreate
-from app.models.report import Post, BrowserInfo, Taboola
+from app.models.report import Post, BrowserInfo, Taboola, AdsClick
 from app.deps.users import CurrentAsyncSession, CurrentUser
 from sqlalchemy.exc import IntegrityError
 
@@ -28,7 +28,7 @@ async def create_report(
     user_agent: Optional[str] = Header(None),
 ) -> Any:
     print(href, report_in, user_agent, site_id, "============")
-  
+
     host = urllib.parse.urlparse(href).netloc
     domain = await get_domain_by_host(session, host)
 
@@ -54,25 +54,26 @@ async def create_report(
     post: Optional[Post | None] = await crud.create_post(session, href, slug, domain)
 
     if is_taboola:
-        taboola:Optional[Taboola] = await crud.create_taboola(session, taboola_in, post=post)
+        taboola: Optional[Taboola] = await crud.create_taboola(
+            session, taboola_in, post=post
+        )
     else:
-        taboola:Optional[Taboola] = await crud.get_taboola_by_click_id(session, None,site_id=site_id)
-    
+        taboola: Optional[Taboola] = await crud.get_taboola_by_site_id(
+            session, None, site_id=site_id
+        )
+
     # 浏览器指纹
     browser: BrowserInfo = await crud.create_browser(
         db=session,
         user_agent=user_agent,
         fingerprint_id=report_in.fingerprint_id,
         domain_id=domain.id,
-        post=post
+        post=post,
     )
-    
-    await crud.create_report(
-        session, visitor_ip.id, href, browser.id, post, taboola
-    )
+
+    await crud.create_report(session, visitor_ip.id, href, browser.id, post, taboola)
 
     return {"msg": "success"}
-
 
 
 @router.get("", response_model=List[ReportSchema], status_code=201)
@@ -99,3 +100,28 @@ async def get_report(
     report: Optional[Post] = await crud.get_report(session, report_id)
 
     return report
+
+
+@router.put("/ads", response_model=Msg, status_code=201)
+async def add_ads(
+    db: CurrentAsyncSession,
+    slug: Optional[str] = Header(None),
+    site_id: Optional[int] = Header(None),
+    fingerprint: Optional[str]=Header(None)
+):
+    print(slug, site_id, fingerprint)
+    post: Optional[Post] = await crud.get_post_by_slug(db, slug)
+    taboola: Optional[Taboola] = await crud.get_taboola_by_site_id(db, None, site_id)
+    browser: Optional[BrowserInfo] = await crud.get_browser(db, fingerprint)
+    ads_click: AdsClick = AdsClick()
+    if not browser and not post and not taboola:
+        return {"msg":"error"}
+    if browser:
+        ads_click.browser_id = browser.id
+    if post: 
+        ads_click.post_id = post.id
+    if taboola:
+        ads_click.taboola_id = taboola.id
+    db.add(ads_click)
+    await db.commit()
+    return {"msg": ""}

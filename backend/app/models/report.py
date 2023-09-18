@@ -99,18 +99,17 @@ class Taboola(Base):
 
     reports: Mapped[List["ReportPost"]] = relationship(back_populates="taboola_info")
 
-
-    promotion: Mapped[int] = mapped_column(SmallInteger,default=1,comment="停止推广")
+    promotion: Mapped[int] = mapped_column(SmallInteger, default=1, nullable=True, comment="停止推广")
     # @hybrid_property
     # def _platform(self):
     #     print(self._platform)
     #     pass
-        # if(self._platform in 'Other'):
-        #     return "其他"
-        # elif(self._platform in "Smartphone"):
-        #     return "手机"
-        # print(self._platform)
-        # return self._platform
+    # if(self._platform in 'Other'):
+    #     return "其他"
+    # elif(self._platform in "Smartphone"):
+    #     return "手机"
+    # print(self._platform)
+    # return self._platform
 
     """ SQL: INSERT INTO taboola (site, site_id, click_id, campaign_item_id, campaign_id, platform, domain_id, promotion) VALUES ($1::VARCHAR, $2::INTEGER, $3::VARCHAR, $4::VARCHAR, $5::INTEGER, $6::VARCHAR, $7::INTEGER, $8::INTEGER) RETURNING taboola.id, taboola."create"]
 report-ads_port-backend-1   | 
@@ -118,8 +117,7 @@ report-ads_port-backend-1   |
 report-ads_port-backend-1   | 
 2023-09-16T13:58:24.308200419Z     | (Background on this error at: https://sqlalche.me/e/20/dbapi)
 """
-    #https://www.pmsnhu.com/the-foods-that-could-make-you-want-run-for-the-hills?utm_source=Taboola&campaign_item_id=3731643422&site=jagrannewmedia-jagranjosh&site_id=1450019&campaign_id=27592825&platform=Smartphone#tblciGiCvf7gfZI2-U0jKxVftC6x35t2m9YoVA8GYzgxiTiLUDiCDk2Eov4D15t2DtIk4&click_id=GiCvf7gfZI2-U0jKxVftC6x35t2m9YoVA8GYzgxiTiLUDiCDk2Eov4D15t2DtIk4
-  
+    # https://www.pmsnhu.com/the-foods-that-could-make-you-want-run-for-the-hills?utm_source=Taboola&campaign_item_id=3731643422&site=jagrannewmedia-jagranjosh&site_id=1450019&campaign_id=27592825&platform=Smartphone#tblciGiCvf7gfZI2-U0jKxVftC6x35t2m9YoVA8GYzgxiTiLUDiCDk2Eov4D15t2DtIk4&click_id=GiCvf7gfZI2-U0jKxVftC6x35t2m9YoVA8GYzgxiTiLUDiCDk2Eov4D15t2DtIk4
 
 
 class Post(Base):
@@ -146,7 +144,7 @@ class Post(Base):
         ForeignKey("domain.id"), nullable=True, server_default=None
     )
 
-    promotion: Mapped[int] = mapped_column(SmallInteger,default=1,comment="停止推广")
+    promotion: Mapped[int] = mapped_column(SmallInteger, nullable=True,default=1, comment="停止推广")
     # @hybrid_property
     # def sum_upv(self)-> tuple:
     #     return (len(self.browser_info), len(self.report_post))
@@ -176,7 +174,6 @@ class BrowserInfo(Base):
 
     report: Mapped["ReportPost"] = relationship(back_populates="browser_info")
 
-
     @hybrid_property
     def equipment(self) -> dict:
         try:
@@ -202,3 +199,21 @@ class VisitorIp(Base):
     )
 
     report_post: Mapped["ReportPost"] = relationship(back_populates="visitor")
+
+
+class AdsClick(Base):
+    __tablename__ = "ad_click_list"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    post_id: Mapped[int] = mapped_column(
+        ForeignKey("post.id"), nullable=True, server_default=None
+    )
+    taboola_id: Mapped[int] = mapped_column(
+        ForeignKey("taboola.id"), nullable=True, server_default=None
+    )
+    browser_id: Mapped[int] = mapped_column(
+        ForeignKey("browser_info.id"), nullable=True, server_default=None
+    )
+    create: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), comment="添加时间"
+    )

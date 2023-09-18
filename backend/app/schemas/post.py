@@ -29,6 +29,7 @@ class PostListReport(BaseModel):
     tsum: int
     bsum: int
     rsum: int
+    zssum: Optional[int]
     promotion: Optional[int]
     create_time: Optional[datetime]
     class Config:

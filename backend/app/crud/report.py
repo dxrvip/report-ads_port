@@ -33,7 +33,7 @@ async def create_report(
 
 async def get_post_by_slug(db: Session, slug: str):
     _orm = select(Post).where(Post.slug == slug)
-    post: Optional[Post | None] = (await db.execute(_orm)).scalar()
+    post: Optional[Post | None] = (await db.scalars(_orm)).first()
     return post
 
 
@@ -43,7 +43,7 @@ async def get_browser(db: Session, fin_id: str):
     return browser
 
 
-async def get_taboola_by_click_id(db: Session, post:Optional[Post], site_id=None):
+async def get_taboola_by_site_id(db: Session, post:Optional[Post], site_id=None):
     if site_id is None:
         return None
     if post is None:
@@ -55,7 +55,7 @@ async def get_taboola_by_click_id(db: Session, post:Optional[Post], site_id=None
 
 
 async def create_taboola(db: Session, taboola_in, post: Post):
-    taboola: Optional[Taboola] = await get_taboola_by_click_id(db,post, taboola_in.site_id)
+    taboola: Optional[Taboola] = await get_taboola_by_site_id(db,post, taboola_in.site_id)
     if taboola is None:
         taboola = Taboola(**taboola_in.dict())
         taboola.domain_id = post.domain_id

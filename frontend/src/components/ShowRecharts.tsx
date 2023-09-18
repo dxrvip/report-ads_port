@@ -54,7 +54,7 @@ const CustomerField = (props: any) => {
       <Grid item ml={6}>
         <Grid container justifyContent="left" spacing={2}>
           {Object.keys(data?.total as any).map((key, index) => (
-            <Grid key={index} onClick={()=> {if(key=='Taboola') handleClickOpen()}} item>
+            <Grid key={index} onClick={()=> {if(key=='siteId') handleClickOpen()}} item>
               <Paper
                 elevation={0}
                 sx={{
@@ -101,7 +101,7 @@ const CustomerField = (props: any) => {
             <Area
               type="monotone"
               dataKey="bsum"
-              name="访客"
+              name="访客数"
               stroke="#e51b1b"
               fillOpacity={1}
               fill="url(#colorUv)"
@@ -109,7 +109,7 @@ const CustomerField = (props: any) => {
             <Area
               type="monotone"
               dataKey="psum"
-              name="纵深数"
+              name="翻页数"
               stroke="#8884d8"
               fillOpacity={1}
               fill="url(#colorUv)"
@@ -125,7 +125,7 @@ const CustomerField = (props: any) => {
             <Area
               type="monotone"
               dataKey="tsum"
-              name="Taboola"
+              name="siteID"
               stroke="#2d2929"
               fillOpacity={1}
               fill="url(#colorPv)"

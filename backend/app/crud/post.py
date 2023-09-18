@@ -19,13 +19,15 @@ async def post_list(session: Session, request_params: PostRequestParams):
             Post.id,
             Post.create_time,
             Post.promotion,
-            func.count(ReportPost.id).label("rsum"),
+            func.count(distinct(ReportPost.id)).label("rsum"),
             func.count(distinct(Taboola.id)).label("tsum"),
+            func.count(distinct(BrowserInfo.id)).label("zssum"),
             func.count(distinct(ReportPost.visitor_ip)).label("bsum"),
         )
         .filter(Post.domain_id == request_params.record_id)
-        .join(ReportPost, Post.id == ReportPost.post_id, isouter=True)
         .join(Post.taboolas, isouter=True)
+        .join(Post.browser_info)
+        .join(ReportPost, Post.id == ReportPost.post_id, isouter=True)
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(request_params.order_by)
@@ -56,10 +58,13 @@ async def get_statistics(db: Session, type, id):
         select(
             day.label("day"),
             func.sum(cast(ReportPost.is_page, Integer)).label("psum"),
-            func.count(ReportPost.post_id).label("rsum"),
+            func.count(distinct(ReportPost.post_id)).label("rsum"),
             func.count(distinct(ReportPost.visitor_ip)).label("bsum"),
-            func.count(distinct(ReportPost.taboola_id)).label("tsum"),
+            func.count(distinct(ReportPost.browser_id)).label("zssum"),
+            func.count(distinct(Taboola.id)).label("tsum"),
         )
+        .join(Post.taboolas, isouter=True)
+        .join(ReportPost, ReportPost.post_id==Post.id, isouter=True)
         .filter(t)
         .where(ReportPost.create.between(start_date, end_date))
         .group_by(
@@ -72,10 +77,10 @@ async def get_statistics(db: Session, type, id):
     result = (await db.execute(_orm)).mappings()
     dict_row = [item for item in result]
     curret_date, row_dict = start_date, []
-    psum, rsum, bsum, tsum = 0, 0, 0, 0
+    psum, rsum, bsum, tsum,zssum = 0, 0, 0, 0,0
     while True:
         day = curret_date.day
-        x: dict = {"id": day, "psum": 0, "rsum": 0, "bsum": 0, "tsum": 0}
+        x: dict = {"id": day, "psum": 0, "rsum": 0, "bsum": 0, "tsum": 0, "zssum": 0}
         for index, row in enumerate(dict_row):
             if int(row.day) == day:
                 x.update({**row})
@@ -83,6 +88,7 @@ async def get_statistics(db: Session, type, id):
                 rsum += row.rsum
                 bsum += row.bsum
                 tsum += row.tsum
+                zssum += row.zssum
                 dict_row.pop(index)
                 break
         x["date"] = curret_date.strftime("%Y-%m-%d")
@@ -94,7 +100,7 @@ async def get_statistics(db: Session, type, id):
     return {
         "result": row_dict,
         "id": 1,
-        "total": {"纵深": psum, "浏览量": rsum, "访客数": bsum, "Taboola": tsum},
+        "total": {"翻页": psum, "浏览量": rsum, "访客数": bsum, "siteId": tsum, "纵深访客": zssum},
     }
 
 
