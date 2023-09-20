@@ -40,7 +40,7 @@ const ReportList = (props: any) => {
       <List
         resource="list/report"
         actions={false}
-        filter={{ record_id: recordId }}
+        filter={{ domain_id: recordId }}
         title="/访客"
       >
         <Datagrid rowClick={postRowClick as any}>

@@ -1,10 +1,19 @@
 import os, tempfile, requests
+def singleton(cls):
+    instances = {}
+    def get_instance(*args, **kwargs):
+        if cls not in instances:
+            instances[cls] = cls(*args, **kwargs)
+        return instances[cls]
+    return get_instance
 
-
+@singleton
 class TaboolaApi:
     _CLIENT_ID = os.getenv("CLIENT_ID")
     _CLIENT_SECRET = os.getenv("CLIENT_SECRET")
     _ACCOUNT_ID = os.getenv("ACCOUNT_ID")
+
+   
 
     def __init__(self) -> None:
         print(self._CLIENT_SECRET, self._CLIENT_ID)
@@ -14,10 +23,10 @@ class TaboolaApi:
         pass
 
     def get_token(self):
-        path = os.path.join(os.getcwd(), "backend/app/utils/token.txt")
-        with open(path, "r", encoding="utf-8") as f:
-            self.token = f.read()
-            return
+        # path = os.path.join(os.getcwd(), "backend/app/utils/token.txt")
+        # with open(path, "r", encoding="utf-8") as f:
+        #     self.token = f.read()
+        #     return
 
         url = "https://backstage.taboola.com/backstage/oauth/token"
 

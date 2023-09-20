@@ -43,10 +43,10 @@ const CustomerField = (props: any) => {
 
   return data ? (
     <>
-      {/* <Grid item ml={6}>
+      <Grid item ml={6}>
         <Grid container justifyContent="left" spacing={2}>
           {Object.keys(data?.total as any).map((key, index) => (
-            <Grid key={index} onClick={()=> {if(key=='siteId') handleClickOpen()}} item>
+            <Grid key={index} item>
               <Paper
                 elevation={0}
                 sx={{
@@ -69,7 +69,7 @@ const CustomerField = (props: any) => {
             </Grid>
           ))}
         </Grid>
-      </Grid> */}
+      </Grid>
       <Grid item>
         <ResponsiveContainer width={830} minHeight={200}>
           <AreaChart

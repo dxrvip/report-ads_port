@@ -26,9 +26,9 @@ class Posts(BaseModel):
 class PostListReport(BaseModel):
     id: int
     url: str
-    tsum: int
-    bsum: int
-    rsum: int
+    taboola_sum: int
+    ip_sum: int
+    report_sum: int
     zssum: Optional[int]
     page_sum: Optional[int]
     promotion: Optional[int]

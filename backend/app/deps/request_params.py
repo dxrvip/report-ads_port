@@ -8,7 +8,7 @@ from app.db import Base
 from app.models.item import Item
 from app.models.domain import Domain
 from app.models.report import ReportPost, Post, Taboola, BrowserInfo
-from app.schemas.request_params import RequestParams, PostParams
+from app.schemas.request_params import RequestParams, ReportParams
 
 
 def parse_react_admin_params(model: Type[Base]) -> Callable:
@@ -49,7 +49,7 @@ def parse_react_admin_params(model: Type[Base]) -> Callable:
     return inner
 
 def parse_react_post_params(model: Type[Base]) -> Callable:
-    """解析来自react-admin请求的排序和范围参数"""
+    """解析来自react-admin统计请求的排序和范围参数"""
 
     def inner(
         sort_: Optional[str] = Query(
@@ -65,15 +65,15 @@ def parse_react_post_params(model: Type[Base]) -> Callable:
             example="[0, 10]",
         ),
         filter_: Optional[str] = Query(
-            None,
+            ...,
             alias="filter",
-            description="Format: `[post_id]`",
-            example='["domain_id"]'
+            description="统计数据字段",
+            example='["domain_id", "post_id"]'
         )
     ) -> RequestParams:
         skip, limit = 0, 10
         if filter_:
-            record_id = json.loads(filter_).get('record_id')
+            filter_dict = json.loads(filter_)
         if range_:
             start, end = json.loads(range_)
             skip, limit = start, (end - start + 1)
@@ -87,16 +87,20 @@ def parse_react_post_params(model: Type[Base]) -> Callable:
                 direction = desc
             else:
                 raise HTTPException(400, f"Invalid sort direction {sort_order}")
-            order_by = direction(model.__table__.c[sort_column])
-
-        return PostParams(skip=skip, limit=limit, order_by=order_by, record_id=record_id)
+            if model.__dict__.get(sort_column):
+                order_by = direction(model.__table__.c[sort_column])
+            else:
+                order_by = direction(sort_column)
+        return ReportParams(**filter_dict, skip=skip, limit=limit, order_by=order_by)
 
     return inner
 
 ItemRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(Item))]
 DomainRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(Domain))]
 ReportRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(ReportPost))]
-PostRequestParams = Annotated[PostParams, Depends(parse_react_post_params(Post))]
-TaboolaRequestParams = Annotated[PostParams, Depends(parse_react_post_params(Taboola))]
-BrowserRequestParams = Annotated[PostParams, Depends(parse_react_post_params(BrowserInfo))]
-PostReportRequestParams = Annotated[RequestParams, Depends(parse_react_post_params(ReportPost))]
+
+
+PostRequestParams = Annotated[ReportParams, Depends(parse_react_post_params(Post))]
+TaboolaRequestParams = Annotated[ReportParams, Depends(parse_react_post_params(Taboola))]
+BrowserRequestParams = Annotated[ReportParams, Depends(parse_react_post_params(BrowserInfo))]
+PostReportRequestParams = Annotated[ReportParams, Depends(parse_react_post_params(ReportPost))]

@@ -17,7 +17,7 @@ export interface SimpleDialogProps {
 }
 
 
-function CaceZsField({ source, label }: { source: string; label: string }) {
+export function CaceZsField({ source, label }: { source: string; label: string }) {
   const record = useRecordContext<Invoice>();
 
   if (!record) return null;
@@ -67,7 +67,7 @@ function SimpleDialog(props: SimpleDialogProps) {
           <List
             resource="list/taboola"
             actions={false}
-            filter={{ record_id: record.id }}
+            filter={{ post_id: record.id}}
             title={"."}
             debounce={1000}
             disableSyncWithLocation

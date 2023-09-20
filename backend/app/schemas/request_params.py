@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from pydantic.main import BaseModel
 
@@ -9,8 +9,12 @@ class RequestParams(BaseModel):
     order_by: Any
 
 
-class PostParams(BaseModel):
+class ReportParams(BaseModel):
     skip: int
     limit: int
     order_by: Any
-    record_id: int
+    domain_id: Optional[int] = None
+    post_id: Optional[int] = None
+
+    class Config:
+        orm_mode=True

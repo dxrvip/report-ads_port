@@ -17,7 +17,7 @@ const PostList = (props: any) => {
       <List
         resource="list/post"
         actions={false}
-        filter={{ record_id: recordId }}
+        filter={{"domain_id": recordId}}
         title="/文章"
         debounce={200}
           >
@@ -25,11 +25,11 @@ const PostList = (props: any) => {
           <TextField source="id" />
           <MyUrlField source="url" />
           <DateField source="create_time" label="添加日期" showTime />
-          <MyButton source="tsum" label="siteId" />
+          <MyButton source="taboola_sum" label="siteId" />
           {/* <TextField source="page_sum" label="翻页数" /> */}
           <TextField source="zssum" label="有纵深行为访客数" />
-          <TextField source="bsum" label="访客总数" />
-          <TextField source="rsum" label="访问页面总数" />
+          <TextField source="ip_sum" label="访客总数" />
+          <TextField source="report_sum" label="累计浏览量" />
           <SendTaboolaAdsStates label="操作" />
         </Datagrid>
       </List>
