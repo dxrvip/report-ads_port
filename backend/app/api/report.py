@@ -54,7 +54,7 @@ async def create_report(
     post: Optional[Post | None] = await crud.create_post(session, href, slug, domain)
     # 1, 不是taboola进入，2，带site——id进入，3，没有任何tab信息
     if is_taboola or site_id: # 1, 不是taboola进入，2，带site——id进入
-        if not is_taboola:
+        if not is_taboola and site_id != 'null':
             taboola_in = {"site_id":site_id}
         else:
             taboola_in = taboola_in.dict()
