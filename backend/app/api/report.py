@@ -70,7 +70,7 @@ async def create_report(
         post=post,
     )
 
-    await crud.create_report(session, visitor_ip.id, href, browser.id, post, taboola)
+    await crud.create_report(session, visitor_ip.id, href, browser.id, post, (taboola or None))
 
     return {"msg": "success"}
 
