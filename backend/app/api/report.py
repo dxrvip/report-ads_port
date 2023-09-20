@@ -28,7 +28,9 @@ async def create_report(
     user_agent: Optional[str] = Header(None),
 ) -> Any:
     print(href, report_in, user_agent, site_id, "============")
-
+    is_taboola = href.find("Taboola") > -1
+    if site_id == 'null' and not is_taboola:
+        raise HTTPException(200, detail="not site_id")
     host = urllib.parse.urlparse(href).netloc
     domain = await get_domain_by_host(session, host)
 
@@ -36,7 +38,7 @@ async def create_report(
     if domain is None or not slug or slug == "null" or slug == "undefined":
         raise HTTPException(402, detail="not post or domain")
     # 判断是否有taboola信息
-    is_taboola = href.find("Taboola") > -1
+    
     if is_taboola:
         # 插入taboola信息
         query: str = re.findall(r"\?(.+)$", href)[0]
@@ -53,7 +55,7 @@ async def create_report(
 
     post: Optional[Post | None] = await crud.create_post(session, href, slug, domain)
     # 1, 不是taboola进入，2，带site——id进入，3，没有任何tab信息
-    if is_taboola or (site_id != 'null'): # 1, 不是taboola进入，2，带site——id进入
+    if is_taboola: # 1, 不是taboola进入，2，带site——id进入
         if not is_taboola:
             taboola_in = {"site_id":site_id}
         else:

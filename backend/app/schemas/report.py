@@ -64,6 +64,7 @@ class ResultTaboola(BaseModel):
     post_sum: int
     report_sum: Optional[int]
     ip_sum: Optional[int]
+    zs_sum: Optional[int]
     create: Optional[datetime]
     promotion: Optional[bool]
     class Config:

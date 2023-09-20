@@ -4,11 +4,11 @@ from sqlalchemy.orm import (
     defaultload,
     selectinload,
     subqueryload,
-    aliased
+    aliased,
 )
 from typing import Any
 from datetime import datetime, timedelta
-from sqlalchemy import select, func, distinct, cast, Integer,text
+from sqlalchemy import select, func, distinct, cast, case, Integer, text
 from typing import List, Optional
 from app.models.report import Post, BrowserInfo, ReportPost, Taboola
 from app.deps.request_params import (
@@ -80,7 +80,7 @@ async def get_statistics(db: Session, type, id):
             day.label("day"),
             func.sum(cast(ReportPost.is_page, Integer)).label("psum"),
             func.count(distinct(ReportPost.id)).label("rsum"),
-            func.count(distinct(ReportPost.visitor_ip)).label("bsum"),
+            func.count(distinct(ReportPost.browser_id)).label("bsum"),
             func.count(distinct(ReportPost.browser_id)).label("zssum"),
             func.count(distinct(ReportPost.taboola_id)).label("tsum"),
         )
@@ -124,31 +124,10 @@ async def get_statistics(db: Session, type, id):
 
 
 async def taboola_list(session: Session, request_params: TaboolaRequestParams):
-    # _orm = (
-    #     select(
-    #         Taboola.id,
-    #         Taboola.site_id,
-    #         Taboola.platform,
-    #         Taboola.create,
-    #         func.count(distinct(ReportPost.post_id)).label("psum"),
-    #         func.count(distinct(ReportPost.id)).label("rsum"),
-    #         func.count(distinct(ReportPost.visitor_ip)).label("bsum"),
-    #     )
-    #     .join(Taboola.posts, isouter=True)
-    #     .join(ReportPost, isouter=True)
-    #     .filter(Taboola.posts == request_params.record_id)
-    #     .offset(request_params.skip)
-    #     .limit(request_params.limit)
-    #     .order_by(request_params.order_by)
-    #     .group_by(Taboola.id)
-    #     # .options(joinedload(Taboola.posts).subqueryload(Post.report_post))
-    # )
-    # print(_orm)
-    # taboolas: Optional[List] = (await session.execute(_orm)).unique().all()
     subquery = (
         select(Taboola.id)
         .join(Post.taboolas)
-        .where(Post.id == 3, Post.domain_id == 2)
+        .where(Post.id == request_params.record_id, Post.domain_id == 2)
         .subquery()
     )
     taboola_ali = aliased(Taboola, subquery)
@@ -162,18 +141,21 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
             Taboola.promotion,
             func.count(distinct(post1.id)).label("post_sum"),
             func.count(distinct(ReportPost.id)).label("report_sum"),
-            func.count(distinct(ReportPost.browser_id)).label("browser_sum"),
+            func.count(distinct(ReportPost.browser_id)).label("ip_sum"),
             (
                 func.sum(cast(ReportPost.is_page, Integer))
                 / func.count(distinct(post1.id))
             ).label("page_sum"),
-            # func.count(distinct(post2.id)).label("zs_sum")
+            (
+                func.count(distinct(ReportPost.browser_id))
+                - func.count(distinct(post2.id))
+            ).label("zs_sum"),
         )
         .select_from(Taboola)
         .join(taboola_ali, Taboola.id == taboola_ali.id)
         .join(Taboola.posts.of_type(post1))
         .join(ReportPost, ReportPost.taboola_id == Taboola.id)
-        .join(BrowserInfo, BrowserInfo.id==ReportPost.browser_id)
+        .join(BrowserInfo, BrowserInfo.id == ReportPost.browser_id)
         # .add_columns(BrowserInfo)
         .join(BrowserInfo.posts.of_type(post2))
         .group_by(Taboola.id)

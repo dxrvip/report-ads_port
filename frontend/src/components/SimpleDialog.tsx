@@ -15,14 +15,15 @@ export interface SimpleDialogProps {
   open: boolean;
   onClose: () => void;
 }
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  "& .MuiDialogContent-root": {
-    padding: theme.spacing(2),
-  },
-  "& .MuiDialogActions-root": {
-    padding: theme.spacing(1),
-  },
-}));
+
+
+function CaceZsField({ source, label }: { source: string; label: string }) {
+  const record = useRecordContext<Invoice>();
+
+  if (!record) return null;
+
+  return <span>{record[source] > 0 ? record[source] : 0}</span>;
+}
 function SimpleDialog(props: SimpleDialogProps) {
   const { onClose, open } = props;
   const record = useRecordContext<Invoice>();
@@ -34,10 +35,10 @@ function SimpleDialog(props: SimpleDialogProps) {
   //   };
   return (
     <Dialog
-      onClose={(event: any)=>{
-        event.stopPropagation()
-        onClose()
-        return
+      onClose={(event: any) => {
+        event.stopPropagation();
+        onClose();
+        return;
       }}
       aria-labelledby="simple-dialog-title"
       fullWidth
@@ -54,14 +55,14 @@ function SimpleDialog(props: SimpleDialogProps) {
           color: (theme) => theme.palette.grey[500],
         }}
         onClick={(e) => {
-          e.stopPropagation()
+          e.stopPropagation();
           onClose();
-          return
+          return;
         }}
       >
         <CloseIcon />
       </IconButton>
-      <DialogContent onClick={(e)=> e.stopPropagation()}>
+      <DialogContent onClick={(e) => e.stopPropagation()}>
         <Grid item ml={6}>
           <List
             resource="list/taboola"
@@ -76,7 +77,7 @@ function SimpleDialog(props: SimpleDialogProps) {
               <TextField source="site_id" label="siteId" />
               <DateField source="create" label="时间" showTime />
               <TextField source="page_sum" label="翻页" />
-              <TextField source="zonsen_sum" label="纵深" />
+              <CaceZsField source="zs_sum" label="纵深" />
               <TextField source="post_sum" label="总文章数" />
               <TextField source="ip_sum" label="总访客数" />
               <TextField source="report_sum" label="累计浏览量" />
