@@ -10,7 +10,7 @@ function MyUrlField({ source }: { source: string }) {
         variant='inherit'
       >
         <Tooltip title={record[source]} arrow>
-            <span style={{display: "inline-block",width: "200px", height: "20px", overflow: "hidden", whiteSpace: "nowrap",textOverflow: "ellipsis"}}>{record[source]}</span>
+            <Link href={record[source]} style={{display: "inline-block",width: "200px", height: "20px", overflow: "hidden", whiteSpace: "nowrap",textOverflow: "ellipsis"}}>{record[source]}</Link>
         </Tooltip>
       </Typography>
     </>

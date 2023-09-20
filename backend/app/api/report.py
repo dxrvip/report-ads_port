@@ -52,14 +52,12 @@ async def create_report(
     )
 
     post: Optional[Post | None] = await crud.create_post(session, href, slug, domain)
-
-    if is_taboola:
+    # 1, 不是taboola进入，2，带site——id进入，3，没有任何tab信息
+    if is_taboola or site_id: # 1, 不是taboola进入，2，带site——id进入
+        if not is_taboola:
+            is_taboola['site_id'] = site_id
         taboola: Optional[Taboola] = await crud.create_taboola(
             session, taboola_in, post=post
-        )
-    else:
-        taboola: Optional[Taboola] = await crud.get_taboola_by_site_id(
-            session, None, site_id=site_id
         )
 
     # 浏览器指纹
@@ -67,7 +65,6 @@ async def create_report(
         db=session,
         user_agent=user_agent,
         fingerprint_id=report_in.fingerprint_id,
-        domain_id=domain.id,
         post=post,
     )
 
@@ -107,7 +104,7 @@ async def add_ads(
     db: CurrentAsyncSession,
     slug: Optional[str] = Header(None),
     site_id: Optional[int] = Header(None),
-    fingerprint: Optional[str]=Header(None)
+    fingerprint: Optional[str] = Header(None),
 ):
     print(slug, site_id, fingerprint)
     post: Optional[Post] = await crud.get_post_by_slug(db, slug)
@@ -115,10 +112,10 @@ async def add_ads(
     browser: Optional[BrowserInfo] = await crud.get_browser(db, fingerprint)
     ads_click: AdsClick = AdsClick()
     if not browser and not post and not taboola:
-        return {"msg":"error"}
+        return {"msg": "error"}
     if browser:
         ads_click.browser_id = browser.id
-    if post: 
+    if post:
         ads_click.post_id = post.id
     if taboola:
         ads_click.taboola_id = taboola.id

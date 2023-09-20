@@ -29,7 +29,6 @@ const CustomerField = (props: any) => {
   const record = useRecordContext<Customer>();
   const dataProvider = useDataProvider();
   const [data, setData] = useState<Data>();
-  const [open, setOpen] = React.useState(false);
   useEffect(() => {
     dataProvider
       .getOne(`list/${props?.type}`, { id: record.id })
@@ -39,19 +38,12 @@ const CustomerField = (props: any) => {
   }, []);
   if (!record) return null;
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = (value: string) => {
-    setOpen(false);
-  };
 
 
 
   return data ? (
     <>
-      <Grid item ml={6}>
+      {/* <Grid item ml={6}>
         <Grid container justifyContent="left" spacing={2}>
           {Object.keys(data?.total as any).map((key, index) => (
             <Grid key={index} onClick={()=> {if(key=='siteId') handleClickOpen()}} item>
@@ -77,7 +69,7 @@ const CustomerField = (props: any) => {
             </Grid>
           ))}
         </Grid>
-      </Grid>
+      </Grid> */}
       <Grid item>
         <ResponsiveContainer width={830} minHeight={200}>
           <AreaChart
@@ -133,7 +125,7 @@ const CustomerField = (props: any) => {
           </AreaChart>
         </ResponsiveContainer>
       </Grid>
-      <SimpleDialog open={open} onClose={handleClose} />
+      
     </>
   ) : null;
 };

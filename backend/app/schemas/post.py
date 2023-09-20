@@ -30,6 +30,7 @@ class PostListReport(BaseModel):
     bsum: int
     rsum: int
     zssum: Optional[int]
+    page_sum: Optional[int]
     promotion: Optional[int]
     create_time: Optional[datetime]
     class Config:
@@ -39,7 +40,7 @@ class PostListReport(BaseModel):
 class ReportPost(BaseModel):
     id: int
     result: List[Posts]
-    total: dict
+    total: Optional[dict]
 
     class Config:
         orm_mode = True

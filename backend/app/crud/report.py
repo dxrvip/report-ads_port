@@ -43,30 +43,26 @@ async def get_browser(db: Session, fin_id: str):
     return browser
 
 
-async def get_taboola_by_site_id(db: Session, post:Optional[Post], site_id=None):
-    if site_id is None:
-        return None
-    if post is None:
-        _orm = select(Taboola).where(Taboola.site_id == site_id)
-    else:
-        _orm = select(Taboola).where(Taboola.site_id == site_id).options(joinedload(Taboola.posts.and_(Post.id==post.id)))
+async def get_taboola_by_site_id(db: Session, post:Optional[Post], site_id):
+    _orm = select(Taboola).where(Taboola.site_id == site_id).options(joinedload(Taboola.posts.and_(Post.id==post.id)))
     taboola: Optional[Taboola | None] = (await db.execute(_orm)).scalar()
     return taboola
 
 
-async def create_taboola(db: Session, taboola_in, post: Post):
-    taboola: Optional[Taboola] = await get_taboola_by_site_id(db,post, taboola_in.site_id)
-    if taboola is None:
-        taboola = Taboola(**taboola_in.dict())
-        taboola.domain_id = post.domain_id
-        taboola.posts.append(post)
-        db.add(taboola)
-        await db.commit()
-    else:
-        if len(taboola.posts) <= 0:
+async def create_taboola(db: Session, post: Post,taboola_in=None):
+    if taboola_in and taboola_in['site_id']:
+        taboola: Optional[Taboola] = await get_taboola_by_site_id(db,post, taboola_in['site_id'])
+        if taboola is None:
+            taboola = Taboola(**taboola_in.dict())
             taboola.posts.append(post)
+            db.add(taboola)
             await db.commit()
-    return taboola
+        else:
+            if len(taboola.posts) <= 0:
+                taboola.posts.append(post)
+                await db.commit()
+        return taboola
+    return None
 
 
 async def create_post(
@@ -86,7 +82,7 @@ async def create_post(
     return post
 
 
-async def create_browser(db: Session, user_agent, fingerprint_id, domain_id, post: Post):
+async def create_browser(db: Session, user_agent, fingerprint_id, post: Post):
     if post is None:
         _orm = (
             select(BrowserInfo)
@@ -104,7 +100,6 @@ async def create_browser(db: Session, user_agent, fingerprint_id, domain_id, pos
     if browser is None:
         browser = BrowserInfo(fingerprint_id=fingerprint_id)
         browser.user_agent = user_agent
-        browser.domain_id = domain_id
         browser.posts.append(post)
         db.add(browser)
         await db.commit()

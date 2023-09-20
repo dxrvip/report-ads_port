@@ -39,12 +39,12 @@ const InvoiceShow = (props: any) => {
     <Card sx={{ width: "98%", margin: "auto" }}>
       <CardContent>
         <Grid container spacing={2}>
-          <Grid item xs={12} ml={6}>
+          {/* <Grid item xs={12} ml={6}>
             <Typography gutterBottom>
               Id: <span style={{ color: "red" }}>{record.id}</span> -
               <ShowHeard type={props?.type} record={record} />
             </Typography>
-          </Grid>
+          </Grid> */}
           <Grid item>
             <CustomerField type={props?.type} />
           </Grid>
