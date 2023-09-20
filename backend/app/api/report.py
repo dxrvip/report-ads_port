@@ -58,7 +58,7 @@ async def create_report(
             taboola_in = {"site_id":site_id}
         taboola: Optional[Taboola] = await crud.create_taboola(
             session, post, taboola_in
-        )
+        ) 
 
     # 浏览器指纹
     browser: BrowserInfo = await crud.create_browser(

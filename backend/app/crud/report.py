@@ -3,6 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Session, selectinload
 from app.models.report import VisitorIp, ReportPost, BrowserInfo, Post, Taboola
 from app.models.domain import Domain
+from app.schemas.report import Taboola
 from sqlalchemy import select, func
 import re
 
@@ -52,16 +53,16 @@ async def get_taboola_by_site_id(db: Session, post:Optional[Post], site_id):
 async def create_taboola(db: Session, post: Post,taboola_in=None):
     if taboola_in and taboola_in['site_id']:
         taboola: Optional[Taboola] = await get_taboola_by_site_id(db,post, taboola_in['site_id'])
-        if taboola is None:
+        if taboola is None and isinstance(taboola_in, Taboola):
             taboola = Taboola(**taboola_in.dict())
             taboola.posts.append(post)
             db.add(taboola)
             await db.commit()
-        else:
+        elif taboola:
             if len(taboola.posts) <= 0:
                 taboola.posts.append(post)
                 await db.commit()
-        return taboola
+            return taboola
     return None
 
 
