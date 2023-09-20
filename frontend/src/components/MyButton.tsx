@@ -5,7 +5,7 @@ import { useState } from "react";
 interface Props {
   source: string;
   label: string;
-  // onHandler: ()=> void
+  // onHandler: ()=> void  
 }
 function MyButton(props: Props) {
   const record = useRecordContext();
@@ -17,7 +17,7 @@ function MyButton(props: Props) {
     setOpen(true);
   };
 
-  const handleClose = (value: string) => {
+  const handleClose = () => {
     setOpen(false);
     return false;
   };
