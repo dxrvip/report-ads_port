@@ -57,7 +57,7 @@ async def create_report(
         if not is_taboola:
             is_taboola = {"site_id":site_id}
         taboola: Optional[Taboola] = await crud.create_taboola(
-            session, taboola_in, post=post
+            session, post, taboola_in
         )
 
     # 浏览器指纹
