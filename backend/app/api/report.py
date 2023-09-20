@@ -61,7 +61,8 @@ async def create_report(
         taboola: Optional[Taboola] = await crud.create_taboola(
             session, post, taboola_in
         ) 
-
+    else:
+        taboola = None
     # 浏览器指纹
     browser: BrowserInfo = await crud.create_browser(
         db=session,
@@ -70,7 +71,7 @@ async def create_report(
         post=post,
     )
 
-    await crud.create_report(session, visitor_ip.id, href, browser.id, post, (taboola or None))
+    await crud.create_report(session, visitor_ip.id, href, browser.id, post, taboola)
 
     return {"msg": "success"}
 

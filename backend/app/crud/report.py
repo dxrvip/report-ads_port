@@ -16,7 +16,7 @@ async def create_report(
     href: str,
     browser_id: int,
     post: Post,
-    taboola: Optional[Taboola]=None,
+    taboola: Optional[Taboola],
 ):
     is_page = True if href.find("page") != -1 else False
     report = ReportPost(visitor_ip=visitor_id)
