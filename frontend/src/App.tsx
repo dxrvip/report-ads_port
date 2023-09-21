@@ -1,11 +1,11 @@
-import { createBrowserHistory as createHistory } from "history";
+import { QueryClient } from 'react-query';
 import simpleRestProvider from "ra-data-simple-rest";
-import { Admin, fetchUtils, Resource, CustomRoutes, Show } from "react-admin";
+import { Admin, fetchUtils, Resource, CustomRoutes } from "react-admin";
 import { Route } from "react-router";
 import MyLayout from "./components/AdminLayout";
 import Dashboard from "./pages/Dashboard";
 // import { ItemCreate, ItemEdit, ItemList } from "./pages/Items";
-import report from "./lib/report";
+// import report from "./lib/report";
 import LoginPage from "./pages/Login";
 import { ProfileEdit } from "./pages/ProfileEdit";
 import Register from "./pages/Register";
@@ -14,7 +14,7 @@ import authProvider from "./providers/authProvider";
 import { basePath } from "./providers/env";
 import PersonIcon from "@mui/icons-material/Person";
 import domain from "./lib/domain";
-import DomainShow from "./lib/domain/Show"
+import DomainShow from "./lib/domain/Show";
 const httpClient = (url: string, options: any = {}) => {
   options.user = {
     authenticated: true,
@@ -30,14 +30,22 @@ const httpClient = (url: string, options: any = {}) => {
 const dataProvider = simpleRestProvider(`${basePath}/api/v1`, httpClient);
 
 const App = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 5 * 60 * 1000, // 5 minutes
+      },
+    },
+  });
   return (
     <Admin
       disableTelemetry
       dataProvider={dataProvider}
       authProvider={authProvider}
       loginPage={LoginPage}
-      history={createHistory()}
+      // history={createHistory()}
       layout={MyLayout}
+      queryClient={queryClient}
       dashboard={Dashboard}
     >
       <CustomRoutes>

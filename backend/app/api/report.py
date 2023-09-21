@@ -27,7 +27,7 @@ async def create_report(
     site_id: Optional[int | str] = Header(None),
     user_agent: Optional[str] = Header(None),
 ) -> Any:
-    print(href, report_in, user_agent, site_id, "============")
+    print(href, report_in, user_agent, request.client.host, site_id, "============")
     is_taboola = href.find("Taboola") > -1
     if site_id == 'null' and not is_taboola:
         raise HTTPException(200, detail="not site_id")

@@ -17,7 +17,6 @@ async def create_domin(db: Session, domain_in: DomainCreate):
 async def list_domain(db: Session, request_params: DomainRequestParams):
     _orm = (
         select(
-            Domain,
             Domain.id,
             Domain.base_url,
             Domain.create,
@@ -30,10 +29,10 @@ async def list_domain(db: Session, request_params: DomainRequestParams):
         .join(Post, Post.domain_id==Domain.id, isouter=True)
         .join(Post.taboolas, isouter=True)
         .join(Post.browser_info, isouter=True)
-        .group_by(Domain.id)
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(request_params.order_by)
+        .group_by(Domain.id)
     )
 
     # print(_orm)
