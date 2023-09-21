@@ -25,9 +25,11 @@ async def create_report(
     href: Optional[str] = Header(None),
     slug: Optional[str] = Header(None),
     site_id: Optional[int | str] = Header(None),
+    ip: Optional[str] = Header(None),
     user_agent: Optional[str] = Header(None),
 ) -> Any:
-    print(href, report_in, user_agent, request.client.host, site_id, "============")
+    
+    print(href, report_in, user_agent, request.client.host, ip, site_id, "============")
     is_taboola = href.find("Taboola") > -1
     if site_id == 'null' and not is_taboola:
         raise HTTPException(200, detail="not site_id")
@@ -49,9 +51,12 @@ async def create_report(
         taboola_in = TaboolaSchema(**query_dict)
 
     # 添加ip
-    visitor_ip = await crud.create_visitor_ip(
-        db=session, client_host=request.client.host
-    )
+    if ip != 'null':
+        visitor_ip = await crud.create_visitor_ip(
+            db=session, client_host=ip
+        )
+    else:
+        visitor_ip = None
 
     post: Optional[Post | None] = await crud.create_post(session, href, slug, domain)
     # 1, 不是taboola进入，2，带site——id进入，3，没有任何tab信息
@@ -73,7 +78,7 @@ async def create_report(
         post=post,
     )
 
-    await crud.create_report(session, visitor_ip.id, href, browser.id, post, taboola)
+    await crud.create_report(session, visitor_ip, href, browser.id, post, taboola)
 
     return {"msg": "success"}
 
