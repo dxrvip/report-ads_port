@@ -28,7 +28,7 @@ async def create_report(
     if taboola:
         report.taboola_id = taboola.id
     if visitor:
-        report.visitor_ip = visitor.ip
+        report.visitor_ip = visitor.id
     db.add(report)
     await db.commit()
     return report
