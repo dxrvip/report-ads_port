@@ -32,6 +32,7 @@ class PostListReport(BaseModel):
     borwser_count: Optional[int]
     zs_sum: Optional[int]
     page_sum: Optional[int]
+    ads_count: Optional[int]
     tab_open_sum: Optional[int]
     promotion: Optional[int]
     create_time: Optional[datetime]

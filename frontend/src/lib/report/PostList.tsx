@@ -26,10 +26,11 @@ const PostList = (props: any) => {
           <MyUrlField source="url" />
           <DateField source="create_time" label="添加日期" showTime />
           <MyButton source="taboola_count" label="siteId总数" />
-          <MyButton source="tab_open_sum" label="siteId进入数" />
           <TextField source="page_sum" label="翻页总数" />
           <TextField source="zs_sum" label="有纵深行为访客数" />
+          <TextField source="ads_count" label="广告点击数" />
           <TextField source="ip_count" label="Ip访客总数" />
+          <MyButton source="tab_open_sum" label="siteId进入数" />
           <TextField source="borwser_count" label="指纹访客总数" />
           <TextField source="report_count" label="累计浏览量" />
           <SendTaboolaAdsStates label="操作" />

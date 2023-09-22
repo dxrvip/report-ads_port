@@ -10,7 +10,7 @@ from typing import Any
 from datetime import datetime, timedelta
 from sqlalchemy import select, func, distinct, cast, desc, Integer, case
 from typing import List, Optional
-from app.models.report import Post, BrowserInfo, ReportPost, Taboola
+from app.models.report import Post, BrowserInfo, ReportPost, Taboola, AdsClick
 from app.deps.request_params import (
     PostRequestParams,
     TaboolaRequestParams,
@@ -43,12 +43,13 @@ async def post_list(session: Session, request_params: PostRequestParams):
             func.count(distinct(ReportPost.browser_id)).label("borwser_count"),
             func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
             func.sum(distinct(subquery.c.zs_count)).label("zs_sum"),
-            func.sum(case((ReportPost.url.like("%site%"),1),else_=0)).label("tab_open_sum")
+            func.sum(case((ReportPost.url.like("%site%"),1),else_=0)).label("tab_open_sum"),
+            func.count(distinct(AdsClick.id)).label("ads_count")
         )
         .filter(Post.domain_id == request_params.domain_id)
         .join(ReportPost, Post.id == ReportPost.post_id)
         .join(subquery, ReportPost.browser_id==subquery.c.id)
-        # .outerjoin(Post.browser_info)
+        .outerjoin(AdsClick, AdsClick.post_id==Post.id)
         # .options(selectinload(Post.browser_info).selectinload(BrowserInfo.posts))
         .offset(request_params.skip)
         .limit(request_params.limit)
