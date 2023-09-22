@@ -57,6 +57,7 @@ async def create_taboola(db: Session, domain: Domain, taboola_in=None):
     taboola: Optional[Taboola] = await get_taboola_by_site_id(db, taboola_in["site_id"])
     if taboola is None and len(taboola) > 1:
         taboola = Taboola(**taboola_in)
+        taboola.domain_id = domain.id
         db.add(taboola)
         await db.commit()
     return taboola
