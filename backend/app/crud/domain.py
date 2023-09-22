@@ -20,22 +20,21 @@ async def list_domain(db: Session, request_params: DomainRequestParams):
             Domain.id,
             Domain.base_url,
             Domain.create,
-            func.count(distinct(Post.id)).label("post_sum"),
-            # func.count(distinct(ReportPost.id)).label("rsum"),
-            # func.count(distinct(BrowserInfo.id)).label("bsum"),
-            # func.count(distinct(Taboola.id)).label("tsum"),
+            func.count(distinct(Post.id)).label("post_count"),
+            func.count(distinct(ReportPost.id)).label("report_count"),
+            func.count(distinct(ReportPost.browser_id)).label("browser_count"),
+            func.count(distinct(ReportPost.taboola_id)).label("taboola_count"),
+            func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
         )
         .join(Post, Post.domain_id==Domain.id)
-        # .join(Post, Post.domain_id==Domain.id, isouter=True)
-        # .join(Post.taboolas, isouter=True)
-        # .join(Post.browser_info, isouter=True)
+        .join(ReportPost, ReportPost.domain_id == Domain.id)
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(request_params.order_by)
         .group_by(Domain.id)
     )
 
-    # print(_orm)
+    print(_orm)
     domains = (await db.execute(_orm)).all()
     return domains
 

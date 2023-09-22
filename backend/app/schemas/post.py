@@ -26,11 +26,13 @@ class Posts(BaseModel):
 class PostListReport(BaseModel):
     id: int
     url: str
-    taboola_sum: int
-    ip_sum: int
-    report_sum: int
-    zssum: Optional[int]
+    taboola_count: Optional[int]
+    ip_count: Optional[int]
+    report_count: Optional[int]
+    borwser_count: Optional[int]
+    zs_sum: Optional[int]
     page_sum: Optional[int]
+    tab_open_sum: Optional[int]
     promotion: Optional[int]
     create_time: Optional[datetime]
     class Config:

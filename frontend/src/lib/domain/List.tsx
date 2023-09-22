@@ -25,10 +25,11 @@ const DomainList = (props: any) => {
         <TextField source="id" label="ID" />
         <UrlField source="base_url" label="推广网址" />
         <DateField source="create" label="添加时间" />
-        <TextField source="post_sum" label="推广文章数" />
-        <TextField source="bsum" label="访客数" />
-        <TextField source="rsum" label="浏览量" />
-        <TextField source="tsum" label="Taboola数" />
+        <TextField source="taboola_count" label="Site_Id数" />
+        <TextField source="post_count" label="推广文章数" />
+        <TextField source="browser_count" label="指纹访客数" />
+        <TextField source="ip_count" label="iP访客数" />
+        <TextField source="report_count" label="浏览量" />
         <EditButton label="操作" />
       </Datagrid>
     </List>

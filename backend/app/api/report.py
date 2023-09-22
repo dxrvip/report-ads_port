@@ -80,7 +80,7 @@ async def create_report(
         taboola_in = TaboolaSchema(**query_dict)
 
     # 添加ip
-    if ip != 'null':
+    if ip and ip != 'null':
         visitor_ip = await crud.create_visitor_ip(
             db=session, client_host=ip
         )

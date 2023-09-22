@@ -8,7 +8,7 @@ from sqlalchemy.orm import (
 )
 from typing import Any
 from datetime import datetime, timedelta
-from sqlalchemy import select, func, distinct, cast, desc, Integer, and_
+from sqlalchemy import select, func, distinct, cast, desc, Integer, case
 from typing import List, Optional
 from app.models.report import Post, BrowserInfo, ReportPost, Taboola
 from app.deps.request_params import (
@@ -20,22 +20,36 @@ from app.deps.request_params import (
 
 
 async def post_list(session: Session, request_params: PostRequestParams):
+    subquery = (
+        select(
+            BrowserInfo.id,
+            case((func.count(distinct(ReportPost.post_id)) > 1, 1), else_=0).label("zs_count")
+        )
+        .join(ReportPost, ReportPost.browser_id == BrowserInfo.id)
+        .group_by(BrowserInfo.id)
+        .subquery()
+    )
+    print(subquery)
+    # browser_subq = aliased(BrowserInfo, subquery)
     _orm = (
         select(
             Post.url,
             Post.id,
             Post.create_time,
             Post.promotion,
-            # func.sum(cast(ReportPost.is_page, Integer)).label("page_sum"),
-            func.count(distinct(ReportPost.id)).label("report_sum"),
-            func.count(distinct(ReportPost.taboola_id)).label("taboola_sum"),
-            func.count(distinct(ReportPost.browser_id)).label("ip_sum"),
+            func.sum(cast(ReportPost.is_page, Integer)).label("page_sum"),
+            func.count(distinct(ReportPost.id)).label("report_count"),
+            func.count(distinct(ReportPost.taboola_id)).label("taboola_count"),
+            func.count(distinct(ReportPost.browser_id)).label("borwser_count"),
+            func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
+            func.sum(distinct(subquery.c.zs_count)).label("zs_sum"),
+            func.sum(case((ReportPost.url.like("%site%"),1),else_=0)).label("tab_open_sum")
         )
         .filter(Post.domain_id == request_params.domain_id)
         .join(ReportPost, Post.id == ReportPost.post_id)
-        # .outerjoin(Post.taboolas)
+        .join(subquery, ReportPost.browser_id==subquery.c.id)
         # .outerjoin(Post.browser_info)
-        .options(selectinload(Post.browser_info).selectinload(BrowserInfo.posts))
+        # .options(selectinload(Post.browser_info).selectinload(BrowserInfo.posts))
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(
@@ -44,21 +58,21 @@ async def post_list(session: Session, request_params: PostRequestParams):
         .group_by(Post.id)
         .add_columns(Post)
     )
-    # print(_orm)
-    posts: Optional[List] = (await session.execute(_orm)).unique().all()
-    posts_dict = []
-    for item in posts:
-        # print(item)
-        zssum = 0
-        for browser in item.Post.browser_info:
-            if len(browser.posts) > 1:
-                zssum += 1
-        item = item._asdict()
-        item["zssum"] = zssum
-        posts_dict.append(item)
+    print(_orm)
+    posts: Optional[List] = (await session.execute(_orm)).all()
+    # posts_dict = []
+    # for item in posts:
+    #     # print(item)
+    #     zssum = 0
+    #     for browser in item.Post.browser_info:
+    #         if len(browser.posts) > 1:
+    #             zssum += 1
+    #     item = item._asdict()
+    #     item["zssum"] = zssum
+    #     posts_dict.append(item)
     # if posts:
     #     posts = list(map(lambda x: x._asdict(), posts))
-    return posts_dict
+    return posts
 
 
 async def get_statistics(db: Session, type, id):
@@ -169,7 +183,7 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
                 func.count(ReportPost.id).label("report_sum"),
                 func.count(ReportPost.browser_id).label("ip_sum"),
                 func.count(ReportPost.post_id).label("post_sum"),
-                func.sum(cast(ReportPost.is_page, Integer)).label("page_sum")
+                func.sum(cast(ReportPost.is_page, Integer)).label("page_sum"),
             )
             .select_from(ReportPost)
             .where(ReportPost.domain_id == request_params.domain_id)

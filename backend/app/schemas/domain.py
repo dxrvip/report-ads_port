@@ -17,10 +17,11 @@ class Domain(DomainCreate):
 
     id:int
     create: datetime
-    post_sum: Optional[int] = None
-    # bsum: Optional[int] = None
-    # tsum: Optional[int] = None
-    # rsum: Optional[int] = None
+    post_count: Optional[int] = None
+    report_count: Optional[int]
+    browser_count: Optional[int]
+    taboola_count: Optional[int] 
+    ip_count: Optional[int]
     class Config:
         orm_mode = True
 
