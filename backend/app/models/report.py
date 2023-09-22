@@ -26,7 +26,7 @@ class ReportPost(Base):
     post_id: Mapped[int | None] = mapped_column(ForeignKey("post.id"))
     post: Mapped["Post"] = relationship(back_populates="report_post")
 
-    visitor_ip: Mapped[int] = mapped_column(ForeignKey("visitor_ip.id"))
+    visitor_ip: Mapped[int] = mapped_column(ForeignKey("visitor_ip.id"), nullable=True)
     visitor: Mapped["VisitorIp"] = relationship(back_populates="report_post")
 
     browser_id: Mapped[int] = mapped_column(ForeignKey("browser_info.id"))
