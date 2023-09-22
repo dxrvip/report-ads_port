@@ -71,10 +71,17 @@ async def get_taboolas(
     request_params: TaboolaRequestParams,
     user: CurrentUser,
 ):
-    # 网站下所有tab，1把所有网站下的文章查到，在根据文章查到tab，统计
-    stmt = select(func.count(Taboola.id)).filter(
-        Taboola.domain_id == request_params.domain_id
-    )
+    if request_params.domain_id:
+        # 网站下所有tab，1把所有网站下的文章查到，
+        stmt = select(func.count(Taboola.id)).filter(
+            Taboola.domain_id == request_params.domain_id
+        )
+    elif request_params.post_id:
+        # 在根据文章查到tab，统计
+        stmt = select(func.count(distinct(ReportPost.taboola_id))).filter(
+            ReportPost.post_id == request_params.post_id
+        )
+
     total = await session.scalar(stmt)
     taboolas = await crud.taboola_list(session=session, request_params=request_params)
 

@@ -39,7 +39,7 @@ const InvoiceShow = (props: any) => {
     <Card sx={{ width: "98%", margin: "auto" }}>
       <CardContent>
         <Grid container spacing={2}>
-          <Grid item>
+          <Grid item pb={8}>
             <CustomerField type={props?.type} />
           </Grid>
         </Grid>

@@ -12,12 +12,17 @@ class Post(BaseModel):
 
 class Posts(BaseModel):
     id: int = ""
-    bsum: int
-    rsum: int
-    tsum: int
-    url: str = ""
+    borwser_count: Optional[int]
+    report_count:  Optional[int]
+    taboola_count:  Optional[int]
+    page_sum: Optional[int]
+    zs_sum: Optional[int]
+    ip_count: Optional[int]
+    tab_open_sum: Optional[int]
+    ads_count: Optional[int]
+    url:  Optional[str]
     date: Union[datetime, str] = ""
-    psum: str = 0
+
 
     class Config:
         orm_mode = True

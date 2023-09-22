@@ -1,14 +1,14 @@
 from sqlalchemy.orm import (
     Session,
     joinedload,
-    defaultload,
-    selectinload,
-    subqueryload,
-    aliased,
+    # defaultload,
+    # selectinload,
+    # subqueryload,
+    # aliased,
 )
 from typing import Any
 from datetime import datetime, timedelta
-from sqlalchemy import select, func, distinct, cast, desc, Integer, case
+from sqlalchemy import select, func, distinct, cast, Integer, case
 from typing import List, Optional
 from app.models.report import Post, BrowserInfo, ReportPost, Taboola, AdsClick
 from app.deps.request_params import (
@@ -19,21 +19,21 @@ from app.deps.request_params import (
 )
 
 
-async def post_list(session: Session, request_params: PostRequestParams):
-    subquery = (
-        select(
-            BrowserInfo.id,
-            case((func.count(distinct(ReportPost.post_id)) > 1, 1), else_=0).label(
-                "zs_count"
-            ),
-        )
-        .join(ReportPost, ReportPost.browser_id == BrowserInfo.id)
-        .group_by(BrowserInfo.id)
-        .subquery()
+subquery = (
+    select(
+        BrowserInfo.id,
+        case((func.count(distinct(ReportPost.post_id)) > 1, 1), else_=0).label(
+            "zs_count"
+        ),
     )
-    # print(subquery)
-    # browser_subq = aliased(BrowserInfo, subquery)
-    _orm = (
+    .join(ReportPost, ReportPost.browser_id == BrowserInfo.id)
+    .group_by(BrowserInfo.id)
+    .subquery()
+)
+
+
+async def post_list(session: Session, request_params: PostRequestParams):
+    stmt = (
         select(
             Post.url,
             Post.id,
@@ -63,84 +63,59 @@ async def post_list(session: Session, request_params: PostRequestParams):
         .group_by(Post.id)
         # .add_columns(ReportPost)
     )
-    # print(_orm)
-    posts: Optional[List] = (await session.execute(_orm)).all()
+    posts: Optional[List] = (await session.execute(stmt)).all()
     return posts
 
 
-async def get_statistics(db: Session, type, id):
-    """
-    统计数据
-    """
+async def post_statistics(
+    db: Session, id: int, start_date: datetime, end_date: datetime
+):
+    """文章单独统计数据"""
     day = func.extract("day", ReportPost.create)
-
-    if type == "post":
-        t = ReportPost.post_id == id
-    elif type == "taboola":
-        t = ReportPost.taboola_id == id
-    elif type == "browser":
-        t = ReportPost.browser_id == id
-    end_date = datetime.now()
-    start_date = datetime.now() - timedelta(days=7)
-    _orm = (
+    stmt = (
         select(
             day.label("day"),
-            func.sum(cast(ReportPost.is_page, Integer)).label("psum"),
-            func.count(distinct(ReportPost.id)).label("rsum"),
-            func.count(distinct(ReportPost.browser_id)).label("bsum"),
-            func.count(distinct(ReportPost.browser_id)).label("zssum"),
-            func.count(distinct(ReportPost.taboola_id)).label("tsum"),
+            func.sum(cast(ReportPost.is_page, Integer)).label("page_sum"),
+            func.count(distinct(ReportPost.id)).label("report_count"),
+            func.count(distinct(ReportPost.taboola_id)).label("taboola_count"),
+            func.count(distinct(ReportPost.browser_id)).label("borwser_count"),
+            func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
+            func.sum(distinct(subquery.c.zs_count)).label("zs_sum"),
+            func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)).label(
+                "tab_open_sum"
+            ),
+            func.count(distinct(AdsClick.id)).label("ads_count"),
         )
         .select_from(Post)
         .join(ReportPost, ReportPost.post_id == Post.id)
-        .where(ReportPost.create.between(start_date, end_date), t, Post.domain_id == 2)
+        .join(subquery, ReportPost.browser_id == subquery.c.id)
+        .outerjoin(AdsClick, AdsClick.post_id == id)
+        .where(ReportPost.create.between(start_date, end_date), Post.id == id)
         .group_by(
             func.extract("year", ReportPost.create),
             func.extract("month", ReportPost.create),
             day,
         )
     )
-    stmt = (
-        select(
-            func.sum(cast(ReportPost.is_page, Integer)).label("page_sum"),
-            func.count(distinct(ReportPost.taboola_id)).label("site_id_sum"),
-            func.count(distinct(ReportPost.browser_id)).label("ip_sum"),
-            func.count(distinct(ReportPost.id)).label("report_sum"),
-        )
-        .select_from(Post)
-        .where(ReportPost.create.between(start_date, end_date), t, Post.domain_id == 2)
-        # .join(Post.browser_info)
-        .join(ReportPost, ReportPost.post_id == Post.id)
-        .options(
-            joinedload(Post.browser_info).subqueryload(
-                BrowserInfo.posts.and_(Post.domain_id == 2)
-            )
-        )
-        .add_columns(Post)
-        .group_by(Post.id)
-    )
-    total = (await db.execute(stmt)).first()
-
-    zssums = 0
-    for item in total.Post.browser_info:
-        if len(item.posts) > 1:
-            zssums += 1
-
-    result = (await db.execute(_orm)).mappings()
+    result = (await db.execute(stmt)).mappings()
     dict_row = [item for item in result]
     curret_date, row_dict = start_date, []
-    psum, rsum, bsum, tsum, zssum = 0, 0, 0, 0, 0
     while True:
         day = curret_date.day
-        x: dict = {"id": day, "psum": 0, "rsum": 0, "bsum": 0, "tsum": 0, "zssum": 0}
+        x: dict = {
+            "id": day,
+            "page_sum": 0,
+            "report_count": 0,
+            "borwser_count": 0,
+            "taboola_count": 0,
+            "zs_sum": 0,
+            "ip_count": 0,
+            "tab_open_sum": 0,
+            "ads_count": 0,
+        }
         for index, row in enumerate(dict_row):
             if int(row.day) == day:
                 x.update({**row})
-                psum += row.psum
-                rsum += row.rsum
-                bsum += row.bsum
-                tsum += row.tsum
-                zssum += row.zssum
                 dict_row.pop(index)
                 break
         x["date"] = curret_date.strftime("%Y-%m-%d")
@@ -149,33 +124,74 @@ async def get_statistics(db: Session, type, id):
         if curret_date >= end_date:
             break
         curret_date = curret_date + timedelta(days=1)
+    return row_dict
+
+
+async def post_date_total(db, id, start_date, end_date):
+    stmt = (
+        select(
+            ReportPost.post_id,
+            func.sum(cast(ReportPost.is_page, Integer)).label("page_sum"),
+            func.count(distinct(ReportPost.taboola_id)).label("taboola_count"),
+            func.count(distinct(ReportPost.browser_id)).label("browser_count"),
+            func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
+            func.count(distinct(ReportPost.id)).label("report_count"),
+            func.sum(distinct(subquery.c.zs_count)).label("zs_sum"),
+            func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)).label(
+                "tab_open_sum"
+            ),
+            func.count(distinct(AdsClick.id)).label("ads_count"),
+        )
+        .join(subquery, ReportPost.browser_id == subquery.c.id)
+        .outerjoin(AdsClick, AdsClick.post_id == id)
+        .where(
+            ReportPost.create.between(start_date, end_date), ReportPost.post_id == id
+        )
+        .group_by(ReportPost.post_id)
+    )
+    total = (await db.execute(stmt)).first()
     return {
-        "result": row_dict,
+        "翻页数": total.page_sum,
+        "纵深访客数": total.zs_sum,
+        "siteId": total.taboola_count,
+        "广告点击": total.ads_count,
+        "指纹访客": total.browser_count,
+        "siteId进入": total.tab_open_sum,
+        "IP访客": total.ip_count,
+        "总浏览量": total.report_count,
+    }
+
+
+async def get_statistics(db: Session, type, id):
+    """
+    统计数据
+    """
+    end_date = datetime.now()
+    start_date = datetime.now() - timedelta(days=7)
+
+    if type == "post":
+        t = ReportPost.post_id == id
+    elif type == "taboola":
+        t = ReportPost.taboola_id == id
+    elif type == "browser":
+        t = ReportPost.browser_id == id
+
+    return {
+        "result": await post_statistics(db, id, start_date, end_date),
         "id": 1,
-        "total": {
-            "翻页数": total.page_sum,
-            "纵深访客数": zssums,
-            "siteId": total.site_id_sum,
-            "访客数": total.ip_sum,
-            "总浏览量": total.report_sum,
-        },
+        "total": await post_date_total(db, id, start_date, end_date),
     }
 
 
 async def taboola_list(session: Session, request_params: TaboolaRequestParams):
-    where_post = Post.id == request_params.post_id
-    where_domain = Taboola.domain_id == request_params.domain_id
-    subquery = (
-        select(
-            BrowserInfo.id,
-            case((func.count(distinct(ReportPost.post_id)) > 1, 1), else_=0).label(
-                "zs_count"
-            ),
+    if request_params.domain_id:
+        where = Taboola.domain_id == request_params.domain_id
+    else:
+        where = Taboola.id.in_(
+            select(ReportPost.taboola_id)
+            .filter(ReportPost.post_id == request_params.post_id)
+            .group_by(ReportPost.taboola_id)
         )
-        .join(ReportPost, ReportPost.browser_id == BrowserInfo.id)
-        .group_by(BrowserInfo.id)
-        .subquery()
-    )
     stmt = (
         select(
             Taboola.id,
@@ -195,7 +211,7 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
         .outerjoin(ReportPost, ReportPost.taboola_id == Taboola.id)
         .outerjoin(AdsClick, AdsClick.taboola_id == Taboola.id)
         .outerjoin(subquery, subquery.c.id == ReportPost.browser_id)
-        .where(where_domain)
+        .where(where)
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(request_params.order_by)

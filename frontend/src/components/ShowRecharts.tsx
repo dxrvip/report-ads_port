@@ -38,9 +38,6 @@ const CustomerField = (props: any) => {
   }, []);
   if (!record) return null;
 
-
-
-
   return data ? (
     <>
       <Grid item ml={6}>
@@ -59,7 +56,6 @@ const CustomerField = (props: any) => {
                   padding: "4px",
                   position: "relative",
                 }}
-                
               >
                 <Typography sx={{ fontSize: "12px", display: "p" }}>
                   {key}
@@ -92,40 +88,71 @@ const CustomerField = (props: any) => {
             <Tooltip />
             <Area
               type="monotone"
-              dataKey="bsum"
-              name="访客数"
-              stroke="#e51b1b"
-              fillOpacity={1}
-              fill="url(#colorUv)"
-            />
-            <Area
-              type="monotone"
-              dataKey="psum"
+              dataKey="page_sum"
               name="翻页数"
-              stroke="#8884d8"
+              stroke="#ff0043"
               fillOpacity={1}
               fill="url(#colorUv)"
             />
             <Area
               type="monotone"
-              dataKey="rsum"
-              name="浏览量"
-              stroke="#82ca9d"
+              dataKey="zs_sum"
+              name="有纵深访客数"
+              stroke="#ff00b2"
               fillOpacity={1}
-              fill="url(#colorPv)"
+              fill="url(#colorUv)"
             />
             <Area
               type="monotone"
-              dataKey="tsum"
-              name="siteID"
-              stroke="#2d2929"
+              dataKey="taboola_count"
+              name="Site_Id"
+              stroke="#ff00e3"
+              fillOpacity={1}
+              fill="url(#colorUv)"
+            />
+            <Area
+              type="monotone"
+              dataKey="ads_count"
+              name="广告点击数"
+              stroke="#a100ff"
+              fillOpacity={1}
+              fill="url(#colorUv)"
+            />
+            <Area
+              type="monotone"
+              dataKey="borwser_count"
+              name="指纹访客数"
+              stroke="#2200ff"
+              fillOpacity={1}
+              fill="url(#colorUv)"
+            />
+            <Area
+              type="monotone"
+              dataKey="tab_open_sum"
+              name="siteId进入数"
+              stroke="#00bfff"
+              fillOpacity={1}
+              fill="url(#colorUv)"
+            />
+            <Area
+              type="monotone"
+              dataKey="ip_count"
+              name="Ip访客数"
+              stroke="#00ffbb"
+              fillOpacity={1}
+              fill="url(#colorUv)"
+            />
+            <Area
+              type="monotone"
+              dataKey="report_count"
+              name="总浏览量"
+              stroke="#00ff2e"
               fillOpacity={1}
               fill="url(#colorPv)"
             />
           </AreaChart>
         </ResponsiveContainer>
       </Grid>
-      
     </>
   ) : null;
 };

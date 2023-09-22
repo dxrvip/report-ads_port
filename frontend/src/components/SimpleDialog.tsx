@@ -16,8 +16,13 @@ export interface SimpleDialogProps {
   onClose: () => void;
 }
 
-
-export function CaceZsField({ source, label }: { source: string; label: string }) {
+export function CaceZsField({
+  source,
+  label,
+}: {
+  source: string;
+  label: string;
+}) {
   const record = useRecordContext<Invoice>();
 
   if (!record) return null;
@@ -67,7 +72,7 @@ function SimpleDialog(props: SimpleDialogProps) {
           <List
             resource="list/taboola"
             actions={false}
-            filter={{ post_id: record.id}}
+            filter={{ post_id: record.id }}
             title={"."}
             debounce={1000}
             disableSyncWithLocation
@@ -76,11 +81,14 @@ function SimpleDialog(props: SimpleDialogProps) {
               <TextField source="id" />
               <TextField source="site_id" label="siteId" />
               <DateField source="create" label="时间" showTime />
-              <TextField source="page_sum" label="翻页" />
-              <CaceZsField source="zs_sum" label="纵深" />
-              <TextField source="post_sum" label="总文章数" />
-              <TextField source="ip_sum" label="总访客数" />
-              <TextField source="report_sum" label="累计浏览量" />
+              <TextField source="site" label="平台名称" />
+              <TextField source="page_sum" label="翻页总数" />
+              <TextField source="zs_sum" label="有纵深行为访客数" />
+              <TextField source="ads_count" label="广告点击数" />
+              <TextField source="ip_count" label="Ip访客总数" />
+              <TextField source="tab_open_sum" label="siteId进入数" />
+              <TextField source="borwser_count" label="指纹访客总数" />
+              <TextField source="report_count" label="累计浏览量" />
               <SendTaboolaAdsStates label="操作" />
             </Datagrid>
           </List>
