@@ -17,10 +17,10 @@ class Domain(DomainCreate):
 
     id:int
     create: datetime
-    psum: Optional[int] = None
-    bsum: Optional[int] = None
-    tsum: Optional[int] = None
-    rsum: Optional[int] = None
+    post_sum: Optional[int] = None
+    # bsum: Optional[int] = None
+    # tsum: Optional[int] = None
+    # rsum: Optional[int] = None
     class Config:
         orm_mode = True
 

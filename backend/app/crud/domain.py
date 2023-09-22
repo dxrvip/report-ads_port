@@ -20,12 +20,12 @@ async def list_domain(db: Session, request_params: DomainRequestParams):
             Domain.id,
             Domain.base_url,
             Domain.create,
+            func.count(distinct(Post.id)).label("post_sum"),
             # func.count(distinct(ReportPost.id)).label("rsum"),
-            # func.count(distinct(Post.id)).label("psum"),
             # func.count(distinct(BrowserInfo.id)).label("bsum"),
             # func.count(distinct(Taboola.id)).label("tsum"),
         )
-        # .join(ReportPost, Domain.id==ReportPost.domain_id,isouter=True)
+        .join(Post, Post.domain_id==Domain.id)
         # .join(Post, Post.domain_id==Domain.id, isouter=True)
         # .join(Post.taboolas, isouter=True)
         # .join(Post.browser_info, isouter=True)

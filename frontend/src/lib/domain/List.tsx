@@ -25,7 +25,7 @@ const DomainList = (props: any) => {
         <TextField source="id" label="ID" />
         <UrlField source="base_url" label="推广网址" />
         <DateField source="create" label="添加时间" />
-        <TextField source="psum" label="推广文章数" />
+        <TextField source="post_sum" label="推广文章数" />
         <TextField source="bsum" label="访客数" />
         <TextField source="rsum" label="浏览量" />
         <TextField source="tsum" label="Taboola数" />
