@@ -59,7 +59,7 @@ async def create_report(
 ) -> Any:
     
     print(f"{href}, {report_in}, {user_agent}, {request.client.host}, {ip}, {site_id},============")
-    is_taboola = href.find("Taboola") > -1
+    is_taboola = href.find("site_id") > -1
     if site_id == 'null' and not is_taboola:
         raise HTTPException(200, detail="not site_id")
     host = urllib.parse.urlparse(href).netloc
@@ -93,7 +93,7 @@ async def create_report(
         taboola_in = taboola_in.dict()
     else:
         taboola_in = {"site_id":site_id}
-
+   #https://www.pmsnhu.com/the-16-most-abandoned-places-around-the-world?click_id=GiDXjNWllJy6RBSAHpec-ZPjoMoWE-19obXB-BulL-i6hCCDk2Eo48y5jvrZ17LOAQ&tblci=GiDXjNWllJy6RBSAHpec-ZPjoMoWE-19obXB-BulL-i6hCCDk2Eo48y5jvrZ17LOAQ&campaign_id=27592800&campaign_item_id=3731635650&site_id=1143601&site=sliide-app1&platform=Smartphone#tblciGiDXjNWllJy6RBSAHpec-ZPjoMoWE-19obXB-BulL-i6hCCDk2Eo48y5jvrZ17LOAQ
     taboola: Optional[Taboola] = await crud.create_taboola(
     session, domain, taboola_in
     ) 
