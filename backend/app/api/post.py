@@ -23,6 +23,7 @@ from app.deps.request_params import (
 from app.crud import post as crud
 from app.models.report import Post, Taboola, BrowserInfo, ReportPost
 from app.utils.taboola_api import TaboolaApi
+from app.schemas import taboola as schemas_taboola
 
 router = APIRouter(prefix="/list")
 
@@ -36,7 +37,10 @@ async def get_posts(
     user: CurrentUser,
 ) -> Any:
     total = await session.scalar(
-        select(func.count(Post.id)).filter(Post.domain_id == request_params.domain_id)
+        select(Post.id, func.count(ReportPost.post_id))
+        .filter(Post.domain_id == request_params.domain_id)
+        .join(ReportPost, ReportPost.post_id == Post.id)
+        .group_by(Post.id)
     )
     posts = await crud.post_list(session, request_params)
     response.headers[
@@ -58,26 +62,19 @@ async def get_post(
     return statistics
 
 
-@router.get("/taboola", response_model=List[SchemasTaboola], status_code=201)
+@router.get(
+    "/taboola", response_model=List[schemas_taboola.ReadTaboola], status_code=201
+)
 async def get_taboolas(
     response: Response,
     session: CurrentAsyncSession,
     request_params: TaboolaRequestParams,
     user: CurrentUser,
 ):
-
     # 网站下所有tab，1把所有网站下的文章查到，在根据文章查到tab，统计
-    if request_params.domain_id:
-        stmt = (
-            select(func.count(distinct(Taboola.id)))
-            .join(Post.taboolas)
-            .filter(Post.domain_id == request_params.domain_id)
-        )
-    # 文章下的tab 1，找到文章，在获取文章下的tab
-    else:
-        stmt = (
-            select(func.count(distinct(Taboola.id))).join(Post.taboolas).filter(request_params.post_id == Post.id)
-        )
+    stmt = select(func.count(Taboola.id)).filter(
+        Taboola.domain_id == request_params.domain_id
+    )
     total = await session.scalar(stmt)
     taboolas = await crud.taboola_list(session=session, request_params=request_params)
 

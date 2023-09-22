@@ -7,10 +7,10 @@ class ReportCreate(BaseModel):
     fingerprint_id: str
 
 
-
 class Post(BaseModel):
     id: int
     slug: str
+
     # sum_upv: tuple
     class Config:
         orm_mode = True
@@ -19,7 +19,7 @@ class Post(BaseModel):
 class BrowserInfo(BaseModel):
     fingerprint_id: str
     equipment: dict
-    
+
     class Config:
         orm_mode = True
 
@@ -29,9 +29,6 @@ class VisitorIp(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-
 
 
 class Taboola(BaseModel):
@@ -45,6 +42,7 @@ class Taboola(BaseModel):
     class Config:
         orm_mode = True
 
+
 class Report(BaseModel):
     id: int
     url: str
@@ -54,21 +52,25 @@ class Report(BaseModel):
     visitor: VisitorIp
     post: Post
     taboola_info: Optional[Taboola]
+
     class Config:
         orm_mode = True
 
+
 class ResultTaboola(BaseModel):
     id: int
-    site_id: int
-    page_sum: int
-    post_sum: int
+    site_id: Optional[int]
+    page_sum: Optional[int]
+    post_sum: Optional[int]
     report_sum: Optional[int]
     ip_sum: Optional[int]
     zs_sum: Optional[int]
     create: Optional[datetime]
     promotion: Optional[bool]
+
     class Config:
         orm_mode = True
+
 
 class ResultReport(BaseModel):
     id: int
@@ -80,10 +82,11 @@ class ResultReport(BaseModel):
 
 
 class ResultBrowserInfo(BaseModel):
-    id:int
+    id: int
     psum: int
     rsum: int
     user_agent: str
     update_time: datetime
+
     class Config:
         orm_mode = True

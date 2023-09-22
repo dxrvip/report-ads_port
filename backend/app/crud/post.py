@@ -23,13 +23,15 @@ async def post_list(session: Session, request_params: PostRequestParams):
     subquery = (
         select(
             BrowserInfo.id,
-            case((func.count(distinct(ReportPost.post_id)) > 1, 1), else_=0).label("zs_count")
+            case((func.count(distinct(ReportPost.post_id)) > 1, 1), else_=0).label(
+                "zs_count"
+            ),
         )
         .join(ReportPost, ReportPost.browser_id == BrowserInfo.id)
         .group_by(BrowserInfo.id)
         .subquery()
     )
-    print(subquery)
+    # print(subquery)
     # browser_subq = aliased(BrowserInfo, subquery)
     _orm = (
         select(
@@ -43,13 +45,15 @@ async def post_list(session: Session, request_params: PostRequestParams):
             func.count(distinct(ReportPost.browser_id)).label("borwser_count"),
             func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
             func.sum(distinct(subquery.c.zs_count)).label("zs_sum"),
-            func.sum(case((ReportPost.url.like("%site%"),1),else_=0)).label("tab_open_sum"),
-            func.count(distinct(AdsClick.id)).label("ads_count")
+            func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)).label(
+                "tab_open_sum"
+            ),
+            func.count(distinct(AdsClick.id)).label("ads_count"),
         )
         .filter(Post.domain_id == request_params.domain_id)
         .join(ReportPost, Post.id == ReportPost.post_id)
-        .join(subquery, ReportPost.browser_id==subquery.c.id)
-        .outerjoin(AdsClick, AdsClick.post_id==Post.id)
+        .join(subquery, ReportPost.browser_id == subquery.c.id)
+        .outerjoin(AdsClick, AdsClick.post_id == Post.id)
         # .options(selectinload(Post.browser_info).selectinload(BrowserInfo.posts))
         .offset(request_params.skip)
         .limit(request_params.limit)
@@ -57,22 +61,10 @@ async def post_list(session: Session, request_params: PostRequestParams):
             request_params.order_by
         )  # 一项重要的技术（特别是在某些数据库后端上）是能够对 columns 子句中已声明的表达式进行 ORDER BY 或 GROUP BY，而无需在 ORDER BY 或 GROUP BY 子句中重新声明表达式，而是使用列COLUMNS 子句中的名称或标记名称。通过将名称的字符串文本传递给 Select.order_by()orSelect.group_by()方法可以使用此形式。传递的文本并不直接渲染；相反，为 columns 子句中的表达式指定的名称，并在上下文中呈现为该表达式名称，如果未找到匹配项，则会引发错误。一元修饰符 asc()anddesc()也可以这种形式使用：
         .group_by(Post.id)
-        .add_columns(Post)
+        # .add_columns(ReportPost)
     )
-    print(_orm)
+    # print(_orm)
     posts: Optional[List] = (await session.execute(_orm)).all()
-    # posts_dict = []
-    # for item in posts:
-    #     # print(item)
-    #     zssum = 0
-    #     for browser in item.Post.browser_info:
-    #         if len(browser.posts) > 1:
-    #             zssum += 1
-    #     item = item._asdict()
-    #     item["zssum"] = zssum
-    #     posts_dict.append(item)
-    # if posts:
-    #     posts = list(map(lambda x: x._asdict(), posts))
     return posts
 
 
@@ -172,65 +164,45 @@ async def get_statistics(db: Session, type, id):
 
 async def taboola_list(session: Session, request_params: TaboolaRequestParams):
     where_post = Post.id == request_params.post_id
-    where_domain = Post.domain_id == request_params.domain_id
-    if request_params.domain_id:
-        # 获取全部的id
-        where = where_domain
-        _orm = (
-            select(
-                Taboola.id,
-                Taboola.site_id,
-                Taboola.create,
-                func.count(ReportPost.id).label("report_sum"),
-                func.count(ReportPost.browser_id).label("ip_sum"),
-                func.count(ReportPost.post_id).label("post_sum"),
-                func.sum(cast(ReportPost.is_page, Integer)).label("page_sum"),
-            )
-            .select_from(ReportPost)
-            .where(ReportPost.domain_id == request_params.domain_id)
-            .join(Taboola, Taboola.id == ReportPost.taboola_id)
-            .offset(request_params.skip)
-            .limit(request_params.limit)
-            .order_by(request_params.order_by)
-            .group_by(Taboola.id)
+    where_domain = Taboola.domain_id == request_params.domain_id
+    subquery = (
+        select(
+            BrowserInfo.id,
+            case((func.count(distinct(ReportPost.post_id)) > 1, 1), else_=0).label(
+                "zs_count"
+            ),
         )
-    else:
-        where = where_post
-        subquery = select(Taboola.id).join(Post.taboolas).where(where).subquery()
-        taboola_ali = aliased(Taboola, subquery)
-        post2 = aliased(Post)
-        post1 = aliased(Post)
-        _orm = (
-            select(
-                Taboola.id,
-                Taboola.site_id,
-                Taboola.create,
-                Taboola.promotion,
-                func.count(distinct(post1.id)).label("post_sum"),
-                func.count(distinct(ReportPost.id)).label("report_sum"),
-                func.count(distinct(ReportPost.browser_id)).label("ip_sum"),
-                (
-                    func.sum(cast(ReportPost.is_page, Integer))
-                    / func.count(distinct(post1.id))
-                ).label("page_sum"),
-                (
-                    func.count(distinct(ReportPost.browser_id))
-                    - func.count(distinct(post2.id))
-                ).label("zs_sum"),
-            )
-            .select_from(Taboola)
-            .join(taboola_ali, Taboola.id == taboola_ali.id)
-            .join(Taboola.posts.of_type(post1))
-            .join(ReportPost, ReportPost.taboola_id == Taboola.id)
-            .join(BrowserInfo, BrowserInfo.id == ReportPost.browser_id)
-            .join(BrowserInfo.posts.of_type(post2))
-            .offset(request_params.skip)
-            .limit(request_params.limit)
-            .order_by(request_params.order_by)
-            .group_by(Taboola.id)
+        .join(ReportPost, ReportPost.browser_id == BrowserInfo.id)
+        .group_by(BrowserInfo.id)
+        .subquery()
+    )
+    stmt = (
+        select(
+            Taboola.id,
+            Taboola.site_id,
+            Taboola.site,
+            Taboola.create,
+            func.count(ReportPost.id).label("report_count"),
+            func.count(distinct(ReportPost.browser_id)).label("borwser_count"),
+            func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
+            func.count(distinct(AdsClick.id)).label("ads_count"),
+            func.sum(cast(ReportPost.is_page, Integer)).label("page_sum"),
+            func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)).label(
+                "tab_open_sum"
+            ),
+            func.sum(distinct(subquery.c.zs_count)).label("zs_sum"),
         )
+        .outerjoin(ReportPost, ReportPost.taboola_id == Taboola.id)
+        .outerjoin(AdsClick, AdsClick.taboola_id == Taboola.id)
+        .outerjoin(subquery, subquery.c.id == ReportPost.browser_id)
+        .where(where_domain)
+        .offset(request_params.skip)
+        .limit(request_params.limit)
+        .order_by(request_params.order_by)
+        .group_by(Taboola.id)
+    )
 
-    taboolas: Optional[List] = (await session.execute(_orm)).all()
+    taboolas: Optional[List] = (await session.execute(stmt)).all()
     return taboolas
 
 
