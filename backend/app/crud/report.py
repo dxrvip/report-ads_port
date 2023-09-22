@@ -14,7 +14,7 @@ async def create_report(
     db: Session,
     visitor: Optional[VisitorIp],
     href: str,
-    browser_id: int,
+    browser: Optional[BrowserInfo],
     post: Post,
     taboola: Optional[Taboola],
 ):
@@ -24,7 +24,8 @@ async def create_report(
     report.domain_id = post.domain_id
     report.is_page = is_page
     report.url = href
-    report.browser_id = browser_id
+    if browser:
+        report.browser_id = browser.id
     if taboola:
         report.taboola_id = taboola.id
     if visitor:
@@ -46,26 +47,19 @@ async def get_browser(db: Session, fin_id: str):
     return browser
 
 
-async def get_taboola_by_site_id(db: Session, post:Optional[Post], site_id):
-    _orm = select(Taboola).where(Taboola.site_id == site_id).options(joinedload(Taboola.posts.and_(Post.id==post.id)))
+async def get_taboola_by_site_id(db: Session, site_id):
+    _orm = select(Taboola).where(Taboola.site_id == site_id)
     taboola: Optional[Taboola | None] = (await db.execute(_orm)).scalar()
     return taboola
 
 
-async def create_taboola(db: Session, post: Post,taboola_in=None):
-    if taboola_in and taboola_in['site_id']:
-        taboola: Optional[Taboola] = await get_taboola_by_site_id(db,post, taboola_in['site_id'])
-        if taboola is None and isinstance(taboola_in, SchemasTaboola):
-            taboola = Taboola(**taboola_in)
-            taboola.posts.append(post)
-            db.add(taboola)
-            await db.commit()
-        elif taboola:
-            if len(taboola.posts) <= 0:
-                taboola.posts.append(post)
-                await db.commit()
-            return taboola
-    return None
+async def create_taboola(db: Session, domain: Domain, taboola_in=None):
+    taboola: Optional[Taboola] = await get_taboola_by_site_id(db, taboola_in["site_id"])
+    if taboola is None and isinstance(taboola_in, SchemasTaboola):
+        taboola = Taboola(**taboola_in)
+        db.add(taboola)
+        await db.commit()
+    return taboola
 
 
 async def create_post(
@@ -85,30 +79,14 @@ async def create_post(
     return post
 
 
-async def create_browser(db: Session, user_agent, fingerprint_id, post: Post):
-    if post is None:
-        _orm = (
-            select(BrowserInfo)
-            .where(BrowserInfo.fingerprint_id == fingerprint_id)
-            .options(joinedload(BrowserInfo.posts))
-        )
-    else:
-        _orm = (
-            select(BrowserInfo)
-            .where(BrowserInfo.fingerprint_id == fingerprint_id)
-            .options(joinedload(BrowserInfo.posts.and_(Post.id == post.id)))
-        )
+async def create_browser(db: Session, user_agent, fingerprint_id):
+    _orm = select(BrowserInfo).filter(BrowserInfo.fingerprint_id == fingerprint_id)
+
     browser: Optional[BrowserInfo | None] = (await db.execute(_orm)).scalar()
-    # browser: Optional[BrowserInfo | None] = (await db.execute(_orm)).scalar()
     if browser is None:
         browser = BrowserInfo(fingerprint_id=fingerprint_id)
         browser.user_agent = user_agent
-        browser.posts.append(post)
         db.add(browser)
-        await db.commit()
-        return browser
-    if len(browser.posts) <= 0:
-        browser.posts.append(post)
         await db.commit()
     return browser
 

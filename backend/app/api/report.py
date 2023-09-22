@@ -1,4 +1,4 @@
-from typing import Any, Optional, List, Dict
+from typing import Any, Optional, List, Dict,Union
 import re, urllib.parse
 from fastapi import APIRouter, HTTPException, Header, Request, Response
 from app.schemas.report import Report as ReportSchema
@@ -17,6 +17,35 @@ from app.deps.request_params import ReportRequestParams
 router = APIRouter(prefix="/report")
 
 
+@router.put("/ads", response_model=Msg, status_code=201)
+async def add_ads(
+    db: CurrentAsyncSession,
+    slug: Optional[str] = Header(None),
+    site_id: Optional[str] = Header(None),
+    fingerprint: Optional[str] = Header(None),
+):
+    print(slug, site_id, fingerprint)
+    post, taboola, browser = None,None,None
+    if slug != 'null':
+        post: Optional[Post] = await crud.get_post_by_slug(db, slug)
+    if site_id != 'null':
+        taboola: Optional[Taboola] = await crud.get_taboola_by_site_id(db, int(site_id))
+    if fingerprint != 'null':
+        browser: Optional[BrowserInfo] = await crud.get_browser(db, fingerprint)
+    ads_click: AdsClick = AdsClick()
+    if not browser and not post and not taboola:
+        return {"msg": "error"}
+    if browser:
+        ads_click.browser_id = browser.id
+    if post:
+        ads_click.post_id = post.id
+    if taboola:
+        ads_click.taboola_id = taboola.id
+    db.add(ads_click)
+    await db.commit()
+    return {"msg": ""}
+
+
 @router.post("", response_model=Msg, status_code=201)
 async def create_report(
     report_in: ReportCreate,
@@ -29,7 +58,7 @@ async def create_report(
     user_agent: Optional[str] = Header(None),
 ) -> Any:
     
-    print(href, report_in, user_agent, request.client.host, ip, site_id, "============")
+    print(f"{href}, {report_in}, {user_agent}, {request.client.host}, {ip}, {site_id},============")
     is_taboola = href.find("Taboola") > -1
     if site_id == 'null' and not is_taboola:
         raise HTTPException(200, detail="not site_id")
@@ -61,24 +90,21 @@ async def create_report(
     post: Optional[Post | None] = await crud.create_post(session, href, slug, domain)
     # 1, 不是taboola进入，2，带site——id进入，3，没有任何tab信息
     if is_taboola: # 1, 不是taboola进入，2，带site——id进入
-        if not is_taboola:
-            taboola_in = {"site_id":site_id}
-        else:
-            taboola_in = taboola_in.dict()
-        taboola: Optional[Taboola] = await crud.create_taboola(
-            session, post, taboola_in
-        ) 
+        taboola_in = taboola_in.dict()
     else:
-        taboola = None
+        taboola_in = {"site_id":site_id}
+
+    taboola: Optional[Taboola] = await crud.create_taboola(
+    session, domain, taboola_in
+    ) 
     # 浏览器指纹
-    browser: BrowserInfo = await crud.create_browser(
+    browser: Optional[BrowserInfo] = await crud.create_browser(
         db=session,
         user_agent=user_agent,
         fingerprint_id=report_in.fingerprint_id,
-        post=post,
     )
 
-    await crud.create_report(session, visitor_ip, href, browser.id, post, taboola)
+    await crud.create_report(session, visitor_ip, href, browser, post, taboola)
 
     return {"msg": "success"}
 
@@ -108,27 +134,3 @@ async def get_report(
 
     return report
 
-
-@router.put("/ads", response_model=Msg, status_code=201)
-async def add_ads(
-    db: CurrentAsyncSession,
-    slug: Optional[str] = Header(None),
-    site_id: Optional[int] = Header(None),
-    fingerprint: Optional[str] = Header(None),
-):
-    print(slug, site_id, fingerprint)
-    post: Optional[Post] = await crud.get_post_by_slug(db, slug)
-    taboola: Optional[Taboola] = await crud.get_taboola_by_site_id(db, None, site_id)
-    browser: Optional[BrowserInfo] = await crud.get_browser(db, fingerprint)
-    ads_click: AdsClick = AdsClick()
-    if not browser and not post and not taboola:
-        return {"msg": "error"}
-    if browser:
-        ads_click.browser_id = browser.id
-    if post:
-        ads_click.post_id = post.id
-    if taboola:
-        ads_click.taboola_id = taboola.id
-    db.add(ads_click)
-    await db.commit()
-    return {"msg": ""}

@@ -52,23 +52,23 @@ class ReportPost(Base):
 
 
 # 外键
-post_taboola_table = Table(
-    "post_taboola_table",
-    Base.metadata,
-    # Column("id", primary_key=True, autoincrement=True),
-    Column("post_id", ForeignKey("post.id"), primary_key=True),
-    Column("taboola_id", ForeignKey("taboola.id"), primary_key=True),
-    Column("create", DateTime(timezone=True), server_default=func.now()),
-)
-# 外键
-post_browser_table = Table(
-    "post_browser_table",
-    Base.metadata,
-    # Column("id", primary_key=True, autoincrement=True),
-    Column("post_id", ForeignKey("post.id"), primary_key=True),
-    Column("browser_id", ForeignKey("browser_info.id"), primary_key=True),
-    Column("create", DateTime(timezone=True), server_default=func.now()),
-)
+# post_taboola_table = Table(
+#     "post_taboola_table",
+#     Base.metadata,
+#     # Column("id", primary_key=True, autoincrement=True),
+#     Column("post_id", ForeignKey("post.id"), primary_key=True),
+#     Column("taboola_id", ForeignKey("taboola.id"), primary_key=True),
+#     Column("create", DateTime(timezone=True), server_default=func.now()),
+# )
+# # 外键
+# post_browser_table = Table(
+#     "post_browser_table",
+#     Base.metadata,
+#     # Column("id", primary_key=True, autoincrement=True),
+#     Column("post_id", ForeignKey("post.id"), primary_key=True),
+#     Column("browser_id", ForeignKey("browser_info.id"), primary_key=True),
+#     Column("create", DateTime(timezone=True), server_default=func.now()),
+# )
 
 
 class Taboola(Base):
@@ -93,12 +93,14 @@ class Taboola(Base):
         DateTime(timezone=True), server_default=func.now(), comment="添加时间"
     )
 
-    posts: Mapped[List["Post"]] = relationship(
-        secondary=post_taboola_table, back_populates="taboolas"
-    )
+    # posts: Mapped[List["Post"]] = relationship(
+    #     secondary=post_taboola_table, back_populates="taboolas"
+    # )
 
     reports: Mapped[List["ReportPost"]] = relationship(back_populates="taboola_info")
-
+    domain_id: Mapped[id] = mapped_column(
+        ForeignKey("domain.id"), nullable=True, server_default=None
+    )
     promotion: Mapped[int] = mapped_column(SmallInteger, default=1, nullable=True, comment="停止推广")
     # @hybrid_property
     # def _platform(self):
@@ -133,12 +135,12 @@ class Post(Base):
 
     report_post: Mapped[List["ReportPost"]] = relationship(back_populates="post")
 
-    browser_info: Mapped[List["BrowserInfo"]] = relationship(
-        secondary=post_browser_table, back_populates="posts"
-    )
-    taboolas: Mapped[List["Taboola"]] = relationship(
-        secondary=post_taboola_table, back_populates="posts"
-    )
+    # browser_info: Mapped[List["BrowserInfo"]] = relationship(
+    #     secondary=post_browser_table, back_populates="posts"
+    # )
+    # taboolas: Mapped[List["Taboola"]] = relationship(
+    #     secondary=post_taboola_table, back_populates="posts"
+    # )
 
     domain_id: Mapped[id] = mapped_column(
         ForeignKey("domain.id"), nullable=True, server_default=None
@@ -168,9 +170,9 @@ class BrowserInfo(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    posts: Mapped[List["Post"]] = relationship(
-        secondary=post_browser_table, back_populates="browser_info"
-    )
+    # posts: Mapped[List["Post"]] = relationship(
+    #     secondary=post_browser_table, back_populates="browser_info"
+    # )
 
     report: Mapped["ReportPost"] = relationship(back_populates="browser_info")
 
