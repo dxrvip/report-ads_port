@@ -24,7 +24,7 @@ subquery = (
         BrowserInfo.id,
         case((func.count(distinct(ReportPost.post_id)) > 1, 1), else_=0).label(
             "zs_count"
-        ),
+        )
     )
     .join(ReportPost, ReportPost.browser_id == BrowserInfo.id)
     .group_by(BrowserInfo.id)
@@ -86,7 +86,7 @@ async def post_statistics(
             func.count(distinct(ReportPost.taboola_id)).label("taboola_count"),
             func.count(distinct(ReportPost.browser_id)).label("borwser_count"),
             func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
-            func.sum(distinct(subquery.c.zs_count)).label("zs_sum"),
+            func.sum(subquery.c.zs_count).label("zs_sum"),
             func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)).label(
                 "tab_open_sum"
             ),
@@ -142,7 +142,7 @@ async def post_date_total(db, id, start_date, end_date):
             func.count(distinct(ReportPost.browser_id)).label("browser_count"),
             func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
             func.count(distinct(ReportPost.id)).label("report_count"),
-            func.sum(distinct(subquery.c.zs_count)).label("zs_sum"),
+            func.sum(subquery.c.zs_count).label("zs_sum"),
             func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)).label(
                 "tab_open_sum"
             ),
