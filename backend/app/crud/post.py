@@ -93,7 +93,7 @@ async def post_statistics(
 ):
     """文章单独统计数据"""
     day = func.extract("day", ReportPost.create)
-    ads_click_subquery = ads_tablie_subquery(start_date, end_date)
+    ads_click_subquery = ads_tablie_subquery()
     stmt = (
         select(
             day.label("day"),
@@ -152,7 +152,7 @@ async def post_statistics(
 
 
 async def post_date_total(db, id, start_date, end_date):
-    ads_click_subquery = ads_tablie_subquery(start_date, end_date)
+    ads_click_subquery = ads_tablie_subquery()
     stmt = (
         select(
             ReportPost.post_id,
@@ -170,7 +170,7 @@ async def post_date_total(db, id, start_date, end_date):
             ),
         )
         .join(subquery, ReportPost.browser_id == subquery.c.id)
-        .join(ads_click_subquery, ads_click_subquery.c.id == ReportPost.id)
+        .join(ads_click_subquery, ReportPost.id == ads_click_subquery.c.id)
         .where(
             ReportPost.create.between(start_date, end_date), ReportPost.post_id == id
         )
