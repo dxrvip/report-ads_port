@@ -31,8 +31,7 @@ function SendTaboolaAdsStates({ label }: { label: string }) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        authenticated: true,
-        token: `Bearer ${localStorage.getItem("token")}`,
+        "Authorization": `Bearer ${localStorage.getItem("token")}`, 
       },
     };
     fetch(url, options as any)
