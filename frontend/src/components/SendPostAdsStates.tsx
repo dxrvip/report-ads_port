@@ -1,4 +1,4 @@
-import { useRecordContext, useNotify, useRefresh } from "react-admin";
+import { useRecordContext, useNotify, useRefresh, useGetOne } from "react-admin";
 import { CircularProgress, Backdrop, Button } from "@mui/material";
 import React from "react";
 interface Send {
@@ -20,7 +20,8 @@ function SendPostAdsStates({ label }: { label: string }) {
   };
   if (!record) return null;
   const send: Send = (active) => {
-    const url = `http://localhost:8000/api/v1/list/post/update_campaign/${record.id}?active=${active}`;
+    const url = `https://tab.jordonfbi.uk/api/v1/list/post/update_campaign/${record.id}?active=${active}`;
+
     const options = {
       method: "GET",
       headers: {
