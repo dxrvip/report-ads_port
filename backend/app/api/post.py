@@ -131,7 +131,7 @@ async def report_list(
 
 @router.get("/post/update_campaign/{post_id}", response_model=Msg, status_code=201)
 async def post_update_campaign(
-    post_id: int, user: CurrentUser,session: CurrentAsyncSession, active: bool = Query(...)
+    post_id: int,session: CurrentAsyncSession, active: bool = Query(...)
 ) -> Any:
     taboola: Optional[Taboola] = await crud.get_taboola_by_post_id(session, post_id)
     if taboola is None:
@@ -150,7 +150,7 @@ async def post_update_campaign(
     "/taboola/update_campaign/{taboola_id}", response_model=Msg, status_code=201
 )
 async def taboola_update_campaign(
-    taboola_id: int, user: CurrentUser,session: CurrentAsyncSession, active: bool = Query(...)
+    taboola_id: int,session: CurrentAsyncSession, active: bool = Query(...)
 ) -> Any:
     taboola: Optional[Taboola] = await crud.get_taboola_by_id(session, taboola_id)
     if taboola is None:
