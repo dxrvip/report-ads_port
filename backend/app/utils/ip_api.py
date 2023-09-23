@@ -11,7 +11,7 @@ class IpApi():
         self.ip_address = ip_address
         self.hosting = None
         self.proxy = None
-        self.status = None
+        self.status = 'error'
         
 
 
