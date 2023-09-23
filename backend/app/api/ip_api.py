@@ -10,7 +10,7 @@ router = APIRouter(prefix="/ip-pro")
 
 
 @router.get(
-    "{ip_address}", response_model=schemas.ResultStatu, status_code=status.HTTP_200_OK
+    "/{ip_address}", response_model=schemas.ResultStatu, status_code=status.HTTP_200_OK
 )
 async def ip_chenck(ip_address: str, session: CurrentAsyncSession):
     visitor_ip: Optional[VisitorIp] = (
