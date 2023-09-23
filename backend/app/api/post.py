@@ -134,13 +134,13 @@ async def report_list(
 async def post_update_campaign(
     post_id: int, session: CurrentAsyncSession, active: bool = Query(...)
 ) -> Any:
-    taboola: Optional[Taboola] = await crud.get_post_by_post_id(session, post_id)
+    taboola: Optional[Taboola] = await crud.get_taboola_by_post_id(session, post_id)
     if taboola is None:
-        return "error"
+        return {"msg": "error"}
     apis = TaboolaApi()
     apis.get_token()
     if apis.post_update_campaign(taboola.campaign_id, taboola.campaign_item_id, active):
-        post: Post = taboola.posts[0]
+        post: Optional[Post] = await session.get(Post, post_id)
         post.promotion = int(active)
         await session.commit()
 
@@ -153,13 +153,13 @@ async def post_update_campaign(
 async def taboola_update_campaign(
     taboola_id: int, session: CurrentAsyncSession, active: bool = Query(...)
 ) -> Any:
-    taboola: Optional[Taboola] = await crud.get_taboola_by_post_id(session, taboola_id)
+    taboola: Optional[Taboola] = await crud.get_taboola_by_id(session, taboola_id)
     if taboola is None:
         return "error"
     apis = TaboolaApi()
     apis.get_token()
     if apis.taboola_update_campaign(taboola.site):
-        taboola.promotion = int(active)
+        taboola.promotion = 0
         await session.commit()
 
     return {"msg": apis.msg}

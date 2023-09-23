@@ -226,6 +226,7 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
             Taboola.site_id,
             Taboola.site,
             Taboola.create,
+            Taboola.promotion,
             func.count(ReportPost.id).label("report_count"),
             func.count(distinct(ReportPost.browser_id)).label("borwser_count"),
             func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
@@ -290,17 +291,18 @@ async def reports_list(session: Session, request_params: PostReportRequestParams
     return reports
 
 
-async def get_post_by_post_id(session: Session, post_id) -> Any:
+async def get_taboola_by_post_id(session: Session, post_id) -> Any:
     _orm = (
-        select(Taboola)
-        .join(Taboola.posts.and_(Post.id == post_id))
-        .options(joinedload(Taboola.posts.and_(Post.id == post_id)))
+        select(ReportPost)
+        .where(ReportPost.post_id == post_id)
+        .options(joinedload(ReportPost.taboola_info))
     )
-    taboola: Optional[Taboola] = (await session.execute(_orm)).scalar()
-    return taboola
+    reprot: Optional[ReportPost] = (await session.execute(_orm)).scalar()
+    if reprot:
+        return reprot.taboola_info
+    return reprot
 
-
-async def get_taboola_by_post_id(session: Session, taboola_id) -> Any:
+async def get_taboola_by_id(session: Session, taboola_id) -> Any:
     _orm = select(Taboola).where(Taboola.id == taboola_id)
     taboola: Optional[Taboola] = (await session.execute(_orm)).scalar()
     return taboola

@@ -1,4 +1,4 @@
-import { useRecordContext } from "react-admin";
+import { useRecordContext, useNotify, useRefresh } from "react-admin";
 import { CircularProgress, Backdrop, Button } from "@mui/material";
 import { useState } from "react";
 interface Send {
@@ -9,6 +9,8 @@ interface Response {
 }
 function SendTaboolaAdsStates({ label }: { label: string }) {
   const record = useRecordContext();
+  const notify = useNotify();
+  const refresh = useRefresh();
   const [open, setOpen] = useState(false);
   const handleClose = () => {
     setOpen(false);
@@ -25,11 +27,21 @@ function SendTaboolaAdsStates({ label }: { label: string }) {
         "Content-Type": "application/json",
       },
     };
-    fetch(url, options).then((response) => {
-      console.log(response?.msg);
-      handleClose()
-    });
-    return "cg";
+    fetch(url, options)
+      .then((response) => {
+        notify("修改成功！", { type: "success" });
+        refresh()
+        handleClose();
+      })
+      .catch((error) => {
+        notify("修改失败！", { type: "error" });
+        handleClose();
+      })
+      .finally(() => {
+        // notify("修改超时！", { type: "error" });
+        handleClose();
+      });
+    return "";
   };
   return (
     <>
@@ -43,7 +55,7 @@ function SendTaboolaAdsStates({ label }: { label: string }) {
         disabled={record?.promotion ? false : true}
         onClick={(e) => {
           e.stopPropagation();
-          handleOpen()
+          handleOpen();
           send(!record.promotion ? true : false);
           return false;
         }}

@@ -1,4 +1,4 @@
-import { useRecordContext } from "react-admin";
+import { useRecordContext, useNotify, useRefresh } from "react-admin";
 import { CircularProgress, Backdrop, Button } from "@mui/material";
 import React from "react";
 interface Send {
@@ -9,6 +9,8 @@ interface Response {
 }
 function SendPostAdsStates({ label }: { label: string }) {
   const record = useRecordContext();
+  const notify = useNotify();
+  const refresh = useRefresh();
   const [open, setOpen] = React.useState(false);
   const handleClose = () => {
     setOpen(false);
@@ -25,10 +27,19 @@ function SendPostAdsStates({ label }: { label: string }) {
         "Content-Type": "application/json",
       },
     };
-    fetch(url, options).then((response) => {
-      handleClose();
-    });
-    return "cg";
+    fetch(url, options)
+      .then((response) => {
+        notify(`修改成功！`, { type: "success" });
+        refresh()
+      }).catch(error => {
+        notify("修改失败！", { type: "error" });
+        handleClose()
+      })
+      .finally(() => {
+        // notify("修改超时！", { type: "error" });
+        handleClose()
+      });
+    return "";
   };
   return (
     <>
