@@ -101,7 +101,9 @@ class Taboola(Base):
     domain_id: Mapped[id] = mapped_column(
         ForeignKey("domain.id"), nullable=True, server_default=None
     )
-    promotion: Mapped[int] = mapped_column(SmallInteger, default=1, nullable=True, comment="停止推广")
+    promotion: Mapped[int] = mapped_column(
+        SmallInteger, default=1, nullable=True, comment="停止推广"
+    )
     # @hybrid_property
     # def _platform(self):
     #     print(self._platform)
@@ -146,7 +148,9 @@ class Post(Base):
         ForeignKey("domain.id"), nullable=True, server_default=None
     )
 
-    promotion: Mapped[int] = mapped_column(SmallInteger, nullable=True,default=1, comment="停止推广")
+    promotion: Mapped[int] = mapped_column(
+        SmallInteger, nullable=True, default=1, comment="停止推广"
+    )
     # @hybrid_property
     # def sum_upv(self)-> tuple:
     #     return (len(self.browser_info), len(self.report_post))
@@ -199,7 +203,8 @@ class VisitorIp(Base):
     ip: Mapped[str] = mapped_column(
         String(20), nullable=False, unique=True, comment="访客ip"
     )
-
+    hosting: Mapped[bool] = mapped_column(Boolean, nullable=True, comment="是否机房IP")
+    proxy: Mapped[bool] = mapped_column(Boolean, nullable=True, comment="是否代理IP")
     report_post: Mapped["ReportPost"] = relationship(back_populates="visitor")
 
 
