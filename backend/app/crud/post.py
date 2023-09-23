@@ -219,6 +219,7 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
             .filter(ReportPost.post_id == request_params.post_id)
             .group_by(ReportPost.taboola_id)
         )
+    ads_click_subquey = ads_tablie_subquery()
     stmt = (
         select(
             Taboola.id,
@@ -228,16 +229,18 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
             func.count(ReportPost.id).label("report_count"),
             func.count(distinct(ReportPost.browser_id)).label("borwser_count"),
             func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
-            func.count(distinct(AdsClick.id)).label("ads_count"),
+            (func.sum(ads_click_subquey.c.count) / func.count(ReportPost.id)).label(
+                "ads_count"
+            ),
             func.sum(cast(ReportPost.is_page, Integer)).label("page_sum"),
             func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)).label(
                 "tab_open_sum"
             ),
-            func.sum(distinct(subquery.c.zs_count)).label("zs_sum"),
+            func.sum(subquery.c.zs_count).label("zs_sum"),
         )
-        .outerjoin(ReportPost, ReportPost.taboola_id == Taboola.id)
-        .outerjoin(AdsClick, AdsClick.taboola_id == Taboola.id)
-        .outerjoin(subquery, subquery.c.id == ReportPost.browser_id)
+        .join(ReportPost, ReportPost.taboola_id == Taboola.id)
+        .join(ads_click_subquey, ads_click_subquey.c.id == ReportPost.taboola_id)
+        .join(subquery, subquery.c.id == ReportPost.browser_id)
         .where(where)
         .offset(request_params.skip)
         .limit(request_params.limit)
