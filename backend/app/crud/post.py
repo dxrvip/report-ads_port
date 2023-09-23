@@ -50,7 +50,7 @@ async def post_list(session: Session, request_params: PostRequestParams):
             func.count(distinct(ReportPost.taboola_id)).label("taboola_count"),
             func.count(distinct(ReportPost.browser_id)).label("borwser_count"),
             func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
-            func.sum(distinct(subquery.c.zs_count)).label("zs_sum"),
+            func.sum(subquery.c.zs_count).label("zs_sum"),
             func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)).label(
                 "tab_open_sum"
             ),
