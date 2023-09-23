@@ -133,6 +133,7 @@ async def report_list(
 async def post_update_campaign(
     post_id: int,session: CurrentAsyncSession, active: bool = Query(...)
 ) -> Any:
+    print("进入update_campaign")
     taboola: Optional[Taboola] = await crud.get_taboola_by_post_id(session, post_id)
     if taboola is None:
          return HTTPException(status_code=400, detail="taboola is not")
