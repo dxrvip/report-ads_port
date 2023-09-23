@@ -30,6 +30,12 @@ subquery = (
     .group_by(BrowserInfo.id)
     .subquery()
 )
+ads_tablie_subquery = (
+    select(ReportPost.id, func.count(AdsClick.id))
+    .outerjoin(AdsClick, AdsClick.post_id == ReportPost.post_id)
+    .group_by(ReportPost.id)
+    .subquery()
+)
 
 
 async def post_list(session: Session, request_params: PostRequestParams):
@@ -48,12 +54,12 @@ async def post_list(session: Session, request_params: PostRequestParams):
             func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)).label(
                 "tab_open_sum"
             ),
-            func.count(distinct(AdsClick.id)).label("ads_count"),
+            (func.sum(ads_tablie_subquery.c.count) / func.count(ReportPost.id)).label("ads_count"),
         )
         .filter(Post.domain_id == request_params.domain_id)
         .join(ReportPost, Post.id == ReportPost.post_id)
         .join(subquery, ReportPost.browser_id == subquery.c.id)
-        .outerjoin(AdsClick, AdsClick.post_id == Post.id)
+        .join(ads_tablie_subquery, ads_tablie_subquery.c.id == ReportPost.id)
         # .options(selectinload(Post.browser_info).selectinload(BrowserInfo.posts))
         .offset(request_params.skip)
         .limit(request_params.limit)
@@ -84,12 +90,12 @@ async def post_statistics(
             func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)).label(
                 "tab_open_sum"
             ),
-            func.count(distinct(AdsClick.id)).label("ads_count"),
+            (func.sum(ads_tablie_subquery.c.count) / func.count(ReportPost.id)).label("ads_count"),
         )
         .select_from(Post)
         .join(ReportPost, ReportPost.post_id == Post.id)
         .join(subquery, ReportPost.browser_id == subquery.c.id)
-        .outerjoin(AdsClick, AdsClick.post_id == id)
+        .join(ads_tablie_subquery, ads_tablie_subquery.c.id == ReportPost.id)
         .where(ReportPost.create.between(start_date, end_date), Post.id == id)
         .group_by(
             func.extract("year", ReportPost.create),
@@ -140,10 +146,10 @@ async def post_date_total(db, id, start_date, end_date):
             func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)).label(
                 "tab_open_sum"
             ),
-            func.count(distinct(AdsClick.id)).label("ads_count"),
+            (func.sum(ads_tablie_subquery.c.count) / func.count(ReportPost.id)).label("ads_count"),
         )
         .join(subquery, ReportPost.browser_id == subquery.c.id)
-        .outerjoin(AdsClick, AdsClick.post_id == id)
+        .join(ads_tablie_subquery, ads_tablie_subquery.c.id == ReportPost.id)
         .where(
             ReportPost.create.between(start_date, end_date), ReportPost.post_id == id
         )
