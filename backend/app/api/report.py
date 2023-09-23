@@ -50,7 +50,6 @@ async def add_ads(
 async def create_report(
     report_in: ReportCreate,
     session: CurrentAsyncSession,
-    request: Request,
     href: Optional[str] = Header(None),
     slug: Optional[str] = Header(None),
     site_id: Optional[int | str] = Header(None),
@@ -58,7 +57,7 @@ async def create_report(
     user_agent: Optional[str] = Header(None),
 ) -> Any:
     
-    print(f"{href}, {report_in}, {user_agent}, {request.client.host}, {ip}, {site_id},============")
+    print(f"{href}, {report_in}, {user_agent},  {ip}, {site_id},============")
     if len(user_agent) > 255:
         user_agent = user_agent[:255]
     is_taboola = href.find("site_id") > -1
