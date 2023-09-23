@@ -116,7 +116,6 @@ async def report_list(
     response: Response,
     session: CurrentAsyncSession,
     request_params: PostReportRequestParams,
-    user: CurrentUser,
 ) -> Any:
     total = await session.scalar(
         select(func.count(ReportPost.id)).filter(
