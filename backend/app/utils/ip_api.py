@@ -1,7 +1,7 @@
 import os, requests
 from .common import singleton
 
-@singleton
+
 class IpApi():
     
     
@@ -9,8 +9,8 @@ class IpApi():
 
     def __init__(self, ip_address: str) -> None:
         self.ip_address = ip_address
-        self.hosting = None
-        self.proxy = None
+        self.hosting = False
+        self.proxy = False
         self.status = 'error'
         
 
