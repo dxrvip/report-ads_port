@@ -26,9 +26,11 @@ function SendPostAdsStates({ label }: { label: string }) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+         "authenticated": true,
+         "token": `Bearer ${localStorage.getItem("token")}`, 
       },
     };
-    fetch(url, options)
+    fetch(url, options as any)
       .then((response) => {
         notify(`修改成功！`, { type: "success" });
         refresh()
