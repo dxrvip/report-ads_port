@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from typing import List, Any, Optional
 from app.schemas.msg import Msg
 from sqlalchemy import distinct, select, func
@@ -136,12 +136,12 @@ async def post_update_campaign(
 ) -> Any:
     taboola: Optional[Taboola] = await crud.get_taboola_by_post_id(session, post_id)
     if taboola is None:
-        return {"msg": "error"}
+         return HTTPException(status_code=400, detail="taboola is not")
     apis = TaboolaApi()
     apis.get_token()
     if apis.post_update_campaign(taboola.campaign_id, taboola.campaign_item_id, active):
         post: Optional[Post] = await session.get(Post, post_id)
-        post.promotion = int(active)
+        post.promotion = 1 if active else 0
         await session.commit()
 
     return {"msg": apis.msg}
@@ -155,7 +155,7 @@ async def taboola_update_campaign(
 ) -> Any:
     taboola: Optional[Taboola] = await crud.get_taboola_by_id(session, taboola_id)
     if taboola is None:
-        return "error"
+        return HTTPException(status_code=400, detail="taboola is not")
     apis = TaboolaApi()
     apis.get_token()
     if apis.taboola_update_campaign(taboola.site):
