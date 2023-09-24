@@ -16,10 +16,13 @@ const PostList = (props: any) => {
   return (
       <List
         resource="list/post"
+        storeKey={false}
         actions={false}
         filter={{"domain_id": recordId}}
         title="/文章"
         debounce={200}
+        disableSyncWithLocation
+
           >
         <Datagrid rowClick="expand" expand={<InvoiceShow type="post" />} >
           <TextField source="id" />

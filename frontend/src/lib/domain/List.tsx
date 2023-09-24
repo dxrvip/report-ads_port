@@ -16,12 +16,21 @@ interface RowClick {
 const DomainList = (props: any) => {
   const redirect = useRedirect();
   const postRowClick: RowClick = function (id) {
-    redirect(`${id}/show`)
+    redirect(`${id}/show`);
     return false;
   };
   return (
     <List {...props} filters={[]}>
-      <Datagrid rowClick={postRowClick as any}>
+      <Datagrid
+        optimized
+        rowClick={postRowClick as any}
+        sx={{
+          "& .RaDatagrid-thead": {
+            backgroundColor: "red",
+            color: "red"
+          },
+        }}
+      >
         <TextField source="id" label="ID" />
         <UrlField source="base_url" label="推广网址" />
         <DateField source="create" label="添加时间" />

@@ -8,9 +8,7 @@ from app.schemas.post import (
     ReportPost as SchemasReportPost,
 )
 from app.schemas.report import (
-    ResultTaboola as SchemasTaboola,
-    ResultBrowserInfo as SchemasBrowser,
-    ResultReport as SchemasReport,
+    ResultBrowserInfo as SchemasBrowser
 )
 from app.deps.users import CurrentUser
 from app.deps.db import CurrentAsyncSession
@@ -20,6 +18,8 @@ from app.deps.request_params import (
     BrowserRequestParams,
     PostReportRequestParams,
 )
+from app.schemas.report import Report as ReportSchema
+from app.crud import report as report_crud
 from app.crud import post as crud
 from app.models.report import Post, Taboola, BrowserInfo, ReportPost
 from app.utils.taboola_api import TaboolaApi
@@ -111,18 +111,14 @@ async def browser_list(
     return browsers
 
 
-@router.get("/report", response_model=List[SchemasReport], status_code=201)
+@router.get("/report", response_model=List[ReportSchema], status_code=201)
 async def report_list(
     response: Response,
     session: CurrentAsyncSession,
     request_params: PostReportRequestParams,
 ) -> Any:
-    total = await session.scalar(
-        select(func.count(ReportPost.id)).filter(
-            ReportPost.domain_id == request_params.domain_id
-        )
-    )
-    reports = await crud.reports_list(session, request_params)
+    total = await report_crud.total_report(session)
+    reports = await report_crud.list_report(session, request_params)
     response.headers[
         "Content-Range"
     ] = f"{request_params.skip}-{request_params.skip + len(reports)} /{total}"

@@ -15,6 +15,7 @@ class ReadTaboola(BaseModel):
     page_sum: Optional[int]
     tab_open_sum: Optional[int]
     zs_sum: Optional[int]
+    hs_sum: Optional[int]
     promotion: Optional[bool]
     class Config:
         orm_mode = True

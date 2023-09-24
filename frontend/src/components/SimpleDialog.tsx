@@ -70,12 +70,13 @@ function SimpleDialog(props: SimpleDialogProps) {
       <DialogContent onClick={(e) => e.stopPropagation()}>
         <Grid item ml={6}>
           <List
+            disableSyncWithLocation
             resource="list/taboola"
             actions={false}
+            storeKey={false}
             filter={{ post_id: record.id }}
             title={"."}
-            debounce={1000}
-            disableSyncWithLocation
+            debounce={1000}            
           >
             <Datagrid>
               <TextField source="id" />

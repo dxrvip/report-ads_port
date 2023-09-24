@@ -6,6 +6,7 @@ import {
   DateField,
 } from "react-admin";
 import SendTaboolaAdsStates from "../../components/SendTaboolaAdsStates";
+import MyTextField from "../../components/MyTextFile";
 // import InvoiceShow from "./InvoiceShow";
 
 const TaboolaList = (props: any) => {
@@ -14,6 +15,8 @@ const TaboolaList = (props: any) => {
   return (
     <List
       resource="list/taboola"
+      disableSyncWithLocation
+      storeKey={false}
       actions={false}
       filter={{ domain_id: recordId }}
       title="/特博拉"
@@ -21,7 +24,8 @@ const TaboolaList = (props: any) => {
       <Datagrid>
         <TextField source="id" />
         <TextField source="site_id" label="siteId" />
-        <TextField source="site" label="平台名称" />
+        <TextField source="hs_sum" label="机房ip数" />
+        <MyTextField source="site" label="平台名称" />
         <DateField source="create" label="时间" showTime />
         <TextField source="page_sum" label="翻页总数" />
         <TextField source="zs_sum" label="有纵深行为访客数" />

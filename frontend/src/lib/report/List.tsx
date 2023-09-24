@@ -1,17 +1,10 @@
 import { Datagrid,BooleanField, List, TextField, DateField } from "react-admin";
-export const slugStyle = {
-  width: "150px",
-  height: "20px",
-  display: "inline-block",
-  textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-};
+
 
 const ReportList = (props: any) => (
   <List {...props} filters={[]}>
     <Datagrid>
-      <TextField source="url" color="secondary" sx={slugStyle} />
+      <TextField source="url" color="secondary"/>
       <DateField source="create" showTime label="日期" />
       <TextField source="browser_info.fingerprint_id" label="指纹ID" />
       <TextField source="visitor.ip" label="Ip" />

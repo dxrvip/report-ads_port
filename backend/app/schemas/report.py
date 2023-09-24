@@ -47,11 +47,10 @@ class Report(BaseModel):
     id: int
     url: str
     create: datetime
-    is_page: bool
-    browser_info: BrowserInfo
-    visitor: VisitorIp
-    post: Post
-    taboola_info: Optional[Taboola]
+    browser_info: Optional[BrowserInfo]
+    visitor: Optional[VisitorIp]
+    # post: Optional[Post]
+    taboola_id: Optional[int]
 
     class Config:
         orm_mode = True
