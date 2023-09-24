@@ -20,7 +20,7 @@ const DomainList = (props: any) => {
     return false;
   };
   return (
-    <List {...props} filters={[]}>
+    <List {...props}>
       <Datagrid
         optimized
         rowClick={postRowClick as any}
