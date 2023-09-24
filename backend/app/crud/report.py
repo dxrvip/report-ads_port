@@ -7,7 +7,7 @@ from app.schemas.report import Taboola as SchemasTaboola
 from sqlalchemy import select, func
 import re
 
-from app.deps.request_params import ReportRequestParams
+from app.deps.request_params import PostReportRequestParams
 
 
 async def create_report(
@@ -109,7 +109,7 @@ async def total_report(db: Session):
     return report
 
 
-async def list_report(db: Session, request_params: ReportRequestParams):
+async def list_report(db: Session, request_params: PostReportRequestParams):
     _orm = (
         select(ReportPost)
         .offset(request_params.skip)

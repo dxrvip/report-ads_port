@@ -49,15 +49,16 @@ const ReportList = (props: any) => {
           <TextField source="id" />
           <DateField source="create" showTime label="浏览时间" />
           <MyUrlField source="url" />
-          <TextField source="browser_info.fingerprint_id" label="指纹ID" />
-          <TextField source="visitor.ip" label="Ip" />
-          <TextField source="taboola_id" label="TaboolaId" />
+          <TextField source="browser_info.fingerprint_id" label="指纹ID" sortable={false} />
+          <TextField source="visitor.ip" label="Ip" sortable={false} />
+          <TextField source="taboola_id" label="TaboolaId" sortable={false} />
           <TextField
             source="browser_info.equipment.browser[0]"
             label="浏览器"
+            sortable={false}
           />
-          <TextField source="browser_info.equipment.os[0]" label="设备" />
-          <BooleanField source="browser_info.equipment.is_bot" label="机器人" />
+          <TextField source="browser_info.equipment.os[0]" label="设备" sortable={false} />
+          <BooleanField source="browser_info.equipment.is_bot" label="机器人" sortable={false} />
         </Datagrid>
       </List>
       <SwipeableDrawer

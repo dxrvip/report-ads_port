@@ -11,7 +11,7 @@ from app.deps.users import CurrentAsyncSession, CurrentUser
 from sqlalchemy.exc import IntegrityError
 
 from app.crud.domain import get_domain_by_host
-from app.deps.request_params import ReportRequestParams
+# from app.deps.request_params import PostReportRequestParams
 
 
 router = APIRouter(prefix="/report")
@@ -110,19 +110,19 @@ async def create_report(
     return {"msg": "success"}
 
 
-@router.get("", response_model=List[ReportSchema], status_code=201)
-async def get_reports(
-    response: Response,
-    session: CurrentAsyncSession,
-    request_params: ReportRequestParams,
-    user: CurrentUser,
-) -> Any:
-    total = await crud.total_report(session)
-    reports = await crud.list_report(session, request_params)
-    response.headers[
-        "Content-Range"
-    ] = f"{request_params.skip}-{request_params.skip + len(reports)}/{total}"
-    return reports
+# @router.get("", response_model=List[ReportSchema], status_code=201)
+# async def get_reports(
+#     response: Response,
+#     session: CurrentAsyncSession,
+#     request_params: PostReportRequestParams,
+#     user: CurrentUser,
+# ) -> Any:
+#     total = await crud.total_report(session)
+#     reports = await crud.list_report(session, request_params)
+#     response.headers[
+#         "Content-Range"
+#     ] = f"{request_params.skip}-{request_params.skip + len(reports)}/{total}"
+#     return reports
 
 
 @router.get("/{report_id}", response_model=ReportSchema, status_code=201)

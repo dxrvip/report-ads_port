@@ -97,7 +97,7 @@ def parse_react_post_params(model: Type[Base]) -> Callable:
 
 ItemRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(Item))]
 DomainRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(Domain))]
-ReportRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(ReportPost))]
+
 
 
 PostRequestParams = Annotated[ReportParams, Depends(parse_react_post_params(Post))]
