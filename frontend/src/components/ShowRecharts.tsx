@@ -11,8 +11,6 @@ import {
 import { useEffect, useState } from "react";
 import { useDataProvider, useRecordContext } from "react-admin";
 import { Customer } from "../types";
-import React from "react";
-import SimpleDialog from "./SimpleDialog";
 interface Result {
   bsum: Number;
   rsum: Number;

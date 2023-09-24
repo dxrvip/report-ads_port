@@ -11,6 +11,7 @@ import {
   useRecordContext,
 } from "react-admin";
 import { Invoice } from "../types";
+import MyTextField from "./MyTextFile";
 export interface SimpleDialogProps {
   open: boolean;
   onClose: () => void;
@@ -81,8 +82,9 @@ function SimpleDialog(props: SimpleDialogProps) {
             <Datagrid>
               <TextField source="id" />
               <TextField source="site_id" label="siteId" />
+              <TextField source="hs_sum" label="机房ip数" />
               <DateField source="create" label="时间" showTime />
-              <TextField source="site" label="平台名称" />
+              <MyTextField source="site" label="平台名称" />
               <TextField source="page_sum" label="翻页总数" />
               <TextField source="zs_sum" label="有纵深行为访客数" />
               <TextField source="ads_count" label="广告点击数" />
