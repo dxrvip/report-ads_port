@@ -1,5 +1,5 @@
 import { useRecordContext } from "react-admin";
-import { Link, Tooltip, Typography} from "@mui/material";
+import { Tooltip, Typography} from "@mui/material";
 
 function MyTextField({ source, label }: { source: string, label: string }) {
   const record = useRecordContext();

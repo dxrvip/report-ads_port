@@ -153,8 +153,9 @@ async def taboola_update_campaign(
         return HTTPException(status_code=400, detail="taboola is not")
     apis = TaboolaApi()
     apis.get_token()
-    if apis.taboola_update_campaign(taboola.site):
-        taboola.promotion = 0
+    operation = "ADD" if active else "REMOVE"
+    if apis.taboola_update_campaign(taboola.site, operation):
+        taboola.promotion = 1 if active else 0
         await session.commit()
 
     return {"msg": apis.msg}

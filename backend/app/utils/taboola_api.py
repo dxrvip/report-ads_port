@@ -21,7 +21,8 @@ class TaboolaApi:
         # with open(path, "r", encoding="utf-8") as f:
         #     self.token = f.read()
         #     return
-
+        if self.token != None:
+            return
         url = "https://backstage.taboola.com/backstage/oauth/token"
 
         payload = {
@@ -59,21 +60,22 @@ class TaboolaApi:
             self.msg = "修改失败"
             return False
 
-    def taboola_update_campaign(self, site):
+    def taboola_update_campaign(self, site, operation):
         if not site:
             raise Exception(detail="capaign_id is null")
+
         url = f"https://backstage.taboola.com/backstage/api/1.0/{self._ACCOUNT_ID}/block-publisher"
 
-        payload = {"sites": [site]}
+        payload = {"sites": [site], "patch_operation": operation}
         headers = {
             "accept": "application/json",
             "content-type": "application/json",
             "Authorization": f"Bearer {self.token}",
         }
         try:
-            response = requests.post(url, json=payload, headers=headers)
+            response = requests.patch(url, json=payload, headers=headers)
 
-            print(response.text)
+            # print(response.text)
             if response.status_code == 200:
                 self.msg = "修改成功！"
                 return True

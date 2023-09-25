@@ -1,17 +1,10 @@
-import {
-  useRecordContext,
-  useNotify,
-  useRefresh,
-  fetchUtils,
-} from "react-admin";
+import { useRecordContext, useNotify, useRefresh } from "react-admin";
 import { CircularProgress, Backdrop, Button } from "@mui/material";
 import { useState } from "react";
 interface Send {
   (active?: boolean): string;
 }
-interface Response {
-  msg?: string;
-}
+
 function SendTaboolaAdsStates({ label }: { label: string }) {
   const record = useRecordContext();
   const notify = useNotify();
@@ -27,6 +20,7 @@ function SendTaboolaAdsStates({ label }: { label: string }) {
 
   const send: Send = (active) => {
     const url = `https://tab.jordonfbi.uk/api/v1/list/taboola/update_campaign/${record.id}?active=${active}`;
+    // const url = `http://localhost:8000/api/v1/list/taboola/update_campaign/${record.id}?active=${active}`;
     const options = {
       method: "GET",
       headers: {
@@ -59,15 +53,16 @@ function SendTaboolaAdsStates({ label }: { label: string }) {
         <CircularProgress color="inherit" />
       </Backdrop>
       <Button
-        disabled={record?.promotion ? false : true}
+        color={record.promotion == 1 ? 'warning' : 'success'}
         onClick={(e) => {
           e.stopPropagation();
           handleOpen();
-          send(!record.promotion ? true : false);
+          const active = record.promotion == 1 ? false : true;
+          send(active);
           return false;
         }}
       >
-        停止推广
+        {record.promotion == 1 ? "停止推广" : "开启推广"}
       </Button>
     </>
   );

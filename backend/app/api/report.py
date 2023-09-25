@@ -56,7 +56,11 @@ async def create_report(
     ip: Optional[str] = Header(None),
     user_agent: Optional[str] = Header(None),
 ) -> Any:
-    
+    """
+    1,site_id 进入带有 taboola追踪url
+    2，无任何追踪代码
+    3，带site_id翻页进入，或带site_id进入别的文章
+    """
     print(f"{href}, {report_in}, {user_agent},  {ip}, {site_id},============")
     if len(user_agent) > 255:
         user_agent = user_agent[:255]

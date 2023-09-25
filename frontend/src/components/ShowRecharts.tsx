@@ -33,7 +33,7 @@ const CustomerField = (props: any) => {
       .then((response) => {
         setData(response.data);
       });
-  }, []);
+  }, [props, record]);
   if (!record) return null;
 
   return data ? (

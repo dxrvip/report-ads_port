@@ -1,12 +1,10 @@
-import { useRecordContext, useNotify, useRefresh, useGetOne } from "react-admin";
+import { useRecordContext, useNotify, useRefresh } from "react-admin";
 import { CircularProgress, Backdrop, Button } from "@mui/material";
 import React from "react";
 interface Send {
   (active?: boolean): string;
 }
-interface Response {
-  msg?: string;
-}
+
 function SendPostAdsStates({ label }: { label: string }) {
   const record = useRecordContext();
   const notify = useNotify();
@@ -26,20 +24,21 @@ function SendPostAdsStates({ label }: { label: string }) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("token")}`, 
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     };
     fetch(url, options as any)
       .then((response) => {
         notify(`修改成功！`, { type: "success" });
-        refresh()
-      }).catch(error => {
+        refresh();
+      })
+      .catch((error) => {
         notify("修改失败！", { type: "error" });
-        handleClose()
+        handleClose();
       })
       .finally(() => {
         // notify("修改超时！", { type: "error" });
-        handleClose()
+        handleClose();
       });
     return "";
   };
@@ -52,6 +51,7 @@ function SendPostAdsStates({ label }: { label: string }) {
         <CircularProgress color="inherit" />
       </Backdrop>
       <Button
+        color={record.promotion == 1 ? 'warning' : 'success'}
         onClick={(e) => {
           e.stopPropagation();
           handleOpen();

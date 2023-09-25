@@ -2,7 +2,6 @@ import { Grid, Dialog, DialogTitle, DialogContent } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import SendTaboolaAdsStates from "./SendTaboolaAdsStates";
 import CloseIcon from "@mui/icons-material/Close";
-import { styled } from "@mui/material/styles";
 import {
   Datagrid,
   DateField,
