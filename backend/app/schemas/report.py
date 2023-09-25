@@ -49,7 +49,7 @@ class Report(BaseModel):
     create: datetime
     browser_info: Optional[BrowserInfo]
     visitor: Optional[VisitorIp]
-    # post: Optional[Post]
+    taboola_info: Optional[Taboola]
     taboola_id: Optional[int]
 
     class Config:

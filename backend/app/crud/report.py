@@ -1,6 +1,6 @@
 from sqlalchemy.orm import lazyload, joinedload
 from typing import Optional
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, selectinload, subqueryload
 from app.models.report import VisitorIp, ReportPost, BrowserInfo, Post, Taboola
 from app.models.domain import Domain
 from app.schemas.report import Taboola as SchemasTaboola
@@ -117,6 +117,7 @@ async def list_report(db: Session, request_params: PostReportRequestParams):
         .order_by(request_params.order_by)
         .options(selectinload(ReportPost.browser_info))
         .options(selectinload(ReportPost.visitor))
+        .options(subqueryload(ReportPost.taboola_info))
     )
     return (await db.execute(_orm)).scalars().all()
 

@@ -51,7 +51,7 @@ const ReportList = (props: any) => {
           <MyUrlField source="url" />
           <TextField source="browser_info.fingerprint_id" label="指纹ID" sortable={false} />
           <TextField source="visitor.ip" label="Ip" sortable={false} />
-          <TextField source="taboola_id" label="TaboolaId" sortable={false} />
+          <TextField source="taboola_info.site_id" label="siteId" sortable={false} />
           <TextField
             source="browser_info.equipment.browser[0]"
             label="浏览器"
