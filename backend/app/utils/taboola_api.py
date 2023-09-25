@@ -64,7 +64,7 @@ class TaboolaApi:
         if not site:
             raise Exception(detail="capaign_id is null")
 
-        url = f"https://backstage.taboola.com/backstage/api/1.0/{self._ACCOUNT_ID}/block-sites"
+        url = f"https://backstage.taboola.com/backstage/api/1.0/{self._ACCOUNT_ID}/block-publisher"
 
         
         headers = {
@@ -73,7 +73,8 @@ class TaboolaApi:
             "Authorization": f"Bearer {self.token}",
         }
         try:
-            payload = {"sites": [site], "patchOperation": operation}
+            payload = {"sites": [site], "patch_operation": operation}
+            print(payload)
             response = requests.patch(url, json=payload, headers=headers)
 
             print(response.text)
