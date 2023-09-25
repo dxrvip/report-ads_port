@@ -66,15 +66,19 @@ class TaboolaApi:
 
         url = f"https://backstage.taboola.com/backstage/api/1.0/{self._ACCOUNT_ID}/block-publisher"
 
-        payload = {"sites": [site], "patch_operation": operation}
+        
         headers = {
             "accept": "application/json",
             "content-type": "application/json",
             "Authorization": f"Bearer {self.token}",
         }
         try:
-            response = requests.patch(url, json=payload, headers=headers)
-
+            if operation == "ADD":
+                payload = {"sites": [site], "patch_operation": operation}
+                response = requests.patch(url, json=payload, headers=headers)
+            else:
+                payload = {"sites": [site]}
+                response = requests.post(url, json=payload, headers=headers)
             # print(response.text)
             if response.status_code == 200:
                 self.msg = "修改成功！"
