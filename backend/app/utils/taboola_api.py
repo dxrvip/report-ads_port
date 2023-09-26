@@ -73,8 +73,20 @@ class TaboolaApi:
             "Authorization": f"Bearer {self.token}",
         }
         try:
+            response = requests.get(url, headers=headers)
+            data = response.json()
+            if operation == 'ADD': # 添加禁用发布商
+      
+                if site in data['sites']:
+                    self.msg = "该发布商已被禁用！"
+                    return True
+            else:  # 把禁用发布商家拉出
+                if not site in data['sites']:
+                    self.msg = "该发布商未被禁用！"
+                    return True
+            
             payload = {"sites": [site], "patch_operation": operation}
-            print(payload)
+
             response = requests.patch(url, json=payload, headers=headers)
 
             print(response.text)

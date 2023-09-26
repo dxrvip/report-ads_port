@@ -155,7 +155,7 @@ async def taboola_update_campaign(
     apis.get_token()
     operation = "ADD" if active else "REMOVE"
     if apis.taboola_update_campaign(taboola.site, operation):
-        taboola.promotion = 1 if active else 0
+        taboola.promotion = 0 if active else 1
         await session.commit()
 
     return {"msg": apis.msg}

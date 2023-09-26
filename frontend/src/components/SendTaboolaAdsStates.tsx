@@ -18,9 +18,9 @@ function SendTaboolaAdsStates({ label }: { label: string }) {
   };
   if (!record) return null;
 
-  const send: Send = (active) => {
-    const url = `https://tab.jordonfbi.uk/api/v1/list/taboola/update_campaign/${record.id}?active=${active}`;
-    // const url = `http://localhost:8000/api/v1/list/taboola/update_campaign/${record.id}?active=${active}`;
+  const send = async (active: boolean) => {
+    // const url = `https://tab.jordonfbi.uk/api/v1/list/taboola/update_campaign/${record.id}?active=${active}`;
+    const url = `http://localhost:8000/api/v1/list/taboola/update_campaign/${record.id}?active=${active}`;
     const options = {
       method: "GET",
       headers: {
@@ -28,21 +28,16 @@ function SendTaboolaAdsStates({ label }: { label: string }) {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     };
-    fetch(url, options as any)
-      .then((response) => {
-        notify("修改成功！", { type: "success" });
-        refresh();
-        handleClose();
-      })
-      .catch((error) => {
-        notify("修改失败！", { type: "error" });
-        handleClose();
-      })
-      .finally(() => {
-        // notify("修改超时！", { type: "error" });
-        handleClose();
-      });
-    return "";
+    const response = await fetch(url, options as any)
+    if (response.status == 201){
+        const res = await response.json()
+        notify(res.msg, { type: "success" });
+    }else{
+      notify("修改失败！", { type: "error" });
+    }
+      refresh();
+      handleClose();
+
   };
   return (
     <>
@@ -53,16 +48,15 @@ function SendTaboolaAdsStates({ label }: { label: string }) {
         <CircularProgress color="inherit" />
       </Backdrop>
       <Button
-        color={record.promotion == 1 ? 'warning' : 'success'}
+        color={record.promotion ?  'error' : 'success' }
         onClick={(e) => {
           e.stopPropagation();
           handleOpen();
-          const active = record.promotion == 1 ? false : true;
-          send(active);
+          send(record.promotion);
           return false;
         }}
       >
-        {record.promotion == 1 ? "停止推广" : "开启推广"}
+        {record.promotion ?  "禁用": "开启"}
       </Button>
     </>
   );
