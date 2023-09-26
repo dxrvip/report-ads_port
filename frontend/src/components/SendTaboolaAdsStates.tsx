@@ -19,8 +19,8 @@ function SendTaboolaAdsStates({ label }: { label: string }) {
   if (!record) return null;
 
   const send = async (active: boolean) => {
-    // const url = `https://tab.jordonfbi.uk/api/v1/list/taboola/update_campaign/${record.id}?active=${active}`;
-    const url = `http://localhost:8000/api/v1/list/taboola/update_campaign/${record.id}?active=${active}`;
+    const url = `https://tab.jordonfbi.uk/api/v1/list/taboola/update_campaign/${record.id}?active=${active}`;
+    // const url = `http://localhost:8000/api/v1/list/taboola/update_campaign/${record.id}?active=${active}`;
     const options = {
       method: "GET",
       headers: {
