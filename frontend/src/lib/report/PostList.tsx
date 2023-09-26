@@ -9,6 +9,7 @@ import InvoiceShow from "./InvoiceShow";
 import MyUrlField from "../../components/MyUrlFile";
 import SendTaboolaAdsStates from "../../components/SendPostAdsStates";
 import MyButton from "../../components/MyButton";
+import MyStatusField from "../../components/MyStatusField";
 
 const PostList = (props: any) => {
   const recordId = useGetRecordId();
@@ -36,6 +37,7 @@ const PostList = (props: any) => {
           <TextField source="tab_open_sum" label="siteId进入数" />
           <TextField source="borwser_count" label="指纹访客总数" />
           <TextField source="report_count" label="累计浏览量" />
+          <MyStatusField source="promotion" label="状态" />
           <SendTaboolaAdsStates label="操作" />
         </Datagrid>
       </List>
