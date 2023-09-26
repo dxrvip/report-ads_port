@@ -20,6 +20,7 @@ async def ip_chenck(ip_address: str, session: CurrentAsyncSession):
     if visitor_ip is None:
         onl_ip = True
         visitor_ip = VisitorIp(ip=ip_address)
+        session.add(visitor_ip)
         await session.commit()
     
     check_ip = IpApi(ip_address=visitor_ip.ip)
