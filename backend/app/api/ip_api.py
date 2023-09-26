@@ -13,8 +13,7 @@ router = APIRouter(prefix="/ip-pro")
     "/{ip_address}", response_model=schemas.ResultStatu, status_code=status.HTTP_200_OK
 )
 async def ip_chenck(ip_address: str, session: CurrentAsyncSession):
-    show = True
-    onl_ip = True
+    show,onl_ip = True, True
     visitor_ip: Optional[VisitorIp] = (
         await session.scalars(select(VisitorIp).filter(VisitorIp.ip == ip_address))
     ).first()
