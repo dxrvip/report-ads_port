@@ -74,6 +74,7 @@ class TaboolaApi:
         }
         try:
             response = requests.get(url, headers=headers)
+            print(response.text)
             data = response.json()
             if operation == 'ADD': # 添加禁用发布商
       
@@ -93,7 +94,8 @@ class TaboolaApi:
             if response.status_code == 200:
                 self.msg = "修改成功！"
                 return True
-        except:
+        except Exception as e:
+            print(e)
             self.msg = "修改失败"
             return False
 
