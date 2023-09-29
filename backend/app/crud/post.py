@@ -123,7 +123,7 @@ async def post_list(session: Session, request_params: PostRequestParams):
         .group_by(Post.id)
         # .add_columns(Post)
     )
-    print(stmt)
+    # print(stmt)
     posts: Optional[List] = (await session.execute(stmt)).all()
     return posts
 

@@ -37,10 +37,8 @@ async def get_posts(
     user: CurrentUser,
 ) -> Any:
     total = await session.scalar(
-        select(Post.id, func.count(ReportPost.post_id))
+        select(Post.id, func.count(Post.id))
         .filter(Post.domain_id == request_params.domain_id)
-        .join(ReportPost, ReportPost.post_id == Post.id)
-        .group_by(Post.id)
     )
     posts = await crud.post_list(session, request_params)
     response.headers[

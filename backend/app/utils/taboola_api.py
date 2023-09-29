@@ -1,6 +1,6 @@
 import os, tempfile, requests
 from .common import singleton
-
+from datetime import datetime
 @singleton
 class TaboolaApi:
     _CLIENT_ID = os.getenv("CLIENT_ID")
@@ -10,11 +10,11 @@ class TaboolaApi:
    
 
     def __init__(self) -> None:
-        print(self._CLIENT_SECRET, self._CLIENT_ID)
+        # print(self._CLIENT_SECRET, self._CLIENT_ID)
         self.token = None
         self.msg = ""
+        self.get_time = datetime.now()
 
-        pass
 
     def get_token(self):
         # path = os.path.join(os.getcwd(), "backend/app/utils/token.txt")
@@ -22,7 +22,10 @@ class TaboolaApi:
         #     self.token = f.read()
         #     return
         if self.token != None:
-            return
+            new_time = datetime.now()
+            c = new_time - self.get_time
+            if c.days <= 0:
+                return
         url = "https://backstage.taboola.com/backstage/oauth/token"
 
         payload = {
