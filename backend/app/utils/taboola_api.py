@@ -25,7 +25,7 @@ class TaboolaApi:
             new_time = datetime.now()
             c = new_time - self.get_time
             print(new_time, self.get_time)
-            if c.seconds > (5 * 3600):
+            if c.seconds < (5 * 3600):
                 return
         url = "https://backstage.taboola.com/backstage/oauth/token"
 

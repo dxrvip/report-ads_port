@@ -60,11 +60,9 @@ def ads_tablie_subquery(start_date=None, end_date=None):
 ip_subquery = (
     select(
         VisitorIp.id,
-        case(
-            (
-                or_(VisitorIp.hosting, VisitorIp.proxy), VisitorIp.ip
-            ), else_=None
-        ).label("hosting_count"),
+        case((or_(VisitorIp.hosting, VisitorIp.proxy), VisitorIp.ip), else_=None).label(
+            "hosting_count"
+        ),
     )
     .join(ReportPost, ReportPost.visitor_ip == VisitorIp.id)
     .group_by(VisitorIp.id)
@@ -74,6 +72,50 @@ ip_subquery = (
 
 async def post_list(session: Session, request_params: PostRequestParams):
     # ads_click_subquey = ads_tablie_subquery()
+    tab_open_sum = case(
+        (
+            and_(
+                func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)) > 0,
+                func.count(distinct(AdsClick.id)) > 0,
+            ),
+            func.sum(case((ReportPost.url.like("%site%"), 1), else_=0))
+            / func.count(distinct(AdsClick.id)),
+        ),
+        else_=func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)),
+    ).label("tab_open_sum")
+    zs_site_open = (
+        case(
+            (
+                and_(
+                    func.count(distinct(subquery.c.zs_count)) > 0,
+                    tab_open_sum > 0,
+                ),
+                func.count(distinct(subquery.c.zs_count)) / tab_open_sum,
+            ),
+            else_=0,
+        )
+    ).label("zs_site_open")
+    page_sum = case(
+        (
+            and_(
+                func.sum(cast(ReportPost.is_page, Integer)) > 0,
+                func.count(distinct(AdsClick.id)) > 0,
+            ),
+            func.sum(cast(ReportPost.is_page, Integer))
+            / func.count(distinct(AdsClick.id)),
+        ),
+        else_=func.sum(cast(ReportPost.is_page, Integer)),
+    ).label("page_sum")
+    page_zs = (
+        case(
+            (
+                and_(page_sum > 0, func.count(distinct(subquery.c.zs_count)) > 0),
+                page_sum / func.count(distinct(subquery.c.zs_count)),
+            ),
+            else_=0,
+        )
+    ).label("page_zs")
+
     stmt = (
         select(
             Post.url,
@@ -86,29 +128,11 @@ async def post_list(session: Session, request_params: PostRequestParams):
             func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
             func.count(distinct(AdsClick.id)).label("ads_count"),
             func.count(distinct(subquery.c.zs_count)).label("zs_sum"),
+            page_zs,
+            zs_site_open,
             # 以下都要计算
-            case(
-                (
-                    and_(
-                        func.sum(cast(ReportPost.is_page, Integer)) > 0,
-                        func.count(distinct(AdsClick.id)) > 0,
-                    ),
-                    func.sum(cast(ReportPost.is_page, Integer))
-                    / func.count(distinct(AdsClick.id)),
-                ),
-                else_=func.sum(cast(ReportPost.is_page, Integer)),
-            ).label("page_sum"),
-            case(
-                (
-                    and_(
-                        func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)) > 0,
-                        func.count(distinct(AdsClick.id)) > 0,
-                    ),
-                    func.sum(case((ReportPost.url.like("%site%"), 1), else_=0))
-                    / func.count(distinct(AdsClick.id)),
-                ),
-                else_=func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)),
-            ).label("tab_open_sum"),
+            page_sum,
+            tab_open_sum,
         )
         .filter(Post.domain_id == request_params.domain_id)
         .outerjoin(ReportPost, Post.id == ReportPost.post_id)
@@ -366,8 +390,6 @@ async def browser_list(session: Session, request_params: BrowserRequestParams):
     browsers: Optional[List] = (await session.execute(_orm)).all()
 
     return browsers
-
-
 
 
 async def get_taboola_by_post_id(session: Session, post_id) -> Any:

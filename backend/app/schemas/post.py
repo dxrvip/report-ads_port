@@ -41,6 +41,8 @@ class PostListReport(BaseModel):
     tab_open_sum: Optional[int]
     promotion: Optional[int]
     create_time: Optional[datetime]
+    page_zs: Optional[float]
+    zs_site_open: Optional[float]
     class Config:
         orm_mode = True
 
