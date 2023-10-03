@@ -109,8 +109,8 @@ async def post_list(session: Session, request_params: PostRequestParams):
     page_zs = (
         case(
             (
-                and_(page_sum > 0, func.count(distinct(subquery.c.zs_count)) > 0),
-                page_sum / func.count(distinct(subquery.c.zs_count)),
+                and_(page_sum > 0, tab_open_sum > 0),
+                page_sum / tab_open_sum,
             ),
             else_=0,
         )
