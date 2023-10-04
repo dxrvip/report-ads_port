@@ -201,7 +201,7 @@ class VisitorIp(Base):
     __tablename__ = "visitor_ip"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     ip: Mapped[str] = mapped_column(
-        String(20), nullable=False, unique=True, comment="访客ip"
+        String(50), nullable=False, unique=True, comment="访客ip"
     )
     hosting: Mapped[bool] = mapped_column(Boolean, nullable=True, comment="是否机房IP")
     proxy: Mapped[bool] = mapped_column(Boolean, nullable=True, comment="是否代理IP")
