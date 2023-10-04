@@ -131,8 +131,9 @@ async def post_update_campaign(
     post_id: int,user: CurrentUser,session: CurrentAsyncSession, active: bool = Query(...)
 ) -> Any:
     report: Optional[ReportPost] = await crud.get_taboola_by_post_id(session, post_id)
+    print(report)
     if report is None:
-         return HTTPException(status_code=400, detail="taboola is not")
+         return HTTPException(status_code=400, detail="report is not")
     cam_list = set()
     for item in report:
         o = urlparse(item.url)
@@ -141,6 +142,7 @@ async def post_update_campaign(
 
     apis = TaboolaApi()
     apis.get_token()
+    print(cam_list)
     for item in cam_list:
         apis.post_update_campaign(item[0], item[1], active)
     post: Optional[Post] = await session.get(Post, post_id)
