@@ -33,7 +33,7 @@ const PostList = (props: any) => {
           <MyButton source="taboola_count" label="siteId总数" />
           <TextField source="page_sum" label="翻页总数" />
           <TextField source="zs_sum" label="有纵深行为访客数" />
-          <MyFloatField source="page_zs" label="翻页/纵深" reference={4}/>
+          <MyFloatField source="page_zs" label="翻页/site进入数" reference={4}/>
           <TextField source="ads_count" label="广告点击数" />
           <TextField source="ip_count" label="Ip访客总数" />
           <TextField source="tab_open_sum" label="siteId进入数" />
