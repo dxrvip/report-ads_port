@@ -395,12 +395,11 @@ async def browser_list(session: Session, request_params: BrowserRequestParams):
 async def get_taboola_by_post_id(session: Session, post_id) -> Any:
     _orm = (
         select(ReportPost)
-        .where(ReportPost.post_id == post_id)
-        .options(joinedload(ReportPost.taboola_info))
+        .where(ReportPost.post_id == post_id, ReportPost.url.like("%campaign_id%"))
     )
-    reprot: Optional[ReportPost] = (await session.execute(_orm)).scalar()
+    reprot: Optional[ReportPost] = (await session.execute(_orm)).scalars().all()
     if reprot:
-        return reprot.taboola_info
+        return reprot
     return reprot
 
 

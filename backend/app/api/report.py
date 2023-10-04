@@ -1,5 +1,6 @@
 from typing import Any, Optional, List, Dict,Union
-import re, urllib.parse
+import re
+from urllib.parse import urlparse
 from fastapi import APIRouter, HTTPException, Header, Request, Response
 from app.schemas.report import Report as ReportSchema
 from app.schemas.report import Taboola as TaboolaSchema
@@ -51,7 +52,6 @@ async def create_report(
     report_in: ReportCreate,
     session: CurrentAsyncSession,
     href: Optional[str] = Header(None),
-    slug: Optional[str] = Header(None),
     site_id: Optional[int | str] = Header(None),
     cf_connecting_ip: Optional[str] = Header(None),
     user_agent: Optional[str] = Header(None),
@@ -68,9 +68,11 @@ async def create_report(
     is_taboola = href.find("site_id") > -1
     if site_id == 'null' and not is_taboola:
         raise HTTPException(200, detail="not site_id")
-    host = urllib.parse.urlparse(href).netloc
-    domain = await get_domain_by_host(session, host)
+    o = urlparse(href)
 
+    host = o.netloc
+    domain = await get_domain_by_host(session, host)
+    slug = o.path
     # 如果没有域名  s
     if domain is None or not slug or slug == "null" or slug == "undefined":
         raise HTTPException(402, detail="not post or domain")
@@ -78,7 +80,7 @@ async def create_report(
     
     if is_taboola:
         # 插入taboola信息
-        query: str = re.findall(r"\?(.+)$", href)[0]
+        query: str = o.query
         query_dict: Dict = {}
         for item in query.split("&"):
             [k, v] = item.split("=")

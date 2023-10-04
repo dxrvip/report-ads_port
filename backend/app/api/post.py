@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query, HTTPException
 from typing import List, Any, Optional
 from app.schemas.msg import Msg
+from urllib.parse import urlparse, parse_qs
 from sqlalchemy import distinct, select, func
 from starlette.responses import Response
 from app.schemas.post import (
@@ -129,15 +130,22 @@ async def report_list(
 async def post_update_campaign(
     post_id: int,user: CurrentUser,session: CurrentAsyncSession, active: bool = Query(...)
 ) -> Any:
-    taboola: Optional[Taboola] = await crud.get_taboola_by_post_id(session, post_id)
-    if taboola is None:
+    report: Optional[ReportPost] = await crud.get_taboola_by_post_id(session, post_id)
+    if report is None:
          return HTTPException(status_code=400, detail="taboola is not")
+    cam_list = set()
+    for item in report:
+        o = urlparse(item.url)
+        query = parse_qs(o.query)
+        cam_list.add((query['campaign_id'][0], query['campaign_item_id'][0]))
+
     apis = TaboolaApi()
     apis.get_token()
-    if apis.post_update_campaign(taboola.campaign_id, taboola.campaign_item_id, active):
-        post: Optional[Post] = await session.get(Post, post_id)
-        post.promotion = 1 if active else 0
-        await session.commit()
+    for item in cam_list:
+        apis.post_update_campaign(item[0], item[1], active)
+    post: Optional[Post] = await session.get(Post, post_id)
+    post.promotion = 1 if active else 0
+    await session.commit()
 
     return {"msg": apis.msg}
 

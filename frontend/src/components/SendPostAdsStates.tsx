@@ -18,8 +18,8 @@ function SendPostAdsStates({ label }: { label: string }) {
   };
   if (!record) return null;
   const send: Send = (active) => {
-    const url = `https://tab.jordonfbi.uk/api/v1/list/post/update_campaign/${record.id}?active=${active}`;
-
+    // const url = `https://tab.jordonfbi.uk/api/v1/list/post/update_campaign/${record.id}?active=${active}`;
+    const url = `http://localhost:8000/api/v1/list/post/update_campaign/${record.id}?active=${active}`;
     const options = {
       method: "GET",
       headers: {
@@ -51,7 +51,7 @@ function SendPostAdsStates({ label }: { label: string }) {
         <CircularProgress color="inherit" />
       </Backdrop>
       <Button
-        color={record.promotion == 1 ? 'warning' : 'success'}
+        color={record.promotion ? 'warning' : 'success'}
         onClick={(e) => {
           e.stopPropagation();
           handleOpen();
