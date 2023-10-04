@@ -129,9 +129,7 @@ async def post_update_campaign(
     session: CurrentAsyncSession,
     active: bool = Query(...),
 ) -> Any:
-    print(post_id)
     report: Optional[ReportPost] = await crud.get_taboola_by_post_id(session, post_id)
-    print(report)
     if report is None:
         return HTTPException(status_code=400, detail="report is not")
     cam_list = set()

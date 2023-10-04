@@ -1,5 +1,4 @@
-from typing import Any, Optional, List, Dict,Union
-import re
+from typing import Any, Optional, Dict
 from urllib.parse import urlparse
 from fastapi import APIRouter, HTTPException, Header, Request, Response
 from app.schemas.report import Report as ReportSchema
@@ -9,7 +8,6 @@ from app.schemas.msg import Msg
 from app.schemas.report import ReportCreate
 from app.models.report import Post, BrowserInfo, Taboola, AdsClick
 from app.deps.users import CurrentAsyncSession, CurrentUser
-from sqlalchemy.exc import IntegrityError
 
 from app.crud.domain import get_domain_by_host
 # from app.deps.request_params import PostReportRequestParams
@@ -72,9 +70,9 @@ async def create_report(
 
     host = o.netloc
     domain = await get_domain_by_host(session, host)
-    slug = o.path
+    slug = o.path[1:] if len(o.path) > 0 else None
     # 如果没有域名  s
-    if domain is None or not slug or slug == "null" or slug == "undefined":
+    if domain is None or slug is None:
         raise HTTPException(402, detail="not post or domain")
     # 判断是否有taboola信息
     
