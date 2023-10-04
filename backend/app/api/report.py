@@ -53,7 +53,6 @@ async def create_report(
     href: Optional[str] = Header(None),
     slug: Optional[str] = Header(None),
     site_id: Optional[int | str] = Header(None),
-    ip: Optional[str] = Header(None),
     cf_connecting_ip: Optional[str] = Header(None),
     user_agent: Optional[str] = Header(None),
 ) -> Any:
@@ -62,8 +61,8 @@ async def create_report(
     2，无任何追踪代码
     3，带site_id翻页进入，或带site_id进入别的文章
     """
-    print(f"{href}, {report_in}, {user_agent},  {ip}, {site_id},============", cf_connecting_ip)
-    print(Header)
+    print(f"{href}, {report_in}, {user_agent}, {site_id},============", cf_connecting_ip)
+
     if len(user_agent) > 255:
         user_agent = user_agent[:255]
     is_taboola = href.find("site_id") > -1
@@ -87,13 +86,13 @@ async def create_report(
         taboola_in = TaboolaSchema(**query_dict)
 
     # 添加ip
-    if ip and ip != 'null':
+    if cf_connecting_ip :
         try:
             visitor_ip = await crud.create_visitor_ip(
-                db=session, client_host=ip
+                db=session, client_host=cf_connecting_ip
             )
         except:
-            visitor_ip = await crud.get_database_ip(session, ip)
+            visitor_ip = await crud.get_database_ip(session, cf_connecting_ip)
     else:
         visitor_ip = None
 
@@ -119,19 +118,6 @@ async def create_report(
     return {"msg": "success"}
 
 
-# @router.get("", response_model=List[ReportSchema], status_code=201)
-# async def get_reports(
-#     response: Response,
-#     session: CurrentAsyncSession,
-#     request_params: PostReportRequestParams,
-#     user: CurrentUser,
-# ) -> Any:
-#     total = await crud.total_report(session)
-#     reports = await crud.list_report(session, request_params)
-#     response.headers[
-#         "Content-Range"
-#     ] = f"{request_params.skip}-{request_params.skip + len(reports)}/{total}"
-#     return reports
 
 
 @router.get("/{report_id}", response_model=ReportSchema, status_code=201)
