@@ -91,12 +91,15 @@ async def create_browser(db: Session, user_agent, fingerprint_id):
         await db.commit()
     return browser
 
+async def get_database_ip(db, client_host):
+    ip: Optional[VisitorIp] =  (
+        await db.execute(select(VisitorIp).where(VisitorIp.ip == client_host))
+    ).scalar()
+    return ip
 
 async def create_visitor_ip(db: Session, client_host):
     # 判断是否有ip
-    visitor = (
-        await db.execute(select(VisitorIp).where(VisitorIp.ip == client_host))
-    ).scalar()
+    visitor = await get_database_ip(db, client_host)
     if visitor is None:
         visitor = VisitorIp(ip=client_host)  # 访客ip
         db.add(visitor)
