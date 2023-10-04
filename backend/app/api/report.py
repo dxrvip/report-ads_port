@@ -54,15 +54,15 @@ async def create_report(
     slug: Optional[str] = Header(None),
     site_id: Optional[int | str] = Header(None),
     ip: Optional[str] = Header(None),
-    cf_connecting_ip: Optional[str] = Header[None],
+    # cf_connecting_ip: Optional[str] = Header[None],
     user_agent: Optional[str] = Header(None),
 ) -> Any:
-    """
+    """    
     1,site_id 进入带有 taboola追踪url
     2，无任何追踪代码
     3，带site_id翻页进入，或带site_id进入别的文章
     """
-    print(f"{href}, {report_in}, {user_agent},  {ip}, {site_id},============", cf_connecting_ip)
+    print(f"{href}, {report_in}, {user_agent},  {ip}, {site_id},============")
     print(Header)
     if len(user_agent) > 255:
         user_agent = user_agent[:255]
