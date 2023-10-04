@@ -8,9 +8,7 @@ from app.schemas.post import (
     PostListReport as SchemasPost,
     ReportPost as SchemasReportPost,
 )
-from app.schemas.report import (
-    ResultBrowserInfo as SchemasBrowser
-)
+from app.schemas.report import ResultBrowserInfo as SchemasBrowser
 from app.deps.users import CurrentUser
 from app.deps.db import CurrentAsyncSession
 from app.deps.request_params import (
@@ -38,11 +36,9 @@ async def get_posts(
     user: CurrentUser,
 ) -> Any:
     total = await session.scalar(
-        select(func.count(Post.id))
-        .filter(Post.domain_id == request_params.domain_id)
+        select(func.count(Post.id)).filter(Post.domain_id == request_params.domain_id)
     )
-    
-    
+
     posts = await crud.post_list(session, request_params)
     response.headers[
         "Content-Range"
@@ -128,17 +124,21 @@ async def report_list(
 
 @router.get("/post/update_campaign/{post_id}", response_model=Msg, status_code=201)
 async def post_update_campaign(
-    post_id: int,user: CurrentUser,session: CurrentAsyncSession, active: bool = Query(...)
+    post_id: int,
+    user: CurrentUser,
+    session: CurrentAsyncSession,
+    active: bool = Query(...),
 ) -> Any:
+    print(post_id)
     report: Optional[ReportPost] = await crud.get_taboola_by_post_id(session, post_id)
     print(report)
     if report is None:
-         return HTTPException(status_code=400, detail="report is not")
+        return HTTPException(status_code=400, detail="report is not")
     cam_list = set()
     for item in report:
         o = urlparse(item.url)
         query = parse_qs(o.query)
-        cam_list.add((query['campaign_id'][0], query['campaign_item_id'][0]))
+        cam_list.add((query["campaign_id"][0], query["campaign_item_id"][0]))
 
     apis = TaboolaApi()
     apis.get_token()
@@ -156,7 +156,10 @@ async def post_update_campaign(
     "/taboola/update_campaign/{taboola_id}", response_model=Msg, status_code=201
 )
 async def taboola_update_campaign(
-    taboola_id: int,user: CurrentUser,session: CurrentAsyncSession, active: bool = Query(...)
+    taboola_id: int,
+    user: CurrentUser,
+    session: CurrentAsyncSession,
+    active: bool = Query(...),
 ) -> Any:
     taboola: Optional[Taboola] = await crud.get_taboola_by_id(session, taboola_id)
     if taboola is None:
