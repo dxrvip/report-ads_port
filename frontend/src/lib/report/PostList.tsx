@@ -53,6 +53,7 @@ const PostList = (props: any) => {
           <MyFloatField source="zs_site_open" label="纵深/site进入数" reference={0.3} />
           <TextField source="borwser_count" label="指纹访客总数" />
           <TextField source="report_count" label="累计浏览量" />
+          <TextField source="ads_show_sum" label="广告显示计数" />
           <MyStatusField source="promotion" label="状态" />
           <SendTaboolaAdsStates label="操作" />
         </Datagrid>

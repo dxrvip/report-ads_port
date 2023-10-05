@@ -96,7 +96,7 @@ def parse_react_post_params(model: Type[Base]) -> Callable:
     return inner
 
 ItemRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(Item))]
-DomainRequestParams = Annotated[RequestParams, Depends(parse_react_post_params(Domain))]
+DomainRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(Domain))]
 
 
 

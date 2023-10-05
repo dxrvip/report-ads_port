@@ -115,7 +115,18 @@ async def post_list(session: Session, request_params: PostRequestParams):
             else_=0,
         )
     ).label("page_zs")
-
+    ads_show_sum = case(
+        (
+            and_(
+                func.sum(cast(ReportPost.ads_show_sum, Integer)) > 0,
+                func.count(distinct(AdsClick.id)) > 0,
+            ),
+            func.sum(cast(ReportPost.ads_show_sum, Integer))
+            / func.count(distinct(AdsClick.id)),
+        ),
+        else_=func.sum(cast(ReportPost.ads_show_sum, Integer)),
+    ).label("ads_show_sum")
+    # ads_show_sum = func.sum(cast(ReportPost.ads_show_sum, Integer)).label("ads_show_sum")
     stmt = (
         select(
             Post.url,
@@ -129,6 +140,7 @@ async def post_list(session: Session, request_params: PostRequestParams):
             func.count(distinct(AdsClick.id)).label("ads_count"),
             func.count(distinct(subquery.c.zs_count)).label("zs_sum"),
             page_zs,
+            ads_show_sum,
             zs_site_open,
             # 以下都要计算
             page_sum,
@@ -365,9 +377,7 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
             .group_by(Taboola.id)
         )
         if filters.create:
-            stmt = stmt.filter(
-                cast(Taboola.create, DATE) == cast(filters.create, DATE)
-            )
+            stmt = stmt.filter(cast(Taboola.create, DATE) == cast(filters.create, DATE))
     else:
         stmt = stmt.where(
             Taboola.id.in_(
