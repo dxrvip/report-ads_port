@@ -135,7 +135,7 @@ async def get_report(
 async def get_report(
     report_id: int,
     session: CurrentAsyncSession,
-    ads_sum:Optional[int]= Query(...,default=0)
+    ads_sum:Optional[int]= Query(...)
 ) -> Any:
     if ads_sum and ads_sum > 0:
 
