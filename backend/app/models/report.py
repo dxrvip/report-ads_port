@@ -40,7 +40,7 @@ class ReportPost(Base):
     domain_id: Mapped[id] = mapped_column(
         ForeignKey("domain.id"), nullable=True, server_default=None
     )
-
+    ads_show_sum: Mapped[int] = mapped_column(SmallInteger, nullable=True, default=0)
     """https://www.xiaoganxw.info/the-22-funny-cartoons-i-made-convey-the-message-in-a-few-words?
     utm_source=Taboola&
     campaign_item_id=3720063430

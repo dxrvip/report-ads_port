@@ -1,12 +1,12 @@
 from typing import Any, Optional, Dict
 from urllib.parse import urlparse
-from fastapi import APIRouter, HTTPException, Header, Request, Response
+from fastapi import APIRouter, HTTPException, Header, Query, Request, Response
 from app.schemas.report import Report as ReportSchema
 from app.schemas.report import Taboola as TaboolaSchema
 from app.crud import report as crud
 from app.schemas.msg import Msg
 from app.schemas.report import ReportCreate
-from app.models.report import Post, BrowserInfo, Taboola, AdsClick
+from app.models.report import Post, BrowserInfo, Taboola, AdsClick, ReportPost
 from app.deps.users import CurrentAsyncSession, CurrentUser
 
 from app.crud.domain import get_domain_by_host
@@ -113,9 +113,9 @@ async def create_report(
         fingerprint_id=report_in.fingerprint_id,
     )
 
-    await crud.create_report(session, visitor_ip, href, browser, post, taboola)
+    report = await crud.create_report(session, visitor_ip, href, browser, post, taboola)
 
-    return {"msg": "success"}
+    return {"msg": "success", id: report.id}
 
 
 
@@ -130,3 +130,18 @@ async def get_report(
 
     return report
 
+
+@router.put("/{report_id}", response_model=Msg, status_code=201)
+async def get_report(
+    report_id: int,
+    session: CurrentAsyncSession,
+    ads_sum:Optional[int]= Query(...,default=0)
+) -> Any:
+    if ads_sum and ads_sum > 0:
+
+        report: Optional[ReportPost] = await session.get(ReportPost, report_id)
+        if report is not None:
+            report.ads_show_sum = ads_sum
+            await session.commit()
+        return {"msg": "ok"}
+    return {"msg": ""}
