@@ -132,7 +132,7 @@ async def get_report(
 
 
 @router.put("/{report_id}", response_model=Msg, status_code=201)
-async def get_report(
+async def put_report(
     report_id: int,
     session: CurrentAsyncSession,
     ads_sum:Optional[int]= Query(...)
