@@ -8,7 +8,7 @@ from sqlalchemy.orm import (
 )
 from typing import Any
 from datetime import datetime, timedelta
-from sqlalchemy import select, func, distinct, cast, Integer, case, and_, or_
+from sqlalchemy import DATE, select, func, distinct, cast, Integer, case, and_, or_
 from typing import List, Optional
 from app.models.report import (
     Post,
@@ -134,7 +134,9 @@ async def post_list(session: Session, request_params: PostRequestParams):
             page_sum,
             tab_open_sum,
         )
-        .filter(Post.domain_id == request_params.domain_id)
+        .filter_by(
+            **request_params.filters.dict(exclude_unset=True, exclude={"create_time"})
+        )
         .outerjoin(ReportPost, Post.id == ReportPost.post_id)
         .outerjoin(subquery, ReportPost.browser_id == subquery.c.id)
         .outerjoin(AdsClick, AdsClick.post_id == Post.id)
@@ -147,6 +149,11 @@ async def post_list(session: Session, request_params: PostRequestParams):
         .group_by(Post.id)
         # .add_columns(Post)
     )
+    if request_params.filters.create_time:
+        stmt = stmt.filter(
+            cast(Post.create_time, DATE)
+            == cast(request_params.filters.create_time, DATE)
+        )
     # print(stmt)
     posts: Optional[List] = (await session.execute(stmt)).all()
     return posts
@@ -308,61 +315,68 @@ async def get_statistics(db: Session, type, id):
 
 
 async def taboola_list(session: Session, request_params: TaboolaRequestParams):
-    if request_params.domain_id:
-        where = Taboola.domain_id == request_params.domain_id
+    filters = request_params.filters
+    stmt = select(
+        Taboola.id,
+        Taboola.site_id,
+        Taboola.site,
+        Taboola.create,
+        Taboola.promotion,
+        func.count(distinct(ReportPost.id)).label("report_count"),
+        func.count(distinct(ReportPost.browser_id)).label("borwser_count"),
+        func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
+        func.count(distinct(AdsClick.id)).label("ads_count"),
+        func.count(distinct(subquery.c.zs_count)).label("zs_sum"),
+        func.count(distinct(ip_subquery.c.hosting_count)).label("hs_sum"),
+        case(
+            (
+                and_(
+                    func.sum(cast(ReportPost.is_page, Integer)) > 0,
+                    func.count(distinct(AdsClick.id)) > 0,
+                ),
+                func.sum(cast(ReportPost.is_page, Integer))
+                / func.count(distinct(AdsClick.id)),
+            ),
+            else_=func.sum(cast(ReportPost.is_page, Integer)),
+        ).label("page_sum"),
+        case(
+            (
+                and_(
+                    func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)) > 0,
+                    func.count(distinct(AdsClick.id)) > 0,
+                ),
+                func.sum(case((ReportPost.url.like("%site%"), 1), else_=0))
+                / func.count(distinct(AdsClick.id)),
+            ),
+            else_=func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)),
+        ).label("tab_open_sum"),
+    )
+
+    if filters.domain_id:
+        stmt = (
+            stmt.filter_by(**filters.dict(exclude_unset=True, exclude={"create"}))
+            .outerjoin(ReportPost, ReportPost.taboola_id == Taboola.id)
+            .outerjoin(subquery, ReportPost.browser_id == subquery.c.id)
+            .outerjoin(ip_subquery, ip_subquery.c.id == ReportPost.visitor_ip)
+            .outerjoin(AdsClick, AdsClick.taboola_id == Taboola.id)
+            .offset(request_params.skip)
+            .limit(request_params.limit)
+            .order_by(request_params.order_by)
+            .group_by(Taboola.id)
+        )
+        if filters.create:
+            stmt = stmt.filter(
+                cast(Taboola.create, DATE) == cast(filters.create, DATE)
+            )
     else:
-        where = Taboola.id.in_(
-            select(ReportPost.taboola_id)
-            .filter(ReportPost.post_id == request_params.post_id)
-            .group_by(ReportPost.taboola_id)
+        stmt = stmt.where(
+            Taboola.id.in_(
+                select(ReportPost.taboola_id)
+                .filter(ReportPost.post_id == filters.post_id)
+                .group_by(ReportPost.taboola_id)
+            )
         )
     # ads_click_subquey = ads_tablie_subquery()
-    stmt = (
-        select(
-            Taboola.id,
-            Taboola.site_id,
-            Taboola.site,
-            Taboola.create,
-            Taboola.promotion,
-            func.count(distinct(ReportPost.id)).label("report_count"),
-            func.count(distinct(ReportPost.browser_id)).label("borwser_count"),
-            func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
-            func.count(distinct(AdsClick.id)).label("ads_count"),
-            func.count(distinct(subquery.c.zs_count)).label("zs_sum"),
-            func.count(distinct(ip_subquery.c.hosting_count)).label("hs_sum"),
-            case(
-                (
-                    and_(
-                        func.sum(cast(ReportPost.is_page, Integer)) > 0,
-                        func.count(distinct(AdsClick.id)) > 0,
-                    ),
-                    func.sum(cast(ReportPost.is_page, Integer))
-                    / func.count(distinct(AdsClick.id)),
-                ),
-                else_=func.sum(cast(ReportPost.is_page, Integer)),
-            ).label("page_sum"),
-            case(
-                (
-                    and_(
-                        func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)) > 0,
-                        func.count(distinct(AdsClick.id)) > 0,
-                    ),
-                    func.sum(case((ReportPost.url.like("%site%"), 1), else_=0))
-                    / func.count(distinct(AdsClick.id)),
-                ),
-                else_=func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)),
-            ).label("tab_open_sum"),
-        )
-        .outerjoin(ReportPost, ReportPost.taboola_id == Taboola.id)
-        .outerjoin(subquery, ReportPost.browser_id == subquery.c.id)
-        .outerjoin(ip_subquery, ip_subquery.c.id == ReportPost.visitor_ip)
-        .outerjoin(AdsClick, AdsClick.taboola_id == Taboola.id)
-        .where(where)
-        .offset(request_params.skip)
-        .limit(request_params.limit)
-        .order_by(request_params.order_by)
-        .group_by(Taboola.id)
-    )
 
     taboolas: Optional[List] = (await session.execute(stmt)).all()
     return taboolas
@@ -393,9 +407,8 @@ async def browser_list(session: Session, request_params: BrowserRequestParams):
 
 
 async def get_taboola_by_post_id(session: Session, post_id) -> Any:
-    _orm = (
-        select(ReportPost)
-        .where(ReportPost.post_id == post_id, ReportPost.url.like("%campaign_id%"))
+    _orm = select(ReportPost).where(
+        ReportPost.post_id == post_id, ReportPost.url.like("%campaign_id%")
     )
     reprot: Optional[ReportPost] = (await session.execute(_orm)).scalars().all()
     if reprot:

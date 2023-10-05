@@ -91,12 +91,12 @@ def parse_react_post_params(model: Type[Base]) -> Callable:
                 order_by = direction(model.__table__.c[sort_column])
             else:
                 order_by = direction(sort_column)
-        return ReportParams(**filter_dict, skip=skip, limit=limit, order_by=order_by)
+        return ReportParams(filters=filter_dict, skip=skip, limit=limit, order_by=order_by)
 
     return inner
 
 ItemRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(Item))]
-DomainRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(Domain))]
+DomainRequestParams = Annotated[RequestParams, Depends(parse_react_post_params(Domain))]
 
 
 

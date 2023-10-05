@@ -4,12 +4,20 @@ import {
   TextField,
   useGetRecordId,
   DateField,
+  TextInput,
+  DateInput,
+  BooleanInput,
 } from "react-admin";
 import SendTaboolaAdsStates from "../../components/SendTaboolaAdsStates";
 import MyTextField from "../../components/MyTextFile";
 import MyStatusField from "../../components/MyStatusField";
 // import InvoiceShow from "./InvoiceShow";
-
+const taboolaFilters = [
+  <TextInput label="搜索：ID" source="id" />,
+  <TextInput label="搜索：SITE_ID" source="site_id"  />,
+  <DateInput label="添加日期" source="create"  />,
+  <BooleanInput label="推广状态" source="promotion"  />,
+];
 const TaboolaList = (props: any) => {
   const recordId = useGetRecordId();
 
@@ -18,8 +26,9 @@ const TaboolaList = (props: any) => {
       resource="list/taboola"
       disableSyncWithLocation
       storeKey={false}
-      actions={false}
+      // actions={false}
       filter={{ domain_id: recordId }}
+      filters={taboolaFilters}
       title="/特博拉"
     >
       <Datagrid>

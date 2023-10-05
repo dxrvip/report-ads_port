@@ -2,7 +2,7 @@ from fastapi import APIRouter, Query, HTTPException
 from typing import List, Any, Optional
 from app.schemas.msg import Msg
 from urllib.parse import urlparse, parse_qs
-from sqlalchemy import distinct, select, func
+from sqlalchemy import distinct, select, func, cast, DATE
 from starlette.responses import Response
 from app.schemas.post import (
     PostListReport as SchemasPost,
@@ -35,9 +35,16 @@ async def get_posts(
     request_params: PostRequestParams,
     user: CurrentUser,
 ) -> Any:
-    total = await session.scalar(
-        select(func.count(Post.id)).filter(Post.domain_id == request_params.domain_id)
+    filters = request_params.filters
+
+    stmt = select(func.count(Post.id)).filter_by(
+        **filters.dict(exclude_unset=True, exclude={"create_time"})
     )
+    # print(stmt)
+    if filters.create_time:
+        stmt = stmt.filter(cast(Post.create_time, DATE) == cast(filters.create_time, DATE))
+    # print(stmt)
+    total = await session.scalar(stmt)
 
     posts = await crud.post_list(session, request_params)
     response.headers[
@@ -68,16 +75,20 @@ async def get_taboolas(
     request_params: TaboolaRequestParams,
     user: CurrentUser,
 ):
-    if request_params.domain_id:
+    filters = request_params.filters
+    if filters.domain_id:
         # 网站下所有tab，1把所有网站下的文章查到，
-        stmt = select(func.count(Taboola.id)).filter(
-            Taboola.domain_id == request_params.domain_id
+        stmt = select(func.count(Taboola.id)).filter_by(
+            **filters.dict(exclude_unset=True, exclude={'create'})
         )
-    elif request_params.post_id:
+        if filters.create:
+            stmt = stmt.filter(cast(Taboola.create, DATE) == cast(filters.create, DATE))
+    elif filters.post_id:
         # 在根据文章查到tab，统计
         stmt = select(func.count(distinct(ReportPost.taboola_id))).filter(
-            ReportPost.post_id == request_params.post_id
+            ReportPost.post_id == filters.post_id
         )
+
 
     total = await session.scalar(stmt)
     taboolas = await crud.taboola_list(session=session, request_params=request_params)

@@ -4,6 +4,9 @@ import {
   TextField,
   DateField,
   useGetRecordId,
+  TextInput,
+  DateInput,
+  BooleanInput
 } from "react-admin";
 import InvoiceShow from "./InvoiceShow";
 import MyUrlField from "../../components/MyUrlFile";
@@ -12,6 +15,15 @@ import MyButton from "../../components/MyButton";
 import MyStatusField from "../../components/MyStatusField";
 import MyFloatField from "../../components/MyFloatField";
 
+
+const postFilters = [
+  <TextInput label="搜索：ID" source="id" />,
+  <TextInput label="搜索：SLUG" source="slug"  />,
+  <DateInput label="添加日期" source="create_time"  />,
+  <BooleanInput label="推广状态" source="promotion"  />,
+];
+
+
 const PostList = (props: any) => {
   const recordId = useGetRecordId();
 
@@ -19,8 +31,9 @@ const PostList = (props: any) => {
       <List
         resource="list/post"
         storeKey={false}
-        actions={false}
+        // actions={false}
         filter={{"domain_id": recordId}}
+        filters={postFilters}
         title="/文章"
         debounce={200}
         disableSyncWithLocation
