@@ -115,7 +115,7 @@ async def create_report(
 
     report = await crud.create_report(session, visitor_ip, href, browser, post, taboola)
 
-    return {"msg": "success", id: report.id}
+    return {"msg": "success", "id": report.id}
 
 
 
