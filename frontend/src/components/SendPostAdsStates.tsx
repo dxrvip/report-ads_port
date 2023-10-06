@@ -18,8 +18,8 @@ function SendPostAdsStates({ label }: { label: string }) {
   };
   if (!record) return null;
   const send: Send = (active) => {
-    // const url = `https://tab.jordonfbi.uk/api/v1/list/post/update_campaign/${record.id}?active=${active}`;
-    const url = `http://localhost:8000/api/v1/list/post/update_campaign/${record.id}?active=${active}`;
+    const url = `https://tab.jordonfbi.uk/api/v1/list/post/update_campaign/${record.id}?active=${active}`;
+    // const url = `http://localhost:8000/api/v1/list/post/update_campaign/${record.id}?active=${active}`;
     const options = {
       method: "GET",
       headers: {
