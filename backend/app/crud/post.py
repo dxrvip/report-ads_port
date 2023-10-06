@@ -379,12 +379,22 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
         if filters.create:
             stmt = stmt.filter(cast(Taboola.create, DATE) == cast(filters.create, DATE))
     else:
-        stmt = stmt.where(
-            Taboola.id.in_(
-                select(ReportPost.taboola_id)
-                .filter(ReportPost.post_id == filters.post_id)
-                .group_by(ReportPost.taboola_id)
+        stmt = (
+            stmt.outerjoin(ReportPost, ReportPost.taboola_id == Taboola.id)
+            .outerjoin(subquery, ReportPost.browser_id == subquery.c.id)
+            .outerjoin(ip_subquery, ip_subquery.c.id == ReportPost.visitor_ip)
+            .outerjoin(AdsClick, AdsClick.taboola_id == Taboola.id)
+            .where(
+                Taboola.id.in_(
+                    select(ReportPost.taboola_id)
+                    .filter(ReportPost.post_id == filters.post_id)
+                    .group_by(ReportPost.taboola_id)
+                )
             )
+            .offset(request_params.skip)
+            .limit(request_params.limit)
+            .order_by(request_params.order_by)
+            .group_by(Taboola.id)
         )
     # ads_click_subquey = ads_tablie_subquery()
 
