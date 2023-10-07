@@ -61,7 +61,7 @@ async def create_report(
     4, 如果是谷歌蜘蛛则不统计
     """
     print(f"{href}, {report_in}, {user_agent},============", cf_connecting_ip)
-    if user_agent and user_agent.find('Googlebot'): # 如果是谷歌蜘蛛则不统计
+    if user_agent and user_agent.find('Googlebot') > 1: # 如果是谷歌蜘蛛则不统计
         raise HTTPException(200, detail='googlebot')
     if len(user_agent) > 255:
         user_agent = user_agent[:255]
