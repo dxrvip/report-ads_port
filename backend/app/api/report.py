@@ -80,17 +80,10 @@ async def create_report(
     
     if is_taboola:
         # 插入taboola信息
-        query: str = o.query
-        query_dict: Dict = {}
-        for item in query.split("&"):
-            [k, v] = item.split("=")
-            query_dict[k] = int(v) if k == "site_id" or k == "campaign_id" else v
+        q: Dict = parse_qs(o.query)
+        query_dict: Dict = {k: v[0] for k, v in q.items()}
         taboola_in = TaboolaSchema(**query_dict)
-        if report_in.campaign_id is None or report_in.campaign_item_id is None or report_in.site_id is None:
-            q = parse_qs(o.query)
-            report_in.site_id = q.get('site_id')[0]
-            report_in.campaign_id = q.get('campaign_id')[0]
-            report_in.campaign_item_id = q.get('campaign_item_id')[0]
+        report_in = ReportCreate(**query_dict, fingerprint_id=report_in.fingerprint_id)
 
 
     # 添加ip
