@@ -1,6 +1,6 @@
 from typing import Any, Optional, Dict
-from urllib.parse import urlparse
-from fastapi import APIRouter, HTTPException, Header, Query, Request, Response
+from urllib.parse import urlparse, parse_qs
+from fastapi import APIRouter, HTTPException, Header, Query
 from app.schemas.report import Report as ReportSchema
 from app.schemas.report import Taboola as TaboolaSchema
 from app.crud import report as crud
@@ -86,6 +86,12 @@ async def create_report(
             [k, v] = item.split("=")
             query_dict[k] = int(v) if k == "site_id" or k == "campaign_id" else v
         taboola_in = TaboolaSchema(**query_dict)
+        if report_in.campaign_id is None or report_in.campaign_item_id is None or report_in.site_id is None:
+            q = parse_qs(o.query)
+            report_in.site_id = q.get('site_id')[0]
+            report_in.campaign_id = q.get('campaign_id')[0]
+            report_in.campaign_item_id = q.get('campaign_item_id')[0]
+
 
     # 添加ip
     if cf_connecting_ip :
