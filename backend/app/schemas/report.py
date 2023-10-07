@@ -38,8 +38,6 @@ class Taboola(BaseModel):
     site: str
     site_id: int
     click_id: str
-    campaign_item_id: str
-    campaign_id: int
     platform: str
 
     class Config:
