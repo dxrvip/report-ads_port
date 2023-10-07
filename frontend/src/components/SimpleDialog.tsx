@@ -3,9 +3,10 @@ import IconButton from "@mui/material/IconButton";
 import SendTaboolaAdsStates from "./SendTaboolaAdsStates";
 import CloseIcon from "@mui/icons-material/Close";
 import {
-  Datagrid,
+  DatagridConfigurable,
   DateField,
   List,
+  SelectColumnsButton,
   TextField,
   useRecordContext,
 } from "react-admin";
@@ -72,13 +73,14 @@ function SimpleDialog(props: SimpleDialogProps) {
           <List
             disableSyncWithLocation
             resource="list/taboola"
-            actions={false}
+            actions={<SelectColumnsButton />}
+            exporter={false}
             storeKey={false}
             filter={{ post_id: record.id }}
             title={"."}
-            debounce={1000}            
+            debounce={1000}
           >
-            <Datagrid>
+            <DatagridConfigurable>
               <TextField source="id" />
               <TextField source="site_id" label="siteId" />
               <TextField source="hs_sum" label="机房ip数" />
@@ -92,7 +94,7 @@ function SimpleDialog(props: SimpleDialogProps) {
               <TextField source="borwser_count" label="指纹访客总数" />
               <TextField source="report_count" label="累计浏览量" />
               <SendTaboolaAdsStates label="操作" />
-            </Datagrid>
+            </DatagridConfigurable>
           </List>
         </Grid>
       </DialogContent>

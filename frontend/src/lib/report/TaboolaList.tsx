@@ -1,23 +1,35 @@
 import {
   List,
-  Datagrid,
   TextField,
   useGetRecordId,
   DateField,
   TextInput,
   DateInput,
   BooleanInput,
+  TopToolbar,
+  SelectColumnsButton,
+  FilterButton,
+  DatagridConfigurable,
 } from "react-admin";
 import SendTaboolaAdsStates from "../../components/SendTaboolaAdsStates";
 import MyTextField from "../../components/MyTextFile";
 import MyStatusField from "../../components/MyStatusField";
 // import InvoiceShow from "./InvoiceShow";
 const taboolaFilters = [
-  <TextInput label="搜索：ID" source="id" />,
+  <TextInput label="搜索：ID" source="id"  />,
   <TextInput label="搜索：SITE_ID" source="site_id"  />,
   <DateInput label="添加日期" source="create"  />,
   <BooleanInput label="推广状态" source="promotion"  />,
 ];
+
+const ListActions = () => (
+  <TopToolbar>
+    <SelectColumnsButton />
+    <FilterButton />
+  </TopToolbar>
+);
+
+
 const TaboolaList = (props: any) => {
   const recordId = useGetRecordId();
 
@@ -26,12 +38,13 @@ const TaboolaList = (props: any) => {
       resource="list/taboola"
       disableSyncWithLocation
       storeKey={false}
-      // actions={false}
+      actions={<ListActions />}
+      exporter={false}
       filter={{ domain_id: recordId }}
       filters={taboolaFilters}
       title="/特博拉"
     >
-      <Datagrid>
+      <DatagridConfigurable>
         <TextField source="id" />
         <TextField source="site_id" label="siteId" />
         <TextField source="hs_sum" label="机房ip数" />
@@ -46,7 +59,7 @@ const TaboolaList = (props: any) => {
         <TextField source="report_count" label="总浏览量" />
         <MyStatusField source="promotion" label="状态" />
         <SendTaboolaAdsStates label="操作" />
-      </Datagrid>
+      </DatagridConfigurable>
     </List>
   );
 };

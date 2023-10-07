@@ -17,12 +17,12 @@ from app.models.report import (
     Taboola,
     AdsClick,
     VisitorIp,
+    ItemStatus,
 )
 from app.deps.request_params import (
     PostRequestParams,
     TaboolaRequestParams,
     BrowserRequestParams,
-    PostReportRequestParams,
 )
 
 
@@ -35,6 +35,15 @@ subquery = (
     )
     .join(ReportPost, ReportPost.browser_id == BrowserInfo.id)
     .group_by(BrowserInfo.id)
+    .subquery()
+)
+item_status_subquery = (
+    select(
+        ReportPost.id,
+        case((cast(ItemStatus.status, Integer) > 0, ItemStatus.id), else_=None).label('status'),
+    )
+    .outerjoin(ItemStatus, ItemStatus.campaign_item_id == ReportPost.campaign_item_id)
+    .group_by(ReportPost.id, ItemStatus.status, ItemStatus.id)
     .subquery()
 )
 
@@ -126,7 +135,7 @@ async def post_list(session: Session, request_params: PostRequestParams):
         ),
         else_=func.sum(cast(ReportPost.ads_show_sum, Integer)),
     ).label("ads_show_sum")
-    # ads_show_sum = func.sum(cast(ReportPost.ads_show_sum, Integer)).label("ads_show_sum")
+    item_status = func.count(distinct(item_status_subquery.c.status)).label("item_status")
     stmt = (
         select(
             Post.url,
@@ -139,10 +148,12 @@ async def post_list(session: Session, request_params: PostRequestParams):
             func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
             func.count(distinct(AdsClick.id)).label("ads_count"),
             func.count(distinct(subquery.c.zs_count)).label("zs_sum"),
+            func.count(distinct(ReportPost.campaign_item_id)).label("item_count"),
             page_zs,
             ads_show_sum,
             zs_site_open,
             # 以下都要计算
+            item_status,
             page_sum,
             tab_open_sum,
         )
@@ -150,6 +161,7 @@ async def post_list(session: Session, request_params: PostRequestParams):
             **request_params.filters.dict(exclude_unset=True, exclude={"create_time"})
         )
         .outerjoin(ReportPost, Post.id == ReportPost.post_id)
+        .outerjoin(item_status_subquery, item_status_subquery.c.id == ReportPost.id)
         .outerjoin(subquery, ReportPost.browser_id == subquery.c.id)
         .outerjoin(AdsClick, AdsClick.post_id == Post.id)
         # .options(subqueryload(Post.report_post))

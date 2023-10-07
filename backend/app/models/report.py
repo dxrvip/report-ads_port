@@ -56,15 +56,15 @@ class ReportPost(Base):
     &campaign_id=26634621
     &platform=Other
     &click_id=GiCOLHrFCBOaAq-FneZKR0PB85RoNyeTMsNeyPXd8gZUriCDk2EostDKi4Pe_oPNAQ"""
-    class ItemStatus(Base):
-        __tablename__ = "item_status"
+class ItemStatus(Base):
+    __tablename__ = "item_status"
 
-        id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
-        status: Mapped[bool] = mapped_column(Boolean, default=True)
+    status: Mapped[bool] = mapped_column(Boolean, default=True)
 
-        campaign_item_id: Mapped[str] = mapped_column(String(13), nullable=False)
-        post_id: Mapped[int] = mapped_column(ForeignKey('post.id'))
+    campaign_item_id: Mapped[str] = mapped_column(String(13), nullable=False)
+    post_id: Mapped[int] = mapped_column(ForeignKey('post.id'))
 
 # 外键
 # post_taboola_table = Table(
