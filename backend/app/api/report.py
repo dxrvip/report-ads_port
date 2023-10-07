@@ -10,6 +10,7 @@ from app.models.report import Post, BrowserInfo, Taboola, AdsClick, ReportPost
 from app.deps.users import CurrentAsyncSession, CurrentUser
 
 from app.crud.domain import get_domain_by_host
+from backend.app.utils.ip_api import IpApi
 # from app.deps.request_params import PostReportRequestParams
 
 
@@ -113,8 +114,19 @@ async def create_report(
     )
 
     report = await crud.create_report(session, visitor_ip, href, browser, post, taboola, report_in)
-
-    return {"msg": "success", "id": report.id}
+    try:
+        check_ip = IpApi(ip_address=visitor_ip.ip)
+        check_ip.get_ip()
+        if check_ip.status == "success":
+            visitor_ip.hosting = check_ip.hosting
+            visitor_ip.proxy = check_ip.proxy
+            await session.commit()
+        if check_ip.hosting or check_ip.proxy:
+            show = False
+        return {"msg": "success", "id": report.id, "show": show}
+    except:
+        pass
+    return {"msg": "success", "id": report.id, "show": True}
 
 
 
