@@ -58,9 +58,11 @@ async def create_report(
     1,site_id 进入带有 taboola追踪url
     2，无任何追踪代码
     3，带site_id翻页进入，或带site_id进入别的文章
+    4, 如果是谷歌蜘蛛则不统计
     """
     print(f"{href}, {report_in}, {user_agent},============", cf_connecting_ip)
-
+    if user_agent.index('Googlebot'): # 如果是谷歌蜘蛛则不统计
+        raise HTTPException(200, detail='googlebot')
     if len(user_agent) > 255:
         user_agent = user_agent[:255]
     is_taboola = href.find("site_id") > -1
@@ -115,6 +117,7 @@ async def create_report(
 
     report = await crud.create_report(session, visitor_ip, href, browser, post, taboola, report_in)
     try:
+        show = True
         check_ip = IpApi(ip_address=visitor_ip.ip)
         check_ip.get_ip()
         if check_ip.status == "success":
