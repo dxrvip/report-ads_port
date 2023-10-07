@@ -10,7 +10,7 @@ from app.models.report import Post, BrowserInfo, Taboola, AdsClick, ReportPost
 from app.deps.users import CurrentAsyncSession, CurrentUser
 
 from app.crud.domain import get_domain_by_host
-from backend.app.utils.ip_api import IpApi
+from app.utils.ip_api import IpApi
 # from app.deps.request_params import PostReportRequestParams
 
 
