@@ -5,6 +5,9 @@ from typing import List, Optional
 
 class ReportCreate(BaseModel):
     fingerprint_id: str
+    site_id: Optional[int]
+    campaign_id: Optional[int]
+    campaign_item_id: Optional[str]
 
 
 class Post(BaseModel):

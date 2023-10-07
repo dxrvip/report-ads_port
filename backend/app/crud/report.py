@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Session, selectinload, subqueryload
 from app.models.report import VisitorIp, ReportPost, BrowserInfo, Post, Taboola
 from app.models.domain import Domain
-from app.schemas.report import Taboola as SchemasTaboola
+from app.schemas.report import ReportCreate, Taboola as SchemasTaboola
 from sqlalchemy import select, func
 import re
 
@@ -17,6 +17,7 @@ async def create_report(
     browser: Optional[BrowserInfo],
     post: Post,
     taboola: Optional[Taboola],
+    report_in: ReportCreate
 ):
     is_page = True if href.find("page") != -1 else False
     report = ReportPost()
@@ -24,6 +25,8 @@ async def create_report(
     report.domain_id = post.domain_id
     report.is_page = is_page
     report.url = href
+    report.campaign_id = report_in.campaign_id
+    report.campaign_item_id = report.campaign_item_id
     if browser:
         report.browser_id = browser.id
     if taboola:

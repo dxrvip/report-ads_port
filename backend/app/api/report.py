@@ -50,7 +50,6 @@ async def create_report(
     report_in: ReportCreate,
     session: CurrentAsyncSession,
     href: Optional[str] = Header(None),
-    site_id: Optional[int | str] = Header(None),
     cf_connecting_ip: Optional[str] = Header(None),
     user_agent: Optional[str] = Header(None),
 ) -> Any:
@@ -59,12 +58,12 @@ async def create_report(
     2，无任何追踪代码
     3，带site_id翻页进入，或带site_id进入别的文章
     """
-    print(f"{href}, {report_in}, {user_agent}, {site_id},============", cf_connecting_ip)
+    print(f"{href}, {report_in}, {user_agent},============", cf_connecting_ip)
 
     if len(user_agent) > 255:
         user_agent = user_agent[:255]
     is_taboola = href.find("site_id") > -1
-    if site_id == 'null' and not is_taboola:
+    if not report_in.site_id and not is_taboola:
         raise HTTPException(200, detail="not site_id")
     o = urlparse(href)
 
@@ -101,7 +100,7 @@ async def create_report(
     if is_taboola: # 1, 不是taboola进入，2，带site——id进入
         taboola_in = taboola_in.dict()
     else:
-        taboola_in = {"site_id":site_id}
+        taboola_in = {"site_id":report_in.site_id}
    #https://www.pmsnhu.com/the-16-most-abandoned-places-around-the-world?click_id=GiDXjNWllJy6RBSAHpec-ZPjoMoWE-19obXB-BulL-i6hCCDk2Eo48y5jvrZ17LOAQ&tblci=GiDXjNWllJy6RBSAHpec-ZPjoMoWE-19obXB-BulL-i6hCCDk2Eo48y5jvrZ17LOAQ&campaign_id=27592800&campaign_item_id=3731635650&site_id=1143601&site=sliide-app1&platform=Smartphone#tblciGiDXjNWllJy6RBSAHpec-ZPjoMoWE-19obXB-BulL-i6hCCDk2Eo48y5jvrZ17LOAQ
     taboola: Optional[Taboola] = await crud.create_taboola(
     session, domain, taboola_in
@@ -113,7 +112,7 @@ async def create_report(
         fingerprint_id=report_in.fingerprint_id,
     )
 
-    report = await crud.create_report(session, visitor_ip, href, browser, post, taboola)
+    report = await crud.create_report(session, visitor_ip, href, browser, post, taboola, report_in)
 
     return {"msg": "success", "id": report.id}
 

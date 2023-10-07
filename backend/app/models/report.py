@@ -41,6 +41,13 @@ class ReportPost(Base):
         ForeignKey("domain.id"), nullable=True, server_default=None
     )
     ads_show_sum: Mapped[int] = mapped_column(SmallInteger, nullable=True, default=0)
+
+    campaign_item_id: Mapped[str] = mapped_column(
+        String(15), nullable=True
+    )  # 唯一的 Taboola 项目 ID，如 Backstage 中的“热门营销活动内容”报告中所定义。
+    campaign_id: Mapped[int] = mapped_column(
+        Integer, nullable=True
+    )  # 唯一的 Taboola 活动 ID。该活动ID也可以在后台的“活动管理”页面找到。
     """https://www.xiaoganxw.info/the-22-funny-cartoons-i-made-convey-the-message-in-a-few-words?
     utm_source=Taboola&
     campaign_item_id=3720063430
@@ -49,7 +56,15 @@ class ReportPost(Base):
     &campaign_id=26634621
     &platform=Other
     &click_id=GiCOLHrFCBOaAq-FneZKR0PB85RoNyeTMsNeyPXd8gZUriCDk2EostDKi4Pe_oPNAQ"""
+    class ItemStatus(Base):
+        __tablename__ = "item_status"
 
+        id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+
+        status: Mapped[bool] = mapped_column(Boolean, default=True)
+
+        campaign_item_id: Mapped[str] = mapped_column(String(13), nullable=False)
+        post_id: Mapped[int] = mapped_column(ForeignKey('post.id'))
 
 # 外键
 # post_taboola_table = Table(
@@ -80,12 +95,7 @@ class Taboola(Base):
         Integer, nullable=False, unique=True
     )  # 发布商网站或应用程序的唯一 Taboola 网站 ID。
     click_id: Mapped[str] = mapped_column(String(100), nullable=False)  #
-    campaign_item_id: Mapped[str] = mapped_column(
-        String(15), nullable=False
-    )  # 唯一的 Taboola 项目 ID，如 Backstage 中的“热门营销活动内容”报告中所定义。
-    campaign_id: Mapped[int] = mapped_column(
-        Integer, nullable=False
-    )  # 唯一的 Taboola 活动 ID。该活动ID也可以在后台的“活动管理”页面找到。
+
     platform: Mapped[str] = mapped_column(
         String(200), nullable=True
     )  #  展示您的商品的用户平台。这将返回为“桌面”、“移动设备”或“平板电脑”。
