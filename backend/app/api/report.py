@@ -132,6 +132,9 @@ async def create_report(
         )
         session.add(item_status)
         await session.commit()
+    else:
+        item_status.status = True
+        await session.commit()
     report = await crud.create_report(
         session, visitor_ip, href, browser, post, taboola, report_in
     )
