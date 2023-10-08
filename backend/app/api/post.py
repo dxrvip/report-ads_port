@@ -43,7 +43,7 @@ async def get_posts(
     # print(stmt)
     if filters.create_time:
         stmt = stmt.filter(
-            cast(Post.create_time, DATE) == cast(filters.create_time, DATE)
+            cast(ReportPost.create, DATE) == cast(filters.create_time, DATE)
         )
     # print(stmt)
     total = await session.scalar(stmt)
