@@ -134,7 +134,7 @@ async def report_list(
     return reports
 
 
-@router.get("/post/update_campaign/{item_id}", response_model=Msg)
+@router.get("/post/update_campaign/{item_id}", response_model=Msg, status_code=200)
 async def post_update_campaign(
     item_id: str,
     user: CurrentUser,
