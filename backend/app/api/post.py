@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Query, HTTPException
 from typing import List, Any, Optional
 from app.schemas.msg import Msg
-from urllib.parse import urlparse, parse_qs
 from sqlalchemy import distinct, select, func, cast, DATE
 from starlette.responses import Response
 from app.schemas.post import (
@@ -37,15 +36,15 @@ async def get_posts(
 ) -> Any:
     filters = request_params.filters
 
-    stmt = select(func.count(Post.id)).filter_by(
+    stmt = select(func.count(distinct(Post.id))).filter_by(
         **filters.dict(exclude_unset=True, exclude={"create_time"})
-    )
+    ).join(ReportPost, ReportPost.post_id==Post.id)
     # print(stmt)
     if filters.create_time:
         stmt = stmt.filter(
             cast(ReportPost.create, DATE) == cast(filters.create_time, DATE)
         )
-    # print(stmt)
+    print(stmt)
     total = await session.scalar(stmt)
 
     posts = await crud.post_list(session, request_params)
