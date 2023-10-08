@@ -67,6 +67,7 @@ async def get_item_list(db: Session, request_params: ItemRequestParams):
     stmt = (
         select(
             ReportPost.campaign_item_id.label('id'),
+            ReportPost.campaign_id,
             ItemStatus.status,
             func.count(ReportPost.campaign_item_id).label("report_count"),
             func.count(distinct(ReportPost.taboola_id)).label("taboola_count"),
@@ -88,7 +89,7 @@ async def get_item_list(db: Session, request_params: ItemRequestParams):
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(desc(ReportPost.campaign_item_id))
-        .group_by(ReportPost.campaign_item_id, ItemStatus.status)
+        .group_by(ReportPost.campaign_item_id, ItemStatus.status, ReportPost.campaign_id)
         
     )
     if request_params.filters.create_time:

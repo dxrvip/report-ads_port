@@ -24,6 +24,7 @@ class Item(ItemCreate):
     promotion: Optional[int]
     create: Optional[datetime]
     id: Optional[int]
+    campaign_id: Optional[int]
     page_zs: Optional[float]
     zs_site_open: Optional[float]
     ads_show_sum: Optional[int] = 0

@@ -91,7 +91,8 @@ function ItemDialog(props: SimpleDialogProps) {
             debounce={1000}
           >
             <DatagridConfigurable>
-              <TextField source="id" sortable={false} />
+              <TextField source="id" sortable={false} label="ItemID" />
+              <TextField source="campaign_id" sortable={false} label="campaignID" />
               <TextField source="page_sum" label="翻页总数" sortable={false} />
               <TextField
                 source="zs_sum"
