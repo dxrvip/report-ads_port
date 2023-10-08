@@ -29,7 +29,7 @@ function SendPostAdsStates({ label }: { label: string }) {
     };
     fetch(url, options as any)
       .then(async (response) => {
-        if(response.status == 200){
+        if(response.status === 200){
           notify(`修改成功！`, { type: "success" });
         }else{
           const result = await response.json()

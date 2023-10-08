@@ -31,14 +31,20 @@ function MyItemStatusField({
   // console.log(start_arr);
 
   const stop_arr = Array.from(Array(x).keys(), (n) => n + 1);
-  
+
   if (record["item_status_count"] === 0) {
     const total_arr = Array.from(
       Array(record["item_count"]).keys(),
       (n) => n + 1
     );
     return (
-      <div onClick={handleClickOpen}>
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          handleClickOpen();
+          return;
+        }}
+      >
         {total_arr.map((i) => (
           <PlayCircleFilledWhiteRoundedIcon fontSize="small" color="success" />
         ))}
@@ -49,7 +55,7 @@ function MyItemStatusField({
   return (
     <div
       onClick={(e) => {
-        e.stopPropagation();        
+        e.stopPropagation();
         handleClickOpen();
         return;
       }}

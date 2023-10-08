@@ -143,10 +143,13 @@ async def post_update_campaign(
 ) -> Any:
     report: Optional[ReportPost] = await crud.get_taboola_by_item_id(session, item_id)
     if report is None:
-        raise HTTPException(status_code=400, detail="report is not")
+        raise HTTPException(status_code=400, detail="找不到Id")
     apis = TaboolaApi()
     apis.get_token()
-    status = apis.post_update_campaign(report.campaign_id, report.campaign_item_id, active)
+    status = apis.post_update_campaign(
+        report.campaign_id, report.campaign_item_id, active
+    )
+    print(status)
     if ~status:
         raise HTTPException(status_code=400, detail=apis.msg)
     item_status: Optional[ItemStatus] = await session.scalar(
@@ -155,7 +158,11 @@ async def post_update_campaign(
         )
     )
     if item_status is None:
-        item_status = ItemStatus(campaign_item_id=report.campaign_item_id, post_id=report.post_id, status=active)
+        item_status = ItemStatus(
+            campaign_item_id=report.campaign_item_id,
+            post_id=report.post_id,
+            status=active,
+        )
         session.add(item_status)
     else:
         item_status.status = active

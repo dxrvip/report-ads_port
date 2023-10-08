@@ -57,7 +57,7 @@ class TaboolaApi:
         try:
             response = requests.post(url, json=payload, headers=headers)
 
-            # print(response.text)
+            print(response.text)
             if response.status_code == 200:
                 self.msg = "修改成功！"
                 return True
