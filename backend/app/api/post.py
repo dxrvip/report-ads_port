@@ -150,7 +150,7 @@ async def post_update_campaign(
         report.campaign_id, report.campaign_item_id, active
     )
     print(status)
-    if ~status:
+    if status == False:
         raise HTTPException(status_code=400, detail=apis.msg)
     item_status: Optional[ItemStatus] = await session.scalar(
         select(ItemStatus).filter(
