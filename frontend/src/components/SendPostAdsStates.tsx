@@ -28,8 +28,15 @@ function SendPostAdsStates({ label }: { label: string }) {
       },
     };
     fetch(url, options as any)
-      .then((response) => {
-        notify(`修改成功！`, { type: "success" });
+      .then(async (response) => {
+        if(response.status == 200){
+          notify(`修改成功！`, { type: "success" });
+        }else{
+          const result = await response.json()
+          notify(result.detail, { type: "error" });
+          
+        }
+      
         refresh();
       })
       .catch((error) => {
@@ -51,15 +58,15 @@ function SendPostAdsStates({ label }: { label: string }) {
         <CircularProgress color="inherit" />
       </Backdrop>
       <Button
-        color={record.promotion ? 'warning' : 'success'}
+        color={record?.status===true || record.status === null ? 'warning' : 'success'}
         onClick={(e) => {
           e.stopPropagation();
           handleOpen();
-          send(!record.promotion ? true : false);
+          send(!record.status ? true : false);
           return false;
         }}
       >
-        {record?.promotion ? "暂停推广" : "开启推广"}
+        {record?.status===true || record.status === null ? "暂停" : "开启"}
       </Button>
     </>
   );

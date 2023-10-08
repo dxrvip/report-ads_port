@@ -1,34 +1,5 @@
-select
-    t.id,
-    count(distinct p.id),
-    count(distinct r.id),
-    count(distinct r.visitor_ip),
-    sum(
-        case
-            when r.is_page then 1
-            else 0
-        end
-    ) / count(distinct p.id) as count_post_id,
-    count(distinct bi.id),
-    count(distinct p2.id)
-from
-    taboola t
-    join post_taboola_table ptt on ptt.taboola_id = t.id
-    join post p on p.id = ptt.post_id
-    join report r on r.taboola_id = t.id
-    join browser_info bi on bi.id = r.browser_id
-    join post_browser_table pbt on bi.id = pbt.browser_id
-    join post p2 on pbt.post_id = p2.id
-    join (
-        select
-            t2.id
-        from
-            post
-            join post_taboola_table ptt2 on ptt2.post_id = post.id
-            join taboola t2 on t2.id = ptt2.taboola_id
-        where
-            post.domain_id = 2
-            and post.id = 3
-    ) as subtt on subtt.id = t.id
-group by
-    t.id
+SELECT report.campaign_item_id, count(DISTINCT report.campaign_item_id) AS report_count, count(DISTINCT report.taboola_id) AS taboola_count, count(DISTINCT report.browser_id) AS borwser_count, count(DISTINCT report.visitor_ip) AS ip_count, count(DISTINCT ad_click_list.id) AS ads_count, count(DISTINCT anon_1.zs_count) AS zs_sum, count(DISTINCT report.campaign_item_id) AS item_count, CASE WHEN (CASE WHEN (sum(CAST(report.is_page AS INTEGER)) > :sum_1 AND count(DISTINCT ad_click_list.id) > :count_1) THEN sum(CAST(report.is_page AS INTEGER)) / CAST(count(DISTINCT ad_click_list.id) AS NUMERIC) ELSE sum(CAST(report.is_page AS INTEGER)) END > :param_1 AND CASE WHEN (sum(CASE WHEN (report.url LIKE :url_1) THEN :param_2 ELSE :param_3 END) > :sum_2 AND count(DISTINCT ad_click_list.id) > :count_2) THEN sum(CASE WHEN (report.url LIKE :url_2) THEN :param_4 ELSE :param_5 END) / CAST(count(DISTINCT ad_click_list.id) AS NUMERIC) ELSE sum(CASE WHEN (report.url LIKE :url_3) THEN :param_6 ELSE :param_7 END) END > :param_8) THEN CASE WHEN (sum(CAST(report.is_page AS INTEGER)) > :sum_1 AND count(DISTINCT ad_click_list.id) > :count_1) THEN sum(CAST(report.is_page AS INTEGER)) / CAST(count(DISTINCT ad_click_list.id) AS NUMERIC) ELSE sum(CAST(report.is_page AS INTEGER)) END / CAST(CASE WHEN (sum(CASE WHEN (report.url LIKE :url_1) THEN :param_2 ELSE :param_3 END) > :sum_2 AND count(DISTINCT ad_click_list.id) > :count_2) THEN sum(CASE WHEN (report.url LIKE :url_2) THEN :param_4 ELSE :param_5 END) / CAST(count(DISTINCT ad_click_list.id) AS NUMERIC) ELSE sum(CASE WHEN (report.url LIKE :url_3) THEN :param_6 ELSE :param_7 END) END AS NUMERIC) ELSE :param_9 END AS page_zs, CASE WHEN (sum(CAST(report.ads_show_sum AS INTEGER)) > :sum_3 AND count(DISTINCT ad_click_list.id) > :count_3) THEN sum(CAST(report.ads_show_sum AS INTEGER)) / CAST(count(DISTINCT ad_click_list.id) AS NUMERIC) ELSE sum(CAST(report.ads_show_sum AS INTEGER)) END AS ads_show_sum, CASE WHEN (count(DISTINCT anon_1.zs_count) > :count_4 AND CASE WHEN (sum(CASE WHEN (report.url LIKE :url_1) THEN :param_2 ELSE :param_3 END) > :sum_2 AND count(DISTINCT ad_click_list.id) > :count_2) THEN sum(CASE WHEN (report.url LIKE :url_2) THEN :param_4 ELSE :param_5 END) / CAST(count(DISTINCT ad_click_list.id) AS NUMERIC) ELSE sum(CASE WHEN (report.url LIKE :url_3) THEN :param_6 ELSE :param_7 END) END > :param_10) THEN count(DISTINCT anon_1.zs_count) / CAST(CASE WHEN (sum(CASE WHEN (report.url LIKE :url_1) THEN :param_2 ELSE :param_3 END) > :sum_2 AND count(DISTINCT ad_click_list.id) > :count_2) THEN sum(CASE WHEN (report.url LIKE :url_2) THEN :param_4 ELSE :param_5 END) / CAST(count(DISTINCT ad_click_list.id) AS NUMERIC) ELSE sum(CASE WHEN (report.url LIKE :url_3) THEN :param_6 ELSE :param_7 END) END AS NUMERIC) ELSE :param_11 END AS zs_site_open, CASE WHEN (sum(CAST(report.is_page AS INTEGER)) > :sum_1 AND count(DISTINCT ad_click_list.id) > :count_1) THEN sum(CAST(report.is_page AS INTEGER)) / CAST(count(DISTINCT ad_click_list.id) AS NUMERIC) ELSE sum(CAST(report.is_page AS INTEGER)) END AS page_sum, CASE WHEN (sum(CASE WHEN (report.url LIKE :url_1) THEN :param_2 ELSE :param_3 END) > :sum_2 AND count(DISTINCT ad_click_list.id) > :count_2) THEN sum(CASE WHEN (report.url LIKE :url_2) THEN :param_4 ELSE :param_5 END) / CAST(count(DISTINCT ad_click_list.id) AS NUMERIC) ELSE sum(CASE WHEN (report.url LIKE :url_3) THEN :param_6 ELSE :param_7 END) END AS tab_open_sum 
+FROM report JOIN (SELECT browser_info.id AS id, CASE WHEN (count(DISTINCT report.post_id) > 1) THEN browser_info.id END AS zs_count 
+FROM browser_info JOIN report ON report.browser_id = browser_info.id GROUP BY browser_info.id) AS anon_1 ON report.browser_id = anon_1.id, ad_click_list GROUP BY report.campaign_item_id
+ LIMIT 1 OFFSET 1
+sys:1: SAWarning: SELECT statement has a cartesian product between FROM element(s) "ad_click_list" and FROM element "report".  Apply join condition(s) between each element to resolve.

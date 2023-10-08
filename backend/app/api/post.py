@@ -20,7 +20,7 @@ from app.deps.request_params import (
 from app.schemas.report import Report as ReportSchema
 from app.crud import report as report_crud
 from app.crud import post as crud
-from app.models.report import Post, Taboola, BrowserInfo, ReportPost
+from app.models.report import ItemStatus, Post, Taboola, BrowserInfo, ReportPost
 from app.utils.taboola_api import TaboolaApi
 from app.schemas import taboola as schemas_taboola
 
@@ -42,7 +42,9 @@ async def get_posts(
     )
     # print(stmt)
     if filters.create_time:
-        stmt = stmt.filter(cast(Post.create_time, DATE) == cast(filters.create_time, DATE))
+        stmt = stmt.filter(
+            cast(Post.create_time, DATE) == cast(filters.create_time, DATE)
+        )
     # print(stmt)
     total = await session.scalar(stmt)
 
@@ -79,7 +81,7 @@ async def get_taboolas(
     if filters.domain_id:
         # 网站下所有tab，1把所有网站下的文章查到，
         stmt = select(func.count(Taboola.id)).filter_by(
-            **filters.dict(exclude_unset=True, exclude={'create'})
+            **filters.dict(exclude_unset=True, exclude={"create"})
         )
         if filters.create:
             stmt = stmt.filter(cast(Taboola.create, DATE) == cast(filters.create, DATE))
@@ -88,7 +90,6 @@ async def get_taboolas(
         stmt = select(func.count(distinct(ReportPost.taboola_id))).filter(
             ReportPost.post_id == filters.post_id
         )
-
 
     total = await session.scalar(stmt)
     taboolas = await crud.taboola_list(session=session, request_params=request_params)
@@ -133,29 +134,31 @@ async def report_list(
     return reports
 
 
-@router.get("/post/update_campaign/{post_id}", response_model=Msg, status_code=201)
+@router.get("/post/update_campaign/{item_id}", response_model=Msg)
 async def post_update_campaign(
-    post_id: int,
+    item_id: str,
     user: CurrentUser,
     session: CurrentAsyncSession,
     active: bool = Query(...),
 ) -> Any:
-    report: Optional[ReportPost] = await crud.get_taboola_by_post_id(session, post_id)
+    report: Optional[ReportPost] = await crud.get_taboola_by_item_id(session, item_id)
     if report is None:
-        return HTTPException(status_code=400, detail="report is not")
-    cam_list = set()
-    for item in report:
-        o = urlparse(item.url)
-        query = parse_qs(o.query)
-        cam_list.add((query["campaign_id"][0], query["campaign_item_id"][0]))
-
+        raise HTTPException(status_code=400, detail="report is not")
     apis = TaboolaApi()
     apis.get_token()
-    print(cam_list)
-    for item in cam_list:
-        apis.post_update_campaign(item[0], item[1], active)
-    post: Optional[Post] = await session.get(Post, post_id)
-    post.promotion = 1 if active else 0
+    status = apis.post_update_campaign(report.campaign_id, report.campaign_item_id, active)
+    if ~status:
+        raise HTTPException(status_code=400, detail=apis.msg)
+    item_status: Optional[ItemStatus] = await session.scalar(
+        select(ItemStatus).filter(
+            ItemStatus.campaign_item_id == report.campaign_item_id
+        )
+    )
+    if item_status is None:
+        item_status = ItemStatus(campaign_item_id=report.campaign_item_id, post_id=report.post_id, status=active)
+        session.add(item_status)
+    else:
+        item_status.status = active
     await session.commit()
 
     return {"msg": apis.msg}

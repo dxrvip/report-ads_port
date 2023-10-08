@@ -43,9 +43,10 @@ class PostListReport(BaseModel):
     create_time: Optional[datetime]
     page_zs: Optional[float]
     zs_site_open: Optional[float]
-    ads_show_sum: Optional[int]
+    ads_show_sum: Optional[int] = 0
     item_count: Optional[int]
     item_status: Optional[int]
+    item_status_count: Optional[int]
     class Config:
         orm_mode = True
 

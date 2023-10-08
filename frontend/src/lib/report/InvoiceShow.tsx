@@ -1,5 +1,10 @@
 import { Card, CardContent, Grid } from "@mui/material";
-import { useRecordContext } from "react-admin";
+import {
+  TextField,
+  List,
+  useRecordContext,
+  DatagridConfigurable,
+} from "react-admin";
 import { Invoice } from "../../types";
 import CustomerField from "../../components/ShowRecharts";
 
@@ -7,8 +12,6 @@ export interface TypeUrl {
   type?: string;
   record: Invoice;
 }
-
-
 
 const InvoiceShow = (props: any) => {
   const record = useRecordContext<Invoice>();

@@ -40,7 +40,10 @@ subquery = (
 item_status_subquery = (
     select(
         ReportPost.id,
-        case((cast(ItemStatus.status, Integer) > 0, ItemStatus.id), else_=None).label('status'),
+        ItemStatus.id.label("item_id"),
+        case((cast(ItemStatus.status, Integer) > 0, ItemStatus.id), else_=None).label(
+            "status"
+        ),
     )
     .outerjoin(ItemStatus, ItemStatus.campaign_item_id == ReportPost.campaign_item_id)
     .group_by(ReportPost.id, ItemStatus.status, ItemStatus.id)
@@ -135,7 +138,12 @@ async def post_list(session: Session, request_params: PostRequestParams):
         ),
         else_=func.sum(cast(ReportPost.ads_show_sum, Integer)),
     ).label("ads_show_sum")
-    item_status = func.count(distinct(item_status_subquery.c.status)).label("item_status")
+    item_status = func.count(distinct(item_status_subquery.c.status)).label(
+        "item_status"
+    )
+    item_status_count = func.count(distinct(item_status_subquery.c.item_id)).label(
+        "item_status_count"
+    )
     stmt = (
         select(
             Post.url,
@@ -156,6 +164,7 @@ async def post_list(session: Session, request_params: PostRequestParams):
             item_status,
             page_sum,
             tab_open_sum,
+            item_status_count,
         )
         .filter_by(
             **request_params.filters.dict(exclude_unset=True, exclude={"create_time"})
@@ -175,7 +184,7 @@ async def post_list(session: Session, request_params: PostRequestParams):
     )
     if request_params.filters.create_time:
         stmt = stmt.filter(
-            cast(Post.create_time, DATE)
+            cast(ReportPost.create, DATE)
             == cast(request_params.filters.create_time, DATE)
         )
     # print(stmt)
@@ -438,13 +447,9 @@ async def browser_list(session: Session, request_params: BrowserRequestParams):
     return browsers
 
 
-async def get_taboola_by_post_id(session: Session, post_id) -> Any:
-    _orm = select(ReportPost).where(
-        ReportPost.post_id == post_id, ReportPost.url.like("%campaign_id%")
-    )
-    reprot: Optional[ReportPost] = (await session.execute(_orm)).scalars().all()
-    if reprot:
-        return reprot
+async def get_taboola_by_item_id(session: Session, item_id) -> Any:
+    _orm = select(ReportPost).where(and_(ReportPost.campaign_item_id == item_id, ReportPost.campaign_id.is_not(None)))
+    reprot: Optional[ReportPost] = await session.scalar(_orm)
     return reprot
 
 

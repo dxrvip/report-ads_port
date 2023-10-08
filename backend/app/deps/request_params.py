@@ -95,11 +95,11 @@ def parse_react_post_params(model: Type[Base]) -> Callable:
 
     return inner
 
-ItemRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(Item))]
 DomainRequestParams = Annotated[RequestParams, Depends(parse_react_admin_params(Domain))]
 
 
 
+ItemRequestParams = Annotated[ReportParams, Depends(parse_react_post_params(ReportPost))]
 PostRequestParams = Annotated[ReportParams, Depends(parse_react_post_params(Post))]
 TaboolaRequestParams = Annotated[ReportParams, Depends(parse_react_post_params(Taboola))]
 BrowserRequestParams = Annotated[ReportParams, Depends(parse_react_post_params(BrowserInfo))]

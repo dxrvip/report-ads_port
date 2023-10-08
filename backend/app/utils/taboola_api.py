@@ -1,6 +1,7 @@
 import os, tempfile, requests
 from .common import singleton
 from datetime import datetime
+from fastapi import HTTPException
 @singleton
 class TaboolaApi:
     _CLIENT_ID = os.getenv("CLIENT_ID")
@@ -44,7 +45,7 @@ class TaboolaApi:
 
     def post_update_campaign(self, campaign_id, item_id, active=True):
         if not campaign_id:
-            raise Exception(detail="capaign_id is null")
+            raise HTTPException(status_code=400,detail="capaign_id is null")
         url = f"https://backstage.taboola.com/backstage/api/1.0/{self._ACCOUNT_ID}/campaigns/{campaign_id}/items/{item_id}/"
 
         payload = {"is_active": active}
@@ -60,13 +61,18 @@ class TaboolaApi:
             if response.status_code == 200:
                 self.msg = "修改成功！"
                 return True
+            else:
+                result = response.json()
+                self.msg = result['message']
+                return False
         except:
+            
             self.msg = "修改失败"
             return False
 
     def taboola_update_campaign(self, site, operation):
         if not site:
-            raise Exception(detail="capaign_id is null")
+            raise HTTPException(detail="capaign_id is null")
 
         url = f"https://backstage.taboola.com/backstage/api/1.0/{self._ACCOUNT_ID}/block-publisher"
 
