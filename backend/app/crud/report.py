@@ -1,7 +1,14 @@
 from sqlalchemy.orm import lazyload, joinedload
 from typing import Optional
 from sqlalchemy.orm import Session, selectinload, subqueryload
-from app.models.report import VisitorIp, ReportPost, BrowserInfo, Post, Taboola
+from app.models.report import (
+    ItemStatus,
+    VisitorIp,
+    ReportPost,
+    BrowserInfo,
+    Post,
+    Taboola,
+)
 from app.models.domain import Domain
 from app.schemas.report import ReportCreate, Taboola as SchemasTaboola
 from sqlalchemy import select, func
@@ -17,7 +24,7 @@ async def create_report(
     browser: Optional[BrowserInfo],
     post: Post,
     taboola: Optional[Taboola],
-    report_in: ReportCreate
+    report_in: ReportCreate,
 ):
     is_page = True if href.find("page") != -1 else False
     report = ReportPost()
@@ -94,11 +101,13 @@ async def create_browser(db: Session, user_agent, fingerprint_id):
         await db.commit()
     return browser
 
+
 async def get_database_ip(db, client_host):
-    ip: Optional[VisitorIp] =  (
+    ip: Optional[VisitorIp] = (
         await db.execute(select(VisitorIp).where(VisitorIp.ip == client_host))
     ).scalar()
     return ip
+
 
 async def create_visitor_ip(db: Session, client_host):
     # 判断是否有ip
@@ -113,6 +122,13 @@ async def create_visitor_ip(db: Session, client_host):
 async def total_report(db: Session):
     report = await db.scalar(select(func.count(ReportPost.id)))
     return report
+
+
+async def get_item_status_by_item_id(db: Session, item_id: str) -> ItemStatus:
+    item_status: Optional[ItemStatus] = await db.scalar(
+        select(ItemStatus).filter(ItemStatus.campaign_item_id == item_id)
+    )
+    return item_status
 
 
 async def list_report(db: Session, request_params: PostReportRequestParams):
