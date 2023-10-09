@@ -185,7 +185,9 @@ async def post_list(session: Session, request_params: PostRequestParams):
     if request_params.filters.create_time:
         stmt = stmt.filter(
             cast(ReportPost.create, DATE)
-            == cast(request_params.filters.create_time, DATE)
+            == cast(request_params.filters.create_time, DATE),
+            cast(AdsClick.create, DATE)
+            == cast(request_params.filters.create_time, DATE),
         )
     # print(stmt)
     posts: Optional[List] = (await session.execute(stmt)).all()
@@ -398,7 +400,11 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
             .group_by(Taboola.id)
         )
         if filters.create:
-            stmt = stmt.filter(cast(Taboola.create, DATE) == cast(filters.create, DATE))
+            stmt = stmt.filter(
+                cast(Taboola.create, DATE) == cast(filters.create, DATE),
+                cast(AdsClick.create, DATE)
+                == cast(request_params.filters.create_time, DATE),
+            )
     else:
         stmt = (
             stmt.outerjoin(ReportPost, ReportPost.taboola_id == Taboola.id)
@@ -448,7 +454,11 @@ async def browser_list(session: Session, request_params: BrowserRequestParams):
 
 
 async def get_taboola_by_item_id(session: Session, item_id) -> Any:
-    _orm = select(ReportPost).where(and_(ReportPost.campaign_item_id == item_id, ReportPost.campaign_id.is_not(None)))
+    _orm = select(ReportPost).where(
+        and_(
+            ReportPost.campaign_item_id == item_id, ReportPost.campaign_id.is_not(None)
+        )
+    )
     reprot: Optional[ReportPost] = await session.scalar(_orm)
     return reprot
 

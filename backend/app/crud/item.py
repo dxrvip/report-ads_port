@@ -66,7 +66,7 @@ async def get_item_list(db: Session, request_params: ItemRequestParams):
 
     stmt = (
         select(
-            ReportPost.campaign_item_id.label('id'),
+            ReportPost.campaign_item_id.label("id"),
             ReportPost.campaign_id,
             ItemStatus.status,
             func.count(ReportPost.campaign_item_id).label("report_count"),
@@ -82,20 +82,27 @@ async def get_item_list(db: Session, request_params: ItemRequestParams):
             page_sum,
             tab_open_sum,
         )
-        .filter_by(**request_params.filters.dict(exclude_unset=True, exclude={'create_time'}))
+        .filter_by(
+            **request_params.filters.dict(exclude_unset=True, exclude={"create_time"})
+        )
         .join(subquery, ReportPost.browser_id == subquery.c.id)
         .outerjoin(AdsClick, AdsClick.post_id == ReportPost.post_id)
-        .outerjoin(ItemStatus, ItemStatus.campaign_item_id==ReportPost.campaign_item_id)
+        .outerjoin(
+            ItemStatus, ItemStatus.campaign_item_id == ReportPost.campaign_item_id
+        )
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(desc(ReportPost.campaign_item_id))
-        .group_by(ReportPost.campaign_item_id, ItemStatus.status, ReportPost.campaign_id)
-        
+        .group_by(
+            ReportPost.campaign_item_id, ItemStatus.status, ReportPost.campaign_id
+        )
     )
     if request_params.filters.create_time:
         stmt = stmt.filter(
             cast(ReportPost.create, DATE)
-            == cast(request_params.filters.create_time, DATE)
+            == cast(request_params.filters.create_time, DATE),
+            cast(AdsClick.create, DATE)
+            == cast(request_params.filters.create_time, DATE),
         )
     # print(stmt)
     item: Optional[List] = (await db.execute(stmt)).all()
