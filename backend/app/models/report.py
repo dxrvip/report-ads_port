@@ -222,6 +222,7 @@ class AdsClick(Base):
     __tablename__ = "ad_click_list"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    report_id: Mapped[int] = mapped_column(ForeignKey("report.id"), nullable=True)
     post_id: Mapped[int] = mapped_column(
         ForeignKey("post.id"), nullable=True, server_default=None
     )

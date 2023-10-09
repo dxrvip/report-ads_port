@@ -185,9 +185,7 @@ async def post_list(session: Session, request_params: PostRequestParams):
     if request_params.filters.create_time:
         stmt = stmt.filter(
             cast(ReportPost.create, DATE)
-            == cast(request_params.filters.create_time, DATE),
-            cast(AdsClick.create, DATE)
-            == cast(request_params.filters.create_time, DATE),
+            == cast(request_params.filters.create_time, DATE)
         )
     # print(stmt)
     posts: Optional[List] = (await session.execute(stmt)).all()
@@ -401,9 +399,7 @@ async def taboola_list(session: Session, request_params: TaboolaRequestParams):
         )
         if filters.create:
             stmt = stmt.filter(
-                cast(Taboola.create, DATE) == cast(filters.create, DATE),
-                cast(AdsClick.create, DATE)
-                == cast(request_params.filters.create_time, DATE),
+                cast(ReportPost.create, DATE) == cast(filters.create, DATE)
             )
     else:
         stmt = (

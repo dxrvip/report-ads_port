@@ -100,9 +100,7 @@ async def get_item_list(db: Session, request_params: ItemRequestParams):
     if request_params.filters.create_time:
         stmt = stmt.filter(
             cast(ReportPost.create, DATE)
-            == cast(request_params.filters.create_time, DATE),
-            cast(AdsClick.create, DATE)
-            == cast(request_params.filters.create_time, DATE),
+            == cast(request_params.filters.create_time, DATE)
         )
     # print(stmt)
     item: Optional[List] = (await db.execute(stmt)).all()

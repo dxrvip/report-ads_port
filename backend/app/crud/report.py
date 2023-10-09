@@ -16,6 +16,8 @@ import re
 
 from app.deps.request_params import PostReportRequestParams
 
+async def get_report_by_id(db:Session, id:int):
+    return db.get(ReportPost, id)
 
 async def create_report(
     db: Session,

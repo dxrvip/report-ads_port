@@ -25,22 +25,26 @@ from app.utils.ip_api import IpApi
 router = APIRouter(prefix="/report")
 
 
-@router.put("/ads", response_model=Msg, status_code=201)
+@router.put("/ads/{report_id}", response_model=Msg, status_code=201)
 async def add_ads(
     db: CurrentAsyncSession,
+    report_id: int,
     slug: Optional[str] = Header(None),
     site_id: Optional[str] = Header(None),
     fingerprint: Optional[str] = Header(None),
 ):
-    print(slug, site_id, fingerprint)
+    print(slug, site_id, fingerprint, report_id)
     post, taboola, browser = None, None, None
+    ads_click: AdsClick = AdsClick()
     if slug != "null":
         post: Optional[Post] = await crud.get_post_by_slug(db, slug)
     if site_id != "null":
         taboola: Optional[Taboola] = await crud.get_taboola_by_site_id(db, int(site_id))
     if fingerprint != "null":
         browser: Optional[BrowserInfo] = await crud.get_browser(db, fingerprint)
-    ads_click: AdsClick = AdsClick()
+    if report_id:
+        ads_click.report_id = report_id
+    
     if not browser and not post and not taboola:
         return {"msg": "error"}
     if browser:
