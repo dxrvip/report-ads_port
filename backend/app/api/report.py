@@ -123,21 +123,24 @@ async def create_report(
     )
 
     # 添加推广状态
-    item_status: Optional[ItemStatus] = await crud.get_item_status_by_item_id(
-        db=session, item_id=report_in.campaign_item_id
-    )
-
-    if item_status is None:
-        item_status = ItemStatus(
-            campaign_item_id=report_in.campaign_item_id,
-            post_id=post.id,
-            status=True,
+    if report_in.campaign_item_id:
+        item_status: Optional[ItemStatus] = await crud.get_item_status_by_item_id(
+            db=session, item_id=report_in.campaign_item_id
         )
-        session.add(item_status)
-        await session.commit()
-    else:
-        item_status.status = True
-        await session.commit()
+
+        if item_status is None:
+            item_status = ItemStatus(
+                campaign_item_id=report_in.campaign_item_id,
+                post_id=post.id,
+                status=True,
+            )
+            session.add(item_status)
+            await session.commit()
+        else:
+            item_status.status = True
+            await session.commit()
+
+
     report = await crud.create_report(
         session, visitor_ip, href, browser, post, taboola, report_in
     )
