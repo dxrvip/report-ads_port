@@ -93,7 +93,9 @@ async def create_report(
         query_dict: Dict = {k: v[0] for k, v in q.items()}
         taboola_in = TaboolaSchema(**query_dict)
         report_in = ReportCreate(**query_dict, fingerprint_id=report_in.fingerprint_id)
-
+    else:
+        #  不是首次今日就不统计item，faid
+        report_in.campaign_item_id = report_in.campaign_id  = None
     # 添加ip
     if cf_connecting_ip:
         try:
