@@ -172,7 +172,7 @@ async def post_list(session: Session, request_params: PostRequestParams):
         .outerjoin(ReportPost, Post.id == ReportPost.post_id)
         .outerjoin(item_status_subquery, item_status_subquery.c.id == ReportPost.id)
         .outerjoin(subquery, ReportPost.browser_id == subquery.c.id)
-        .outerjoin(AdsClick, AdsClick.post_id == Post.id)
+        .outerjoin(AdsClick, AdsClick.report_id == ReportPost.id)
         # .options(subqueryload(Post.report_post))
         .offset(request_params.skip)
         .limit(request_params.limit)
