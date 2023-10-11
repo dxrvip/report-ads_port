@@ -82,6 +82,7 @@ async def get_item_list(db: Session, request_params: ItemRequestParams):
         .filter_by(
             **request_params.filters.dict(exclude_unset=True, exclude={"create_time"})
         )
+        .where(ReportPost.campaign_item_id.isnot(None))
         .outerjoin(subquery, ReportPost.browser_id == subquery.c.id)
         .outerjoin(AdsClick, AdsClick.report_id == ReportPost.id)
         .outerjoin(
