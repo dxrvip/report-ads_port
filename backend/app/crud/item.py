@@ -16,7 +16,6 @@ async def get_item_list(db: Session, request_params: ItemRequestParams):
                 func.count(distinct(AdsClick.id)) > 0,
             ),
             func.sum(case((ReportPost.url.like("%site%"), 1), else_=0))
-            / func.count(distinct(AdsClick.id)),
         ),
         else_=func.sum(case((ReportPost.url.like("%site%"), 1), else_=0)),
     ).label("tab_open_sum")
@@ -39,7 +38,6 @@ async def get_item_list(db: Session, request_params: ItemRequestParams):
                 func.count(distinct(AdsClick.id)) > 0,
             ),
             func.sum(cast(ReportPost.is_page, Integer))
-            / func.count(distinct(AdsClick.id)),
         ),
         else_=func.sum(cast(ReportPost.is_page, Integer)),
     ).label("page_sum")
@@ -67,9 +65,9 @@ async def get_item_list(db: Session, request_params: ItemRequestParams):
     stmt = (
         select(
             ReportPost.campaign_item_id.label("id"),
-            ReportPost.campaign_id,
             ItemStatus.status,
-            func.count(ReportPost.campaign_item_id).label("report_count"),
+            AdsClick.report_id,
+            func.count(ReportPost.id).label("report_count"),
             func.count(distinct(ReportPost.taboola_id)).label("taboola_count"),
             func.count(distinct(ReportPost.browser_id)).label("borwser_count"),
             func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
@@ -85,8 +83,8 @@ async def get_item_list(db: Session, request_params: ItemRequestParams):
         .filter_by(
             **request_params.filters.dict(exclude_unset=True, exclude={"create_time"})
         )
-        .join(subquery, ReportPost.browser_id == subquery.c.id)
-        .outerjoin(AdsClick, AdsClick.post_id == ReportPost.post_id)
+        .outerjoin(subquery, ReportPost.browser_id == subquery.c.id)
+        .outerjoin(AdsClick, AdsClick.report_id == ReportPost.id)
         .outerjoin(
             ItemStatus, ItemStatus.campaign_item_id == ReportPost.campaign_item_id
         )
@@ -94,7 +92,7 @@ async def get_item_list(db: Session, request_params: ItemRequestParams):
         .limit(request_params.limit)
         .order_by(desc(ReportPost.campaign_item_id))
         .group_by(
-            ReportPost.campaign_item_id, ItemStatus.status, ReportPost.campaign_id
+            ReportPost.campaign_item_id, ItemStatus.status, AdsClick.report_id
         )
     )
     if request_params.filters.create_time:

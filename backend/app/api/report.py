@@ -44,9 +44,6 @@ async def add_ads(
         browser: Optional[BrowserInfo] = await crud.get_browser(db, fingerprint)
     if report_id:
         ads_click.report_id = report_id
-    
-    if not browser and not post and not taboola:
-        return {"msg": "error"}
     if browser:
         ads_click.browser_id = browser.id
     if post:
