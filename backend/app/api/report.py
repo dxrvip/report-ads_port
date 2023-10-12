@@ -93,9 +93,7 @@ async def create_report(
         query_dict: Dict = {k: v[0] for k, v in q.items()}
         taboola_in = TaboolaSchema(**query_dict)
         report_in = ReportCreate(**query_dict, fingerprint_id=report_in.fingerprint_id)
-    else:
-        #  不是首次今日就不统计item，faid
-        report_in.campaign_item_id = report_in.campaign_id  = None
+
     # 添加ip
     if cf_connecting_ip:
         try:
@@ -122,8 +120,8 @@ async def create_report(
         fingerprint_id=report_in.fingerprint_id,
     )
 
-    # 添加推广状态
-    if report_in.campaign_item_id:
+    # 添加推广状态,如果是tab首次进入就添加计划
+    if is_taboola:
         item_status: Optional[ItemStatus] = await crud.get_item_status_by_item_id(
             db=session, item_id=report_in.campaign_item_id
         )
@@ -139,7 +137,6 @@ async def create_report(
         else:
             item_status.status = True
             await session.commit()
-
 
     report = await crud.create_report(
         session, visitor_ip, href, browser, post, taboola, report_in

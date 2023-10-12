@@ -62,8 +62,8 @@ class ItemStatus(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     status: Mapped[bool] = mapped_column(Boolean, default=True)
-
-    campaign_item_id: Mapped[str] = mapped_column(String(13), nullable=False)
+    campaign_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    campaign_item_id: Mapped[str] = mapped_column(String(13), nullable=False, unique=True)
     post_id: Mapped[int] = mapped_column(ForeignKey('post.id'))
 
 # 外键
@@ -159,7 +159,7 @@ class Post(Base):
     )
 
     promotion: Mapped[int] = mapped_column(
-        SmallInteger, nullable=True, default=1, comment="停止推广"
+        SmallInteger, nullable=True, default=0, comment="是否推荐文章"
     )
     # @hybrid_property
     # def sum_upv(self)-> tuple:
