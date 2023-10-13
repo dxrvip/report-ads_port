@@ -26,15 +26,15 @@ async def list_domain(db: Session, request_params: DomainRequestParams):
             func.count(distinct(ReportPost.taboola_id)).label("taboola_count"),
             func.count(distinct(ReportPost.visitor_ip)).label("ip_count"),
         )
-        .join(Post, Post.domain_id==Domain.id)
-        .join(ReportPost, ReportPost.domain_id == Domain.id)
+        .outerjoin(Post, Post.domain_id==Domain.id)
+        .outerjoin(ReportPost, ReportPost.domain_id == Domain.id)
         .offset(request_params.skip)
         .limit(request_params.limit)
         .order_by(request_params.order_by)
         .group_by(Domain.id)
     )
 
-    print(_orm)
+    # print(_orm)
     domains = (await db.execute(_orm)).all()
     return domains
 
