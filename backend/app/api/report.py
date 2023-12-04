@@ -5,7 +5,7 @@ from app.schemas.report import Report as ReportSchema
 from app.schemas.report import Taboola as TaboolaSchema
 from app.crud import report as crud
 from app.schemas.msg import Msg
-from app.schemas.report import ReportCreate
+from app.schemas.report import ReportCreate, TongjiCreate
 from app.models.report import (
     ItemStatus,
     Post,
@@ -13,6 +13,7 @@ from app.models.report import (
     Taboola,
     AdsClick,
     ReportPost,
+    Tongji,
 )
 from app.deps.users import CurrentAsyncSession, CurrentUser
 
@@ -155,6 +156,21 @@ async def create_report(
     except:
         pass
     return {"msg": "success", "id": report.id, "show": True}
+
+
+@router.post("/tj", response_model=Msg)
+async def create_tj(
+    tj_in: TongjiCreate,
+    session: CurrentAsyncSession,
+    href: Optional[str] = Header(None),
+    referer:Optional[str] = Header(None)
+) -> Any:
+    tj_in.url = href
+    tongji = Tongji(**tj_in.dict())
+    session.add(tongji)
+    await session.commit()
+
+    return {"msg": "success"}
 
 
 @router.get("/{report_id}", response_model=ReportSchema, status_code=201)

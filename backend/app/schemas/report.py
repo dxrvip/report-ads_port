@@ -4,10 +4,17 @@ from typing import List, Optional
 
 
 class ReportCreate(BaseModel):
-    fingerprint_id: str
+    fingerprint_id: Optional[str]
     site_id: Optional[int]
     campaign_id: Optional[int]
     campaign_item_id: Optional[str]
+
+
+class TongjiCreate(BaseModel):
+    referrer: Optional[str]
+    url: Optional[str]
+    class Config:
+        orm_mode: True
 
 
 class Post(BaseModel):

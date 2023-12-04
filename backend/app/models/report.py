@@ -8,8 +8,17 @@ from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy import Column, ForeignKey, String, Boolean, Integer, Table, SmallInteger
 from sqlalchemy.sql.sqltypes import DateTime
 
+
 # if TYPE_CHECKING:
 #     from app.models.domain import Domain
+class Tongji(Base):
+    __tablename__ = "tongji"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    url: Mapped[str] = mapped_column(String, nullable=False, comment="推广网址")
+    referrer: Mapped[str] = mapped_column(String, nullable=True)
+    create: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), comment="添加时间"
+    )
 
 
 class ReportPost(Base):
@@ -56,6 +65,8 @@ class ReportPost(Base):
     &campaign_id=26634621
     &platform=Other
     &click_id=GiCOLHrFCBOaAq-FneZKR0PB85RoNyeTMsNeyPXd8gZUriCDk2EostDKi4Pe_oPNAQ"""
+
+
 class ItemStatus(Base):
     __tablename__ = "item_status"
 
@@ -63,8 +74,11 @@ class ItemStatus(Base):
 
     status: Mapped[bool] = mapped_column(Boolean, default=True)
     campaign_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    campaign_item_id: Mapped[str] = mapped_column(String(13), nullable=False, unique=True)
-    post_id: Mapped[int] = mapped_column(ForeignKey('post.id'))
+    campaign_item_id: Mapped[str] = mapped_column(
+        String(13), nullable=False, unique=True
+    )
+    post_id: Mapped[int] = mapped_column(ForeignKey("post.id"))
+
 
 # 外键
 # post_taboola_table = Table(

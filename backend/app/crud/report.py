@@ -36,6 +36,8 @@ async def create_report(
     report.url = href
     report.campaign_id = report_in.campaign_id
     report.campaign_item_id = report_in.campaign_item_id
+    if report_in.referrer:
+        report.referrer = report_in.referrer
     if browser:
         report.browser_id = browser.id
     if taboola:

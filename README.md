@@ -86,7 +86,7 @@ These two are the most used commands when working with alembic. For more info, f
 docker-compose exec backend alembic revision --autogenerate -m 'message'
 
 # Apply latest changes
-docker-compose exec backend alembic upgrade head
+docker-compose exec backend alembic upgrade head   
 ```
 
 ### Backend tests
