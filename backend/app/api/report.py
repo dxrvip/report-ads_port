@@ -1,7 +1,8 @@
 from typing import Any, Optional, Dict
 from urllib.parse import urlparse, parse_qs
 from fastapi import APIRouter, HTTPException, Header, Query
-from app.schemas.report import Report as ReportSchema
+from app.schemas.report import Report as ReportSchema, TongjiWrit
+from sqlalchemy import select, func
 from app.schemas.report import Taboola as TaboolaSchema
 from app.crud import report as crud
 from app.schemas.msg import Msg
@@ -55,12 +56,12 @@ async def add_ads(
     await db.commit()
     return {"msg": ""}
 
+
 @router.post("/tj", response_model=Msg)
 async def create_tj(
     tj_in: TongjiCreate,
     session: CurrentAsyncSession,
     href: Optional[str] = Header(None),
-    referer:Optional[str] = Header(None)
 ) -> Any:
     tj_in.url = href
     tongji = Tongji(**tj_in.dict())
@@ -68,6 +69,21 @@ async def create_tj(
     await session.commit()
 
     return {"msg": "success"}
+
+
+@router.get("/referer", response_model=TongjiWrit)
+async def get_referer(
+    session: CurrentAsyncSession,
+) -> Any:
+    result = await session.execute(select(Tongji).order_by(func.random()).limit(1))
+    random_tongji = result.scalar_one_or_none()
+    result_data = {
+        "referer": random_tongji.referrer,
+        "url": random_tongji.url,
+        "id": random_tongji.id,
+    }
+    return result_data
+
 
 @router.post("", response_model=Msg, status_code=201)
 async def create_report(
@@ -169,8 +185,6 @@ async def create_report(
     except:
         pass
     return {"msg": "success", "id": report.id, "show": True}
-
-
 
 
 @router.get("/{report_id}", response_model=ReportSchema, status_code=201)

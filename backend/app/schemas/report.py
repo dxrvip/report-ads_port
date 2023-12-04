@@ -13,6 +13,11 @@ class ReportCreate(BaseModel):
 class TongjiCreate(BaseModel):
     referrer: Optional[str]
     url: Optional[str]
+
+
+class TongjiWrit(TongjiCreate):
+    id: int
+
     class Config:
         orm_mode: True
 
