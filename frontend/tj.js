@@ -4,7 +4,7 @@
 
     // 发送数据到服务器
     var xhr = new XMLHttpRequest();
-    var url = "https://jordans.uk/st";
+    var url = "https://tab.jordonfbi.uk";
     var data = {
         referrer: referrer,
         // 其他需要发送的统计数据

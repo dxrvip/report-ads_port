@@ -55,6 +55,19 @@ async def add_ads(
     await db.commit()
     return {"msg": ""}
 
+@router.post("/tj", response_model=Msg)
+async def create_tj(
+    tj_in: TongjiCreate,
+    session: CurrentAsyncSession,
+    href: Optional[str] = Header(None),
+    referer:Optional[str] = Header(None)
+) -> Any:
+    tj_in.url = href
+    tongji = Tongji(**tj_in.dict())
+    session.add(tongji)
+    await session.commit()
+
+    return {"msg": "success"}
 
 @router.post("", response_model=Msg, status_code=201)
 async def create_report(
@@ -158,19 +171,6 @@ async def create_report(
     return {"msg": "success", "id": report.id, "show": True}
 
 
-@router.post("/tj", response_model=Msg)
-async def create_tj(
-    tj_in: TongjiCreate,
-    session: CurrentAsyncSession,
-    href: Optional[str] = Header(None),
-    referer:Optional[str] = Header(None)
-) -> Any:
-    tj_in.url = href
-    tongji = Tongji(**tj_in.dict())
-    session.add(tongji)
-    await session.commit()
-
-    return {"msg": "success"}
 
 
 @router.get("/{report_id}", response_model=ReportSchema, status_code=201)
