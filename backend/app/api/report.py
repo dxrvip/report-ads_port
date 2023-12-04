@@ -78,7 +78,7 @@ async def get_referer(
     result = await session.execute(select(Tongji).order_by(func.random()).limit(1))
     random_tongji = result.scalar_one_or_none()
     result_data = {
-        "referer": random_tongji.referrer,
+        "referrer": random_tongji.referrer,
         "url": random_tongji.url,
         "id": random_tongji.id,
     }
